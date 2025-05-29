@@ -52,11 +52,9 @@ export class SVGZoom {
   private isDestroyed = false;
 
   private lastTouchDistance = 0;
-  private lastTouchCenterX = 0;
-  private lastTouchCenterY = 0;
 
   private controlsContainer?: HTMLElement;
-  private boundHandlers: { [key: string]: SVGZoomEventHandler };
+  private boundHandlers: { [key: string]: EventListener };
 
   /**
    * Create a new SVGZoom instance for a container holding an SVG.
@@ -75,15 +73,15 @@ export class SVGZoom {
     }
     this.svg = svg as SVGSVGElement;
     this.boundHandlers = {
-      wheel: this.handleWheel.bind(this),
-      mouseDown: this.handleMouseDown.bind(this),
-      mouseMove: this.handleMouseMove.bind(this),
-      mouseUp: this.handleMouseUp.bind(this),
-      touchStart: this.handleTouchStart.bind(this),
-      touchMove: this.handleTouchMove.bind(this),
-      touchEnd: this.handleTouchEnd.bind(this),
-      keyDown: this.handleKeyDown.bind(this),
-      reset: this.reset.bind(this),
+      wheel: this.handleWheel.bind(this) as EventListener,
+      mouseDown: this.handleMouseDown.bind(this) as EventListener,
+      mouseMove: this.handleMouseMove.bind(this) as EventListener,
+      mouseUp: this.handleMouseUp.bind(this) as EventListener,
+      touchStart: this.handleTouchStart.bind(this) as EventListener,
+      touchMove: this.handleTouchMove.bind(this) as EventListener,
+      touchEnd: this.handleTouchEnd.bind(this) as EventListener,
+      keyDown: this.handleKeyDown.bind(this) as EventListener,
+      reset: this.reset.bind(this) as EventListener,
       contextMenu: (e) => e.preventDefault(),
     };
     this.init();
@@ -221,11 +219,9 @@ export class SVGZoom {
       this.lastMouseY = e.touches[0].clientY;
     } else if (e.touches.length === 2) {
       this.isDragging = false;
-      const [touch1, touch2] = e.touches;
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
       this.lastTouchDistance = SVGZoom.getTouchDistance(touch1, touch2);
-      const center = SVGZoom.getTouchCenter(touch1, touch2);
-      this.lastTouchCenterX = center.x;
-      this.lastTouchCenterY = center.y;
     }
   }
 
@@ -243,7 +239,8 @@ export class SVGZoom {
       this.constrainPan();
       this.applyTransform();
     } else if (e.touches.length === 2) {
-      const [touch1, touch2] = e.touches;
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
       const distance = SVGZoom.getTouchDistance(touch1, touch2);
       const center = SVGZoom.getTouchCenter(touch1, touch2);
       if (this.lastTouchDistance > 0) {
@@ -254,8 +251,6 @@ export class SVGZoom {
         this.zoomAt(centerX, centerY, (scale - 1) * this.scale);
       }
       this.lastTouchDistance = distance;
-      this.lastTouchCenterX = center.x;
-      this.lastTouchCenterY = center.y;
     }
   }
 
