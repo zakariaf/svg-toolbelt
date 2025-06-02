@@ -14,7 +14,8 @@
   },
   "main": "dist/index.js",
   "module": "dist/svg-toolbelt.esm.js",
-  "typings": "dist/index.d.ts",
+  "types": "dist/index.d.ts",
+  "unpkg": "dist/svg-toolbelt.cjs.production.min.js",
   "files": [
     "dist",
     "src"
