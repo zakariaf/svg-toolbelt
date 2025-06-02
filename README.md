@@ -51,7 +51,7 @@ This library was born from a real need at **GitLab** - making large Mermaid diag
   - Easy to extend with custom features
 
 - 🪶 **Lightweight & zero dependencies**
-  - ~15KB minified + gzipped (including all features)
+  - ~4KB minified + gzipped (including all features)
   - No external libraries required
   - Built with modern TypeScript
 
