@@ -1,7 +1,7 @@
 # 🧰 svg-toolbelt
 
 [![npm version](https://badge.fury.io/js/svg-toolbelt.svg)](https://badge.fury.io/js/svg-toolbelt)
-[![Build Status](https://github.com/zakariaf/svg-toolbelt/actions/workflows/ci.yml/badge.svg)](https://github.com/zakariaf/svg-toolbelt/actions)
+[![Build Status](https://github.com/zakariaf/svg-toolbelt/actions/workflows/main.yml/badge.svg)](https://github.com/zakariaf/svg-toolbelt/actions)
 [![Coverage Status](https://coveralls.io/repos/github/zakariaf/svg-toolbelt/badge.svg?branch=main)](https://coveralls.io/github/zakariaf/svg-toolbelt?branch=main)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
