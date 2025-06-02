@@ -23,21 +23,21 @@ describe('initializeSvgZoom (integration)', () => {
 
   it('should wrap the container and initialize SvgZoom instance', () => {
     initializeSvgZoom('.custom-zoomable');
-    const wrapper = document.querySelector('.svg-zoom-wrapper');
+    const wrapper = document.querySelector('.svg-toolbelt-wrapper');
     expect(wrapper).not.toBeNull();
     // instance stored on wrapper
     const instance = (wrapper as any).svgZoomInstance;
     expect(instance).toBeDefined();
-    expect(wrapper!.getAttribute('data-svg-zoom-initialized')).toBe('true');
+    expect(wrapper!.getAttribute('data-svg-toolbelt-initialized')).toBe('true');
   });
 
   it('should not re-initialize an already initialized container', () => {
     initializeSvgZoom(container as any, {});
-    const wrappers = document.querySelectorAll('.svg-zoom-wrapper');
+    const wrappers = document.querySelectorAll('.svg-toolbelt-wrapper');
     expect(wrappers.length).toBe(1);
 
     // Call again
     initializeSvgZoom(container as any, {});
-    expect(document.querySelectorAll('.svg-zoom-wrapper').length).toBe(1);
+    expect(document.querySelectorAll('.svg-toolbelt-wrapper').length).toBe(1);
   });
 });

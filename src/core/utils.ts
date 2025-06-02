@@ -31,7 +31,7 @@ export function createControlButton(
   const button = document.createElement('button');
   button.textContent = text;
   button.title = title;
-  button.className = 'svg-zoom-btn';
+  button.className = 'svg-toolbelt-btn';
 
   button.addEventListener('click', e => {
     e.preventDefault();

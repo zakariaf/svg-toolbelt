@@ -78,7 +78,7 @@ pnpm add svg-toolbelt
 
 ```typescript
 // Import the CSS in your main entry file
-import 'svg-toolbelt/dist/svg-zoom.css';
+import 'svg-toolbelt/dist/svg-toolbelt.css';
 ```
 
 ### 3. Basic Usage
@@ -294,7 +294,7 @@ All touch interactions are optimized for smooth 60fps performance.
 The package includes a complete CSS file:
 
 ```typescript
-import 'svg-toolbelt/dist/svg-zoom.css';
+import 'svg-toolbelt/dist/svg-toolbelt.css';
 ```
 
 ### Custom Styling
@@ -303,7 +303,7 @@ Override default styles in your CSS:
 
 ```css
 /* Container styling */
-.svg-zoom-wrapper {
+.svg-toolbelt-wrapper {
   border: 2px solid #e2e8f0;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -311,7 +311,7 @@ Override default styles in your CSS:
 }
 
 /* Controls styling */
-.svg-zoom-controls {
+.svg-toolbelt-controls {
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(8px);
   border-radius: 8px;
@@ -319,7 +319,7 @@ Override default styles in your CSS:
 }
 
 /* Button styling */
-.svg-zoom-controls button {
+.svg-toolbelt-controls button {
   width: 40px;
   height: 40px;
   border-radius: 8px;
@@ -328,12 +328,12 @@ Override default styles in your CSS:
 }
 
 /* Dark theme */
-.dark .svg-zoom-wrapper {
+.dark .svg-toolbelt-wrapper {
   background: #1f2937;
   border-color: #374151;
 }
 
-.dark .svg-zoom-controls {
+.dark .svg-toolbelt-controls {
   background: rgba(31, 41, 55, 0.95);
   border-color: #374151;
 }
@@ -346,7 +346,7 @@ Built-in responsive breakpoints:
 ```css
 /* Mobile optimizations (automatically applied) */
 @media (max-width: 768px) {
-  .svg-zoom-controls button {
+  .svg-toolbelt-controls button {
     width: 44px;   /* Larger touch targets */
     height: 44px;
     font-size: 16px;
@@ -355,7 +355,7 @@ Built-in responsive breakpoints:
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  .svg-zoom-controls {
+  .svg-toolbelt-controls {
     border: 2px solid #000;
     background: #fff;
   }
@@ -363,7 +363,7 @@ Built-in responsive breakpoints:
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  .svg-zoom-wrapper * {
+  .svg-toolbelt-wrapper * {
     transition: none !important;
   }
 }
@@ -378,7 +378,7 @@ Built-in responsive breakpoints:
 ```tsx
 import React, { useEffect, useRef } from 'react';
 import { SvgZoom, SvgEnhancerConfig } from 'svg-toolbelt';
-import 'svg-toolbelt/dist/svg-zoom.css';
+import 'svg-toolbelt/dist/svg-toolbelt.css';
 
 interface ZoomableSvgProps {
   children: React.ReactNode;
@@ -432,7 +432,7 @@ function MyComponent() {
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { SvgZoom, SvgEnhancerConfig } from 'svg-toolbelt';
-import 'svg-toolbelt/dist/svg-zoom.css';
+import 'svg-toolbelt/dist/svg-toolbelt.css';
 
 interface Props {
   config?: Partial<SvgEnhancerConfig>;
@@ -461,7 +461,7 @@ onUnmounted(() => {
 ```typescript
 import { Component, ElementRef, Input, OnInit, OnDestroy } from '@angular/core';
 import { SvgZoom, SvgEnhancerConfig } from 'svg-toolbelt';
-import 'svg-toolbelt/dist/svg-zoom.css';
+import 'svg-toolbelt/dist/svg-toolbelt.css';
 
 @Component({
   selector: 'app-zoomable-svg',

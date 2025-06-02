@@ -94,7 +94,7 @@ export function initializeSvgZoom(
   }
 
   containers.forEach((container, idx) => {
-    if (container.closest('.svg-zoom-wrapper')) {
+    if (container.closest('.svg-toolbelt-wrapper')) {
       // Already initialized
       return;
     }
@@ -104,14 +104,14 @@ export function initializeSvgZoom(
       if (svg) {
         // Wrap container to preserve layout
         const wrapper = document.createElement('div');
-        wrapper.className = 'svg-zoom-wrapper';
+        wrapper.className = 'svg-toolbelt-wrapper';
 
         container.parentNode!.insertBefore(wrapper, container);
         wrapper.appendChild(container);
 
         const zoomInstance = new SvgZoom(wrapper, config);
         zoomInstance.init();
-        wrapper.setAttribute('data-svg-zoom-initialized', 'true');
+        wrapper.setAttribute('data-svg-toolbelt-initialized', 'true');
         // Store instance for potential future references
         (wrapper as any).svgZoomInstance = zoomInstance;
         console.info(`SvgZoom: Initialized zoom for container #${idx + 1}`);

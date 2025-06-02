@@ -31,8 +31,8 @@ describe('SvgEnhancer (core)', () => {
     const enhancer = new SvgEnhancer(container);
     expect(enhancer.isDestroyed).toBe(false);
     enhancer.init();
-    expect(container.classList.contains('svg-zoom-container')).toBe(true);
-    expect(svg.classList.contains('svg-zoom-svg')).toBe(true);
+    expect(container.classList.contains('svg-toolbelt-container')).toBe(true);
+    expect(svg.classList.contains('svg-toolbelt-svg')).toBe(true);
   });
 
   it('should constrain pan within limits', () => {

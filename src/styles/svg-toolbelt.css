@@ -1,7 +1,7 @@
 /* Mermaid Zoom Enhancement Styles */
 
 /* Base Mermaid wrapper for zoom functionality */
-.mermaid-zoom-wrapper {
+.svg-toolbelt-wrapper {
   position: relative;
   display: block;
   margin: 1.5rem 0;
@@ -15,7 +15,7 @@
 }
 
 /* Container styling when zoom is active */
-.mermaid-zoom-container {
+.svg-toolbelt-container {
   position: relative;
   overflow: hidden;
   border: 1px solid #e2e8f0;
@@ -24,9 +24,9 @@
 }
 
 /* SVG styling for zoom functionality */
-.mermaid-zoom-svg,
+.svg-toolbelt-svg,
 .mermaid svg,
-.mermaid-zoom-wrapper svg {
+.svg-toolbelt-wrapper svg {
   cursor: grab;
   user-select: none;
   max-width: none !important;
@@ -38,16 +38,16 @@
     'Helvetica Neue', Arial, sans-serif;
 }
 
-.mermaid-zoom-svg:active {
+.svg-toolbelt-svg:active {
   cursor: grabbing;
 }
 
 /* Preserve unprocessed state */
 .mermaid:not([data-processed='true']) { display: none; }
-.mermaid-zoom-wrapper .mermaid[data-processed='true'] { display: block; }
+.svg-toolbelt-wrapper .mermaid[data-processed='true'] { display: block; }
 
 /* Zoom control buttons container */
-.mermaid-zoom-controls {
+.svg-toolbelt-controls {
   position: absolute;
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -65,26 +65,26 @@
 }
 
 /* Position controls based on config.controlsPosition */
-.mermaid-zoom-controls.position-top-right    {
+.svg-toolbelt-controls.position-top-right    {
   top: 12px;
   right: 12px;
 }
-.mermaid-zoom-controls.position-top-left     {
+.svg-toolbelt-controls.position-top-left     {
   top: 12px;
   left: 12px;
 }
-.mermaid-zoom-controls.position-bottom-right {
+.svg-toolbelt-controls.position-bottom-right {
   bottom: 12px;
   right: 12px;
 }
-.mermaid-zoom-controls.position-bottom-left  {
+.svg-toolbelt-controls.position-bottom-left  {
   bottom: 12px;
   left: 12px;
 }
 
 /* Individual control buttons */
-.mermaid-zoom-controls .mermaid-zoom-btn,
-.mermaid-zoom-controls button {
+.svg-toolbelt-controls .svg-toolbelt-btn,
+.svg-toolbelt-controls button {
   width: 32px;
   height: 32px;
   border: 1px solid #a4a3a8;
@@ -103,8 +103,8 @@
   margin: 0;
 }
 
-.mermaid-zoom-controls .mermaid-zoom-btn:hover,
-.mermaid-zoom-controls button:hover {
+.svg-toolbelt-controls .svg-toolbelt-btn:hover,
+.svg-toolbelt-controls button:hover {
   background-color: #ececef;
   border-color: #89888d;
   color: #333238;
@@ -112,8 +112,8 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
-.mermaid-zoom-controls .mermaid-zoom-btn:active,
-.mermaid-zoom-controls button:active {
+.svg-toolbelt-controls .svg-toolbelt-btn:active,
+.svg-toolbelt-controls button:active {
   background-color: #dcdcde;
   border-color: #737278;
   color: #333238;
@@ -121,8 +121,8 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.mermaid-zoom-controls .mermaid-zoom-btn:focus,
-.mermaid-zoom-controls button:focus {
+.svg-toolbelt-controls .svg-toolbelt-btn:focus,
+.svg-toolbelt-controls button:focus {
   outline: 2px solid #428fdc;
   outline-offset: 2px;
   border-color: #428fdc;
@@ -130,7 +130,7 @@
 
 /* Fullscreen styles */
 :fullscreen .mermaid,
-:fullscreen .mermaid-zoom-wrapper {
+:fullscreen .svg-toolbelt-wrapper {
   max-height: none;
   width: 100vw;
   height: 100vh;
@@ -170,15 +170,15 @@
 
 /* Mobile optimizations */
 @media (max-width: 768px) {
-  .mermaid-zoom-controls {
+  .svg-toolbelt-controls {
     padding: 6px;
     gap: 2px;
     border-radius: 4px;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(4px);
   }
-  .mermaid-zoom-controls .mermaid-zoom-btn,
-  .mermaid-zoom-controls button {
+  .svg-toolbelt-controls .svg-toolbelt-btn,
+  .svg-toolbelt-controls button {
     width: 40px !important; /* Larger touch targets */
     height: 40px !important;
     font-size: 14px !important;
@@ -190,12 +190,12 @@
 
 /* Tablet optimizations */
 @media (max-width: 1024px) and (min-width: 769px) {
-  .mermaid-zoom-controls {
+  .svg-toolbelt-controls {
     padding: 7px;
     gap: 3px;
   }
-  .mermaid-zoom-controls .mermaid-zoom-btn,
-  .mermaid-zoom-controls button {
+  .svg-toolbelt-controls .svg-toolbelt-btn,
+  .svg-toolbelt-controls button {
     width: 36px;
     height: 36px;
     font-size: 15px;
@@ -204,21 +204,21 @@
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  .mermaid-zoom-wrapper,
-  .mermaid-zoom-container {
+  .svg-toolbelt-wrapper,
+  .svg-toolbelt-container {
     border: 2px solid #000;
   }
-  .mermaid-zoom-controls,
-  .mermaid-zoom-controls button {
+  .svg-toolbelt-controls,
+  .svg-toolbelt-controls button {
     background: #ffffff;
     border: 2px solid #000;
     color: #000;
   }
-  .mermaid-zoom-controls button:hover {
+  .svg-toolbelt-controls button:hover {
     background: #000;
     color: #ffffff;
   }
-  .mermaid-zoom-controls button:focus {
+  .svg-toolbelt-controls button:focus {
     outline: 3px solid #1068bf;
   }
 }
@@ -226,7 +226,7 @@
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   .mermaid svg,
-  .mermaid-zoom-controls button {
+  .svg-toolbelt-controls button {
     transition: none !important;
     transform: none !important;
   }
@@ -234,10 +234,10 @@
 
 /* Print styles */
 @media print {
-  .mermaid-zoom-controls {
+  .svg-toolbelt-controls {
     display: none !important;
   }
-  .mermaid-zoom-wrapper,
+  .svg-toolbelt-wrapper,
   .mermaid {
     border: 1px solid #000;
     background: #ffffff;
@@ -269,9 +269,9 @@
 }
 
 :fullscreen .mermaid::after,
-:fullscreen .mermaid-zoom-wrapper .mermaid::after,
+:fullscreen .svg-toolbelt-wrapper .mermaid::after,
 :full-screen .mermaid::after,
-:full-screen .mermaid-zoom-wrapper .mermaid::after {
+:full-screen .svg-toolbelt-wrapper .mermaid::after {
   position: fixed;
   bottom: 16px;
   left: 16px;

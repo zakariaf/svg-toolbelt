@@ -50,8 +50,8 @@ export class SvgEnhancer extends EventEmitter {
   }
 
   protected setupContainer(): void {
-    this.container.classList.add('svg-zoom-container');
-    this.svg!.classList.add('svg-zoom-svg');
+    this.container.classList.add('svg-toolbelt-container');
+    this.svg!.classList.add('svg-toolbelt-svg');
   }
 
   /**

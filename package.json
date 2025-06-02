@@ -28,7 +28,6 @@
     "touch",
     "typescript",
     "svg-toolbelt",
-    "svg-zoom",
     "svg-pan"
   ],
   "engines": {
@@ -37,7 +36,7 @@
   "scripts": {
     "start": "tsdx watch",
     "build": "tsdx build",
-    "postbuild": "cp src/svg-zoom.css dist/svg-zoom.css",
+    "postbuild": "cp src/svg-toolbelt.css dist/svg-toolbelt.css",
     "test": "tsdx test",
     "lint": "tsdx lint",
     "prepare": "tsdx build",

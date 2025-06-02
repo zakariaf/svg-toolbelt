@@ -19,7 +19,7 @@ export class ControlsFeature {
 
   private createControls(): void {
     const container = document.createElement('div');
-    container.className = `svg-zoom-controls position-${this.enhancer.config.controlsPosition}`;
+    container.className = `svg-toolbelt-controls position-${this.enhancer.config.controlsPosition}`;
 
     // Zoom In
     const zoomInBtn = createControlButton('+', 'Zoom In', () =>
