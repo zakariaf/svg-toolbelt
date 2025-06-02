@@ -37,6 +37,7 @@
   "scripts": {
     "start": "tsdx watch",
     "build": "tsdx build",
+    "postbuild": "cp src/svg-zoom.css dist/svg-zoom.css",
     "test": "tsdx test",
     "lint": "tsdx lint",
     "prepare": "tsdx build",
