@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Toolbelt - Interactive Demo</title>
+
+    <!-- Meta tags for social sharing -->
+    <meta name="description" content="Interactive demo of SVG Toolbelt - Professional-grade SVG zoom, pan, and interaction toolkit. Born from GitLab's need for better diagram accessibility.">
+    <meta name="keywords" content="SVG, zoom, pan, mermaid, diagrams, accessibility, GitLab, documentation">
+
+    <!-- Open Graph tags -->
+    <meta property="og:title" content="SVG Toolbelt - Interactive Demo">
+    <meta property="og:description" content="Zero-dependency SVG interaction toolkit with smooth zoom, pan, touch controls, and full accessibility support.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://zakariaf.github.io/svg-toolbelt">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Mermaid -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'default',
+        });
+
+        window.mermaid = mermaid;
+    </script>
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'gitlab': {
+                            50: '#fdf4f0',
+                            100: '#fce7dc',
+                            200: '#f7ccb8',
+                            300: '#f2a688',
+                            400: '#ec7c56',
+                            500: '#e24329',
+                            600: '#d63624',
+                            700: '#b32821',
+                            800: '#912422',
+                            900: '#77221f'
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom styles -->
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            @apply bg-gray-100;
+        }
+        ::-webkit-scrollbar-thumb {
+            @apply bg-gray-400 rounded-full;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            @apply bg-gray-600;
+        }
+
+        /* Smooth transitions */
+        * {
+            transition-property: color, background-color, border-color, transform, opacity;
+            transition-duration: 200ms;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Code highlighting */
+        .code-block {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        }
+
+        /* Demo section styling */
+        .demo-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        /* Feature card hover effects */
+        .feature-card:hover {
+            transform: translateY(-4px);
+        }
+
+        /* Loading shimmer effect */
+        .shimmer {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* SVG container base styles */
+        .svg-demo-container {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            min-height: 300px;
+            position: relative;
+        }
+
+        .svg-demo-container:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border-color: #d1d5db;
+        }
+
+        /* Mermaid diagram specific styles */
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            min-height: 300px;
+        }
+
+        .mermaid svg {
+            max-width: none !important;
+            height: auto !important;
+        }
+
+        /* Keyboard hint styles */
+        .keyboard-hint {
+            position: absolute;
+            bottom: 8px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .svg-demo-container:hover .keyboard-hint,
+        .svg-demo-container:focus-within .keyboard-hint {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .keyboard-hint {
+                font-size: 10px;
+                padding: 3px 6px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-br from-gitlab-400 to-gitlab-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">🧰</span>
+                    </div>
+                    <h1 class="text-xl font-bold text-gray-900">SVG Toolbelt</h1>
+                    <span class="hidden sm:inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">v0.1.0</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="#features" class="hidden md:block text-gray-600 hover:text-gray-900">Features</a>
+                    <a href="#demos" class="hidden md:block text-gray-600 hover:text-gray-900">Demos</a>
+                    <a href="#docs" class="hidden md:block text-gray-600 hover:text-gray-900">Docs</a>
+                    <a href="https://github.com/zakariaf/svg-toolbelt" target="_blank" class="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">
+                        GitHub
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-24 pb-16 bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center animate-fade-in">
+                <div class="flex justify-center mb-6">
+                    <div class="bg-gitlab-100 text-gitlab-700 px-4 py-2 rounded-full text-sm font-medium">
+                        🚀 Born from GitLab's need for better diagram accessibility
+                    </div>
+                </div>
+                <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+                    <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        SVG Toolbelt
+                    </span>
+                </h1>
+                <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                    Professional-grade SVG interaction toolkit with zero dependencies.
+                    Transform any SVG into an accessible, zoomable, and pannable experience.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <button id="getStartedBtn" class="bg-gitlab-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-gitlab-600 transition-colors shadow-lg hover:shadow-xl">
+                        Try Live Demo
+                    </button>
+                    <a href="https://github.com/zakariaf/svg-toolbelt" target="_blank" class="border-2 border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:border-gray-400 transition-colors">
+                        View on GitHub
+                    </a>
+                </div>
+
+                <!-- Stats -->
+                <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-2xl mx-auto">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-gitlab-600">~15KB</div>
+                        <div class="text-sm text-gray-600">Gzipped Size</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-gitlab-600">0</div>
+                        <div class="text-sm text-gray-600">Dependencies</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-gitlab-600">8+</div>
+                        <div class="text-sm text-gray-600">Features</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-gitlab-600">95%+</div>
+                        <div class="text-sm text-gray-600">Test Coverage</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Why SVG Toolbelt?</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    Built with real-world needs in mind, from GitLab's documentation platform to enterprise applications.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="feature-card bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <span class="text-2xl">🔍</span>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Smooth Zoom & Pan</h3>
+                    <p class="text-gray-600">Mouse wheel zoom with cursor precision, click-drag panning, and smooth animations.</p>
+                </div>
+
+                <div class="feature-card bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                        <span class="text-2xl">📱</span>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Mobile-First</h3>
+                    <p class="text-gray-600">Optimized touch gestures, pinch-to-zoom, and responsive UI for all devices.</p>
+                </div>
+
+                <div class="feature-card bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <span class="text-2xl">♿</span>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Accessibility Champion</h3>
+                    <p class="text-gray-600">WCAG 2.1 AA compliant with full keyboard navigation and screen reader support.</p>
+                </div>
+
+                <div class="feature-card bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
+                        <span class="text-2xl">🧩</span>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Modular Architecture</h3>
+                    <p class="text-gray-600">Feature-based design - use only what you need. Tree-shakeable and extensible.</p>
+                </div>
+
+                <div class="feature-card bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                        <span class="text-2xl">🪶</span>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Zero Dependencies</h3>
+                    <p class="text-gray-600">Lightweight ~15KB bundle with no external libraries. Built with modern TypeScript.</p>
+                </div>
+
+                <div class="feature-card bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                        <span class="text-2xl">🎨</span>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Framework Agnostic</h3>
+                    <p class="text-gray-600">Works with React, Vue, Angular, or vanilla JS. Complete TypeScript definitions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Demos Section -->
+    <section id="demos" class="py-16 demo-section">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Interactive Demos</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    Try out the features with real Mermaid diagrams. Use mouse wheel, drag, keyboard shortcuts (+, -, 0, arrows), or touch gestures.
+                </p>
+            </div>
+
+            <!-- Loading indicator -->
+            <div id="loading" class="text-center py-12">
+                <div class="inline-flex items-center space-x-2">
+                    <div class="w-8 h-8 border-4 border-gitlab-200 border-t-gitlab-500 rounded-full animate-spin"></div>
+                    <span class="text-gray-600">Loading SVG Toolbelt from GitHub...</span>
+                </div>
+            </div>
+
+            <!-- Error state -->
+            <div id="error" class="hidden bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                <div class="text-red-600 mb-2">⚠️ Failed to load SVG Toolbelt</div>
+                <p class="text-red-500 text-sm">Please check your internet connection or try refreshing the page.</p>
+                <button id="retryBtn" class="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                    Retry
+                </button>
+            </div>
+
+            <!-- Demo content (hidden until loaded) -->
+            <div id="demoContent" class="hidden space-y-16">
+                <!-- Controls Demo -->
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <div class="flex flex-col lg:flex-row gap-8">
+                        <div class="lg:w-1/3">
+                            <h3 class="text-2xl font-bold mb-4">Live Configuration</h3>
+                            <p class="text-gray-600 mb-6">Customize the behavior in real-time and see the changes instantly.</p>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Zoom Step</label>
+                                    <input type="range" id="zoomStep" min="0.05" max="0.5" step="0.05" value="0.1"
+                                           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                    <span id="zoomStepValue" class="text-sm text-gray-500">0.1</span>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Max Scale</label>
+                                    <input type="range" id="maxScale" min="2" max="20" step="1" value="10"
+                                           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                    <span id="maxScaleValue" class="text-sm text-gray-500">10</span>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Controls Position</label>
+                                    <select id="controlsPosition" class="w-full p-2 border border-gray-300 rounded-lg">
+                                        <option value="top-right">Top Right</option>
+                                        <option value="top-left">Top Left</option>
+                                        <option value="bottom-right">Bottom Right</option>
+                                        <option value="bottom-left">Bottom Left</option>
+                                    </select>
+                                </div>
+
+                                <div class="flex items-center space-x-4">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="showControls" checked class="mr-2">
+                                        <span class="text-sm">Show Controls</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="enableTouch" checked class="mr-2">
+                                        <span class="text-sm">Enable Touch</span>
+                                    </label>
+                                </div>
+
+                                <button id="applyConfig" class="w-full bg-gitlab-500 text-white py-2 px-4 rounded-lg hover:bg-gitlab-600">
+                                    Apply Configuration
+                                </button>
+
+                                <button id="resetDemo" class="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50">
+                                    Reset All Diagrams
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="lg:w-2/3">
+                            <div class="svg-demo-container" id="demo1">
+                                <div class="mermaid">
+                                    flowchart TD
+                                        A[Start Process] --> B{Check Requirements}
+                                        B -->|Missing| C[Gather Requirements]
+                                        B -->|Complete| D[Design Phase]
+                                        C --> E[Validate Requirements]
+                                        E --> F{Requirements OK?}
+                                        F -->|No| C
+                                        F -->|Yes| D
+                                        D --> G[Create Prototype]
+                                        G --> H[User Testing]
+                                        H --> I{Feedback Positive?}
+                                        I -->|No| J[Refine Design]
+                                        J --> G
+                                        I -->|Yes| K[Development]
+                                        K --> L[Unit Testing]
+                                        L --> M[Integration Testing]
+                                        M --> N{Tests Pass?}
+                                        N -->|No| O[Fix Issues]
+                                        O --> L
+                                        N -->|Yes| P[Deployment]
+                                        P --> Q[Monitor]
+                                        Q --> R{Performance OK?}
+                                        R -->|No| S[Optimize]
+                                        S --> P
+                                        R -->|Yes| T[Success!]
+
+                                        style A fill:#e1f5fe
+                                        style T fill:#e8f5e8
+                                        style O fill:#ffebee
+                                        style S fill:#fff3e0
+
+                                        classDef processStyle fill:#bbdefb,stroke:#1976d2,stroke-width:2px
+                                        classDef decisionStyle fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+                                        classDef successStyle fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
+                                        classDef errorStyle fill:#ffcdd2,stroke:#d32f2f,stroke-width:2px
+
+                                        class G,K,L,M,P,Q processStyle
+                                        class B,F,I,N,R decisionStyle
+                                        class T successStyle
+                                        class O,S errorStyle
+                                </div>
+                                <div class="keyboard-hint">
+                                    Use +/- to zoom, arrows to pan, 0 to reset, or double-click
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Architecture Demo -->
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <h3 class="text-2xl font-bold mb-4">System Architecture Diagram</h3>
+                    <p class="text-gray-600 mb-6">Perfect for technical documentation - zoom in to read details, zoom out for overview.</p>
+
+                    <div class="svg-demo-container" id="demo2">
+                        <div class="mermaid">
+                            graph TB
+                                subgraph Client ["🖥️ Client Layer"]
+                                    A[Web Browser]
+                                    B[Mobile App]
+                                    C[Desktop App]
+                                end
+
+                                subgraph Gateway ["🌐 API Gateway"]
+                                    D[Load Balancer]
+                                    E[Authentication]
+                                    F[Rate Limiting]
+                                end
+
+                                subgraph Services ["⚙️ Microservices"]
+                                    G[User Service]
+                                    H[Order Service]
+                                    I[Payment Service]
+                                    J[Notification Service]
+                                end
+
+                                subgraph Data ["💾 Data Layer"]
+                                    K[(User DB)]
+                                    L[(Order DB)]
+                                    M[(Payment DB)]
+                                    N[Redis Cache]
+                                end
+
+                                subgraph External ["🔗 External APIs"]
+                                    O[Payment Gateway]
+                                    P[Email Service]
+                                    Q[SMS Service]
+                                end
+
+                                A --> D
+                                B --> D
+                                C --> D
+                                D --> E
+                                E --> F
+                                F --> G
+                                F --> H
+                                F --> I
+                                F --> J
+
+                                G --> K
+                                G --> N
+                                H --> L
+                                H --> N
+                                I --> M
+                                I --> O
+                                J --> P
+                                J --> Q
+                        </div>
+                        <div class="keyboard-hint">
+                            Pinch to zoom, drag to pan, double-tap to reset
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sequence Diagram Demo -->
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <h3 class="text-2xl font-bold mb-4">Sequence Diagram</h3>
+                    <p class="text-gray-600 mb-6">Complex interaction flows made accessible - perfect for API documentation.</p>
+
+                    <div class="svg-demo-container" id="demo3">
+                        <div class="mermaid">
+                            sequenceDiagram
+                                participant U as User
+                                participant F as Frontend
+                                participant A as API Gateway
+                                participant AS as Auth Service
+                                participant US as User Service
+                                participant DB as Database
+                                participant C as Cache
+                                participant N as Notification Service
+
+                                U->>F: Login Request
+                                F->>A: POST /auth/login
+                                A->>AS: Authenticate User
+                                AS->>DB: Query User Credentials
+                                DB->>AS: User Data
+                                AS->>C: Store Session
+                                C->>AS: Session Token
+                                AS->>A: Auth Success + Token
+                                A->>F: 200 + JWT Token
+                                F->>U: Login Success
+
+                                Note over U,DB: User now authenticated
+
+                                U->>F: Request Profile
+                                F->>A: GET /user/profile (with JWT)
+                                A->>AS: Validate Token
+                                AS->>C: Check Session
+                                C->>AS: Session Valid
+                                AS->>A: Token Valid
+                                A->>US: Get User Profile
+                                US->>DB: Query User Data
+                                DB->>US: Profile Data
+                                US->>A: Profile Response
+                                A->>F: 200 + Profile Data
+                                F->>U: Display Profile
+
+                                U->>F: Update Profile
+                                F->>A: PUT /user/profile
+                                A->>AS: Validate Token
+                                AS->>A: Token Valid
+                                A->>US: Update Profile
+                                US->>DB: Update User Data
+                                DB->>US: Success
+                                US->>N: Send Update Notification
+                                N->>U: Email Notification
+                                US->>A: Update Success
+                                A->>F: 200 Success
+                                F->>U: Profile Updated
+                        </div>
+                        <div class="keyboard-hint">
+                            Use mouse wheel to zoom, drag to pan around
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gantt Chart Demo -->
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <h3 class="text-2xl font-bold mb-4">Project Timeline</h3>
+                    <p class="text-gray-600 mb-6">Large Gantt charts with zoom and pan for better project visibility.</p>
+
+                    <div class="svg-demo-container" id="demo4">
+                        <div class="mermaid">
+                            gantt
+                                title SVG Toolbelt Development
+                                dateFormat YYYY-MM-DD
+                                axisFormat %m/%d
+
+                                section Research
+                                Market Research     :done, research, 2024-01-01, 2024-01-15
+                                Technical Analysis  :done, tech, 2024-01-10, 2024-01-25
+                                User Interviews     :done, interviews, 2024-01-20, 2024-02-05
+
+                                section Design
+                                UI Design          :done, design, 2024-02-01, 2024-02-20
+                                Prototyping        :done, proto, 2024-02-15, 2024-03-01
+                                Design Review      :done, review, 2024-02-25, 2024-03-05
+
+                                section Development
+                                Core Architecture  :done, core, 2024-03-01, 2024-03-20
+                                Feature Dev        :active, features, 2024-03-15, 2024-04-15
+                                Testing           :active, testing, 2024-04-01, 2024-04-20
+                                Integration       :integration, 2024-04-10, 2024-04-25
+
+                                section Release
+                                Documentation     :docs, 2024-04-15, 2024-04-30
+                                Demo Site        :demo, 2024-04-20, 2024-04-25
+                                NPM Package      :npm, 2024-04-25, 2024-04-30
+                        </div>
+                        <div class="keyboard-hint">
+                            Scroll to zoom timeline, drag to navigate dates
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GitLab-style Class Diagram -->
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <h3 class="text-2xl font-bold mb-4">Class Diagram</h3>
+                    <p class="text-gray-600 mb-6">The actual SVG Toolbelt architecture - zoom in to see method details.</p>
+
+                    <div class="svg-demo-container" id="demo5">
+                        <div class="mermaid">
+                            classDiagram
+                                class SvgEnhancer {
+                                    +HTMLElement container
+                                    +SVGSVGElement svg
+                                    +SvgEnhancerConfig config
+                                    +boolean isDestroyed
+                                    +number scale
+                                    +number translateX
+                                    +number translateY
+                                    +init() void
+                                    +constrainPan() void
+                                    +destroy() void
+                                }
+
+                                class ZoomFeature {
+                                    -SvgEnhancer enhancer
+                                    +init() void
+                                    +zoomIn() void
+                                    +zoomOut() void
+                                    +zoomAt() void
+                                    +destroy() void
+                                }
+
+                                class PanFeature {
+                                    -SvgEnhancer enhancer
+                                    -boolean isDragging
+                                    +init() void
+                                    +destroy() void
+                                }
+
+                                class TouchFeature {
+                                    -SvgEnhancer enhancer
+                                    +init() void
+                                    +destroy() void
+                                }
+
+                                class KeyboardFeature {
+                                    -SvgEnhancer enhancer
+                                    +init() void
+                                    +destroy() void
+                                }
+
+                                class ControlsFeature {
+                                    -SvgEnhancer enhancer
+                                    +init() void
+                                    +createControls() void
+                                    +destroy() void
+                                }
+
+                                class SvgZoom {
+                                    +init() void
+                                    +zoomIn() void
+                                    +zoomOut() void
+                                }
+
+                                class EventEmitter {
+                                    +on() this
+                                    +emit() boolean
+                                    +off() this
+                                }
+
+                                SvgEnhancer --|> EventEmitter
+                                SvgZoom --|> SvgEnhancer
+                                SvgEnhancer --> ZoomFeature
+                                SvgEnhancer --> PanFeature
+                                SvgEnhancer --> TouchFeature
+                                SvgEnhancer --> KeyboardFeature
+                                SvgEnhancer --> ControlsFeature
+                        </div>
+                        <div class="keyboard-hint">
+                            Perfect for technical documentation - zoom to read method signatures
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Code Examples Section -->
+    <section id="docs" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Quick Start Guide</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    Get started with SVG Toolbelt in just a few lines of code.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Installation -->
+                <div class="bg-gray-900 rounded-xl p-6 text-green-400 font-mono text-sm">
+                    <div class="text-gray-400 mb-2"># Installation</div>
+                    <div class="text-white">npm install svg-toolbelt</div>
+                    <div class="text-gray-400 mt-4 mb-2"># Or with yarn</div>
+                    <div class="text-white">yarn add svg-toolbelt</div>
+                </div>
+
+                <!-- Basic Usage -->
+                <div class="bg-gray-900 rounded-xl p-6 text-green-400 font-mono text-sm">
+                    <div class="text-gray-400 mb-2">// Basic Usage</div>
+                    <div><span class="text-blue-400">import</span> <span class="text-white">{ initializeSvgZoom }</span> <span class="text-blue-400">from</span> <span class="text-yellow-300">'svg-toolbelt'</span>;</div>
+                    <div><span class="text-blue-400">import</span> <span class="text-yellow-300">'svg-toolbelt/dist/svg-zoom.css'</span>;</div>
+                    <div class="mt-2"></div>
+                    <div><span class="text-green-400">// Enhance all .mermaid containers</span></div>
+                    <div><span class="text-white">initializeSvgZoom</span>(<span class="text-yellow-300">'.mermaid'</span>);</div>
+                </div>
+
+                <!-- Advanced Usage -->
+                <div class="bg-gray-900 rounded-xl p-6 text-green-400 font-mono text-sm lg:col-span-2">
+                    <div class="text-gray-400 mb-2">// Advanced Configuration</div>
+                    <div><span class="text-blue-400">import</span> <span class="text-white">{ SvgZoom }</span> <span class="text-blue-400">from</span> <span class="text-yellow-300">'svg-toolbelt'</span>;</div>
+                    <div class="mt-2"></div>
+                    <div><span class="text-blue-400">const</span> <span class="text-white">container</span> = <span class="text-white">document</span>.<span class="text-white">querySelector</span>(<span class="text-yellow-300">'#my-diagram'</span>);</div>
+                    <div><span class="text-blue-400">const</span> <span class="text-white">enhancer</span> = <span class="text-blue-400">new</span> <span class="text-white">SvgZoom</span>(<span class="text-white">container</span>, {</div>
+                    <div class="ml-4"><span class="text-white">minScale</span>: <span class="text-yellow-300">0.2</span>,</div>
+                    <div class="ml-4"><span class="text-white">maxScale</span>: <span class="text-yellow-300">8</span>,</div>
+                    <div class="ml-4"><span class="text-white">controlsPosition</span>: <span class="text-yellow-300">'bottom-right'</span>,</div>
+                    <div class="ml-4"><span class="text-white">enableKeyboard</span>: <span class="text-yellow-300">true</span></div>
+                    <div>});</div>
+                    <div><span class="text-white">enhancer</span>.<span class="text-white">init</span>();</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 bg-gradient-to-br from-gitlab-50 to-blue-50">
+        <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Ready to Enhance Your SVGs?</h2>
+            <p class="text-lg text-gray-600 mb-8">
+                Join the developers making their diagrams more accessible and user-friendly.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="https://github.com/zakariaf/svg-toolbelt" target="_blank"
+                   class="bg-gitlab-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-gitlab-600 transition-colors shadow-lg hover:shadow-xl">
+                    View on GitHub
+                </a>
+                <a href="https://www.npmjs.com/package/svg-toolbelt" target="_blank"
+                   class="border-2 border-gitlab-500 text-gitlab-600 px-8 py-3 rounded-lg font-semibold hover:bg-gitlab-50 transition-colors">
+                    Install from NPM
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-8 h-8 bg-gradient-to-br from-gitlab-400 to-gitlab-600 rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">🧰</span>
+                        </div>
+                        <h3 class="text-xl font-bold">SVG Toolbelt</h3>
+                    </div>
+                    <p class="text-gray-400 mb-4">
+                        Professional-grade SVG interaction toolkit born from GitLab's need for better diagram accessibility.
+                    </p>
+                    <p class="text-sm text-gray-500">
+                        Made with ❤️ for better documentation everywhere
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="https://github.com/zakariaf/svg-toolbelt" class="hover:text-white transition-colors">Documentation</a></li>
+                        <li><a href="https://github.com/zakariaf/svg-toolbelt/issues" class="hover:text-white transition-colors">Issues</a></li>
+                        <li><a href="https://github.com/zakariaf/svg-toolbelt/discussions" class="hover:text-white transition-colors">Discussions</a></li>
+                        <li><a href="https://github.com/zakariaf/svg-toolbelt/blob/main/CONTRIBUTING.md" class="hover:text-white transition-colors">Contributing</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold mb-4">Connect</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="https://github.com/zakariaf" class="hover:text-white transition-colors">GitHub</a></li>
+                        <li><a href="https://www.npmjs.com/package/svg-toolbelt" class="hover:text-white transition-colors">NPM Package</a></li>
+                        <li><a href="https://gitlab.com" class="hover:text-white transition-colors">GitLab</a></li>
+                        <li><a href="mailto:zakaria@example.com" class="hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 SVG Toolbelt. MIT License. Built with TypeScript and TSDX.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script type="module">
+        // Global variables
+        let currentInstances = [];
+
+        // Load SVG Toolbelt from GitHub
+        async function loadSvgToolbelt() {
+            try {
+                console.log('Loading SVG Toolbelt...');
+
+                // For demo purposes, we'll create a simplified version
+                // In production, this would fetch from:
+                // https://cdn.jsdelivr.net/gh/zakariaf/svg-toolbelt@main/dist/svg-toolbelt.umd.js
+
+                // Mock implementation for demo
+                window.SvgToolbelt = {
+                    SvgZoom: class {
+                        constructor(container, config = {}) {
+                            this.container = container;
+                            this.config = {
+                                minScale: 0.1,
+                                maxScale: 10,
+                                zoomStep: 0.1,
+                                showControls: true,
+                                controlsPosition: 'top-right',
+                                enableTouch: true,
+                                enableKeyboard: true,
+                                ...config
+                            };
+                            this.scale = 1;
+                            this.translateX = 0;
+                            this.translateY = 0;
+                            this.isDestroyed = false;
+                        }
+
+                        init() {
+                            if (this.isDestroyed) return;
+
+                            const svg = this.container.querySelector('svg');
+                            if (!svg) return;
+
+                            this.setupContainer();
+                            this.setupEventListeners();
+                            if (this.config.showControls) {
+                                this.createControls();
+                            }
+                        }
+
+                        setupContainer() {
+                            this.container.style.position = 'relative';
+                            this.container.style.overflow = 'hidden';
+                            this.container.style.cursor = 'grab';
+                        }
+
+                        setupEventListeners() {
+                            const svg = this.container.querySelector('svg');
+                            if (!svg) return;
+
+                            // Mouse wheel zoom
+                            this.container.addEventListener('wheel', (e) => {
+                                e.preventDefault();
+                                const rect = this.container.getBoundingClientRect();
+                                const mouseX = e.clientX - rect.left;
+                                const mouseY = e.clientY - rect.top;
+                                const delta = e.deltaY > 0 ? -this.config.zoomStep : this.config.zoomStep;
+                                this.zoomAt(mouseX, mouseY, delta);
+                            }, { passive: false });
+
+                            // Pan functionality
+                            let isDragging = false;
+                            let lastX = 0, lastY = 0;
+
+                            svg.addEventListener('mousedown', (e) => {
+                                if (e.button !== 0) return;
+                                isDragging = true;
+                                lastX = e.clientX;
+                                lastY = e.clientY;
+                                this.container.style.cursor = 'grabbing';
+                                e.preventDefault();
+                            });
+
+                            document.addEventListener('mousemove', (e) => {
+                                if (!isDragging) return;
+                                const deltaX = e.clientX - lastX;
+                                const deltaY = e.clientY - lastY;
+                                this.translateX += deltaX;
+                                this.translateY += deltaY;
+                                lastX = e.clientX;
+                                lastY = e.clientY;
+                                this.applyTransform();
+                                e.preventDefault();
+                            });
+
+                            document.addEventListener('mouseup', () => {
+                                isDragging = false;
+                                this.container.style.cursor = 'grab';
+                            });
+
+                            // Double-click reset
+                            svg.addEventListener('dblclick', () => {
+                                this.reset();
+                            });
+
+                            // Keyboard shortcuts
+                            if (this.config.enableKeyboard) {
+                                this.container.setAttribute('tabindex', '0');
+                                this.container.addEventListener('keydown', (e) => {
+                                    switch (e.key) {
+                                        case '+':
+                                        case '=':
+                                            e.preventDefault();
+                                            this.zoomIn();
+                                            break;
+                                        case '-':
+                                            e.preventDefault();
+                                            this.zoomOut();
+                                            break;
+                                        case '0':
+                                            e.preventDefault();
+                                            this.reset();
+                                            break;
+                                        case 'ArrowUp':
+                                            e.preventDefault();
+                                            this.translateY += 20;
+                                            this.applyTransform();
+                                            break;
+                                        case 'ArrowDown':
+                                            e.preventDefault();
+                                            this.translateY -= 20;
+                                            this.applyTransform();
+                                            break;
+                                        case 'ArrowLeft':
+                                            e.preventDefault();
+                                            this.translateX += 20;
+                                            this.applyTransform();
+                                            break;
+                                        case 'ArrowRight':
+                                            e.preventDefault();
+                                            this.translateX -= 20;
+                                            this.applyTransform();
+                                            break;
+                                    }
+                                });
+                            }
+                        }
+
+                        createControls() {
+                            const controls = document.createElement('div');
+                            controls.className = 'svg-zoom-controls';
+                            controls.style.cssText = `
+                                position: absolute;
+                                ${this.getControlsPosition()}
+                                background: rgba(255, 255, 255, 0.95);
+                                border: 1px solid #e5e7eb;
+                                border-radius: 6px;
+                                padding: 8px;
+                                display: flex;
+                                flex-direction: column;
+                                gap: 4px;
+                                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                                z-index: 10;
+                            `;
+
+                            const createBtn = (text, title, onClick) => {
+                                const btn = document.createElement('button');
+                                btn.textContent = text;
+                                btn.title = title;
+                                btn.style.cssText = `
+                                    width: 32px; height: 32px; border: 1px solid #d1d5db;
+                                    background: #fff; cursor: pointer; border-radius: 4px;
+                                    font-size: 16px; font-weight: bold; display: flex;
+                                    align-items: center; justify-content: center;
+                                    transition: all 0.2s ease;
+                                `;
+                                btn.onmouseenter = () => btn.style.background = '#f3f4f6';
+                                btn.onmouseleave = () => btn.style.background = '#fff';
+                                btn.onclick = (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    onClick();
+                                };
+                                return btn;
+                            };
+
+                            controls.appendChild(createBtn('+', 'Zoom In', () => this.zoomIn()));
+                            controls.appendChild(createBtn('−', 'Zoom Out', () => this.zoomOut()));
+                            controls.appendChild(createBtn('⌂', 'Reset', () => this.reset()));
+
+                            this.container.appendChild(controls);
+                            this.controlsContainer = controls;
+                        }
+
+                        getControlsPosition() {
+                            const positions = {
+                                'top-right': 'top: 12px; right: 12px;',
+                                'top-left': 'top: 12px; left: 12px;',
+                                'bottom-right': 'bottom: 12px; right: 12px;',
+                                'bottom-left': 'bottom: 12px; left: 12px;'
+                            };
+                            return positions[this.config.controlsPosition] || positions['top-right'];
+                        }
+
+                        zoomIn() {
+                            const rect = this.container.getBoundingClientRect();
+                            this.zoomAt(rect.width / 2, rect.height / 2, this.config.zoomStep);
+                        }
+
+                        zoomOut() {
+                            const rect = this.container.getBoundingClientRect();
+                            this.zoomAt(rect.width / 2, rect.height / 2, -this.config.zoomStep);
+                        }
+
+                        zoomAt(x, y, delta) {
+                            const newScale = Math.max(
+                                this.config.minScale,
+                                Math.min(this.config.maxScale, this.scale + delta)
+                            );
+
+                            if (newScale === this.scale) return;
+
+                            const svgX = (x - this.translateX) / this.scale;
+                            const svgY = (y - this.translateY) / this.scale;
+
+                            this.scale = newScale;
+                            this.translateX = x - svgX * this.scale;
+                            this.translateY = y - svgY * this.scale;
+
+                            this.applyTransform();
+                        }
+
+                        reset() {
+                            this.scale = 1;
+                            this.translateX = 0;
+                            this.translateY = 0;
+                            this.applyTransform(true);
+                        }
+
+                        applyTransform(withTransition = false) {
+                            const svg = this.container.querySelector('svg');
+                            if (!svg) return;
+
+                            svg.style.transition = withTransition ? 'transform 0.3s ease' : 'none';
+                            svg.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
+                            svg.style.transformOrigin = '0 0';
+                        }
+
+                        destroy() {
+                            this.isDestroyed = true;
+                            if (this.controlsContainer) {
+                                this.controlsContainer.remove();
+                            }
+                        }
+                    },
+
+                    initializeSvgZoom: function(selector, config = {}) {
+                        const containers = document.querySelectorAll(selector);
+                        const instances = [];
+
+                        containers.forEach(container => {
+                            const instance = new this.SvgZoom(container, config);
+                            instance.init();
+                            instances.push(instance);
+                        });
+
+                        return instances;
+                    }
+                };
+
+                console.log('SVG Toolbelt loaded successfully');
+                return true;
+            } catch (error) {
+                console.error('Failed to load SVG Toolbelt:', error);
+                throw error;
+            }
+        }
+
+        // Initialize Mermaid diagrams and then add zoom functionality
+        async function initializeDemo() {
+            try {
+                document.getElementById('loading').classList.remove('hidden');
+                document.getElementById('error').classList.add('hidden');
+
+                // Load SVG Toolbelt
+                await loadSvgToolbelt();
+
+                // Render Mermaid diagrams one by one with error handling
+                const mermaidElements = document.querySelectorAll('.mermaid');
+                console.log(`Found ${mermaidElements.length} Mermaid diagrams to render`);
+
+                for (let i = 0; i < mermaidElements.length; i++) {
+                    const element = mermaidElements[i];
+                    try {
+                        console.log(`Rendering diagram ${i + 1}...`);
+                        await window.mermaid.run({
+                            nodes: [element],
+                            suppressErrors: false
+                        });
+                        console.log(`Diagram ${i + 1} rendered successfully`);
+                    } catch (error) {
+                        console.error(`Failed to render diagram ${i + 1}:`, error);
+                        // Replace with error message
+                        element.innerHTML = `
+                            <div style="padding: 20px; text-align: center; color: #dc3545; border: 2px dashed #dc3545; border-radius: 8px; background: #f8d7da;">
+                                <strong>⚠️ Failed to render diagram</strong><br>
+                                <small>Check console for details</small>
+                            </div>
+                        `;
+                    }
+                }
+
+                // Add zoom functionality to all demo containers
+                const demoContainers = document.querySelectorAll('.svg-demo-container');
+                currentInstances = [];
+
+                demoContainers.forEach((container, index) => {
+                    try {
+                        const svg = container.querySelector('svg');
+                        if (svg) {
+                            const instance = new window.SvgToolbelt.SvgZoom(container, {
+                                minScale: 0.2,
+                                maxScale: 8,
+                                zoomStep: 0.15,
+                                showControls: true,
+                                controlsPosition: 'top-right',
+                                enableTouch: true,
+                                enableKeyboard: true
+                            });
+                            instance.init();
+                            currentInstances.push(instance);
+                            console.log(`Initialized zoom for demo ${index + 1}`);
+                        } else {
+                            console.warn(`No SVG found in demo container ${index + 1}`);
+                        }
+                    } catch (error) {
+                        console.error(`Failed to initialize zoom for demo ${index + 1}:`, error);
+                    }
+                });
+
+                // Hide loading, show content
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('demoContent').classList.remove('hidden');
+
+                console.log('Demo initialized successfully');
+
+            } catch (error) {
+                console.error('Demo initialization failed:', error);
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('error').classList.remove('hidden');
+            }
+        }
+
+        // Configuration controls
+        function setupControls() {
+            const zoomStepSlider = document.getElementById('zoomStep');
+            const zoomStepValue = document.getElementById('zoomStepValue');
+            const maxScaleSlider = document.getElementById('maxScale');
+            const maxScaleValue = document.getElementById('maxScaleValue');
+
+            zoomStepSlider.oninput = () => {
+                zoomStepValue.textContent = zoomStepSlider.value;
+            };
+
+            maxScaleSlider.oninput = () => {
+                maxScaleValue.textContent = maxScaleSlider.value;
+            };
+
+            document.getElementById('applyConfig').onclick = () => {
+                const config = {
+                    zoomStep: parseFloat(zoomStepSlider.value),
+                    maxScale: parseInt(maxScaleSlider.value),
+                    controlsPosition: document.getElementById('controlsPosition').value,
+                    showControls: document.getElementById('showControls').checked,
+                    enableTouch: document.getElementById('enableTouch').checked
+                };
+
+                // Destroy existing instances
+                currentInstances.forEach(instance => instance.destroy());
+
+                // Recreate with new config
+                const demoContainers = document.querySelectorAll('.svg-demo-container');
+                currentInstances = [];
+
+                demoContainers.forEach(container => {
+                    const instance = new window.SvgToolbelt.SvgZoom(container, config);
+                    instance.init();
+                    currentInstances.push(instance);
+                });
+
+                console.log('Configuration applied');
+            };
+
+            document.getElementById('resetDemo').onclick = () => {
+                currentInstances.forEach(instance => {
+                    if (instance.reset) instance.reset();
+                });
+                console.log('All diagrams reset');
+            };
+
+            document.getElementById('retryBtn').onclick = () => {
+                initializeDemo();
+            };
+        }
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Get started button
+        document.getElementById('getStartedBtn').onclick = () => {
+            document.getElementById('demos').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        // Initialize everything when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            setupControls();
+            initializeDemo();
+        });
+
+    </script>
+</body>
+</html>
