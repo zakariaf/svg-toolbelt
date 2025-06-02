@@ -42,10 +42,6 @@
   cursor: grabbing;
 }
 
-/* Preserve unprocessed state */
-.mermaid:not([data-processed='true']) { display: none; }
-.svg-toolbelt-wrapper .mermaid[data-processed='true'] { display: block; }
-
 /* Zoom control buttons container */
 .svg-toolbelt-controls {
   position: absolute;
