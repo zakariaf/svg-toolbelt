@@ -640,7 +640,6 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ### 📞 Support
 
-- 📖 **Documentation**: [Complete API docs and examples](https://svg-toolbelt.dev)
+- 📖 **Documentation**: [Complete API docs and examples](https://zakariaf.github.io/svg-toolbelt)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/zakariaf/svg-toolbelt/discussions)
 - 🐛 **Bug Reports**: [GitHub Issues](https://github.com/zakariaf/svg-toolbelt/issues)
-- 💼 **Enterprise**: [Commercial support available](mailto:enterprise@svg-toolbelt.dev)

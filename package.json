@@ -4,7 +4,7 @@
   "description": "A lightweight, zero-dependency library to add zoom, pan, touch, keyboard, and export support to any SVG.",
   "author": "Zakaria Fatahi <zakaria.fatahi@gmail.com>",
   "license": "MIT",
-  "homepage": "https://github.com/zakariaf/svg-toolbelt#readme",
+  "homepage": "https://zakariaf.github.io/svg-toolbelt",
   "repository": {
     "type": "git",
     "url": "https://github.com/zakariaf/svg-toolbelt.git"
