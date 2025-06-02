@@ -13,14 +13,30 @@ export class FullscreenFeature {
 
   public toggleFullscreen(): void {
     if (this.enhancer.isDestroyed) return;
+
+    // If we're already in fullscreen, try to exit
     if (document.fullscreenElement) {
-      document.exitFullscreen().catch(() => {
-        console.warn('Failed to exit fullscreen');
-      });
+      if (typeof document.exitFullscreen === 'function') {
+        document.exitFullscreen().catch(() => {
+          console.warn('Failed to exit fullscreen');
+        });
+      } else {
+        // API not supported
+        console.warn('exitFullscreen() is not supported in this environment');
+      }
     } else {
-      this.enhancer.container.requestFullscreen().catch(err => {
-        console.warn('Failed to enter fullscreen:', err);
-      });
+      // Otherwise, try to enter fullscreen
+      const containerEl = this.enhancer.container;
+      if (typeof containerEl.requestFullscreen === 'function') {
+        containerEl.requestFullscreen().catch(err => {
+          console.warn('Failed to enter fullscreen:', err);
+        });
+      } else {
+        // API not supported
+        console.warn(
+          'requestFullscreen() is not supported in this environment'
+        );
+      }
     }
   }
 
