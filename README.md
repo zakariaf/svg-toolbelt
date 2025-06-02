@@ -6,44 +6,59 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**A comprehensive, zero-dependency toolkit for SVG interaction: smooth zoom, pan, touch, keyboard controls, fullscreen, export, and more.**
+**A comprehensive, zero-dependency toolkit for SVG interaction: smooth zoom, pan, touch, keyboard controls, fullscreen, and more.**
 
-Transform any static SVG (Mermaid diagrams, D3 visualizations, static illustrations) into an interactive, zoomable, and pannable experience—fully accessible, mobile-first, and production-ready.
+Transform any static SVG (Mermaid diagrams, D3 visualizations, technical drawings) into an interactive, zoomable, and pannable experience—fully accessible, mobile-first, and production-ready.
 
 ---
 
-## ✨ Features (v0.1.0)
+## 🎯 Origin Story
+
+This library was born from a real need at **GitLab** - making large Mermaid diagrams more accessible in documentation. When complex system architecture diagrams and flowcharts became impossible to read on mobile devices or for users with visual impairments, we knew we needed a better solution.
+
+**The challenge**: Most existing solutions were either too heavy (requiring entire libraries like D3.js just for zoom/pan), too basic (missing accessibility features), or didn't work well on mobile devices.
+
+**Our solution**: A lightweight, modular, accessibility-first toolkit that works with any SVG - not just Mermaid diagrams.
+
+---
+
+## ✨ Features
 
 - 🔍 **Smooth zoom & pan**
-  - Mouse-wheel zoom (zoom-to-cursor)
-  - Click-and-drag pan (desktop)
+  - Mouse-wheel zoom with zoom-to-cursor precision
+  - Click-and-drag panning (desktop)
   - Pinch-to-zoom & touch-drag (mobile)
-  - Keyboard shortcuts: `+`, `-`, `0` (reset), and arrow keys (pan)
+  - Keyboard shortcuts: `+`/`-` (zoom), `0` (reset), arrows (pan)
 
-- 🎛️ **On-screen controls**
-  - Fully customizable buttons: zoom in, zoom out, reset, fullscreen, export
-  - Four corner positions (`top-right`, `top-left`, `bottom-right`, `bottom-left`)
+- 🎛️ **Smart on-screen controls**
+  - Zoom in/out, reset, and fullscreen buttons
+  - Four positioning options: any corner of the container
+  - Fully customizable styling and behavior
 
-- 🖥️ **Fullscreen support**
-  - Toggle fullscreen on the SVG container (if browser API available)
-
-- 🔄 **Double-click reset**
-  - Double-click inside the SVG resets zoom/pan to default
+- 📱 **Mobile-first design**
+  - Optimized touch interactions with proper gesture recognition
+  - Responsive UI that adapts to screen size
+  - Touch-friendly button sizes (44px minimum)
 
 - ♿ **Accessibility champion**
-  - Full keyboard navigation (WCAG 2.1 AA compatible)
-  - Screen-reader–friendly controls (buttons have `title` attributes)
+  - WCAG 2.1 AA compliant with full keyboard navigation
+  - Screen reader compatible with proper ARIA labels
+  - High contrast mode and reduced motion support
+
+- 🏗️ **Modular architecture**
+  - Use only the features you need (tree-shakeable)
+  - Feature-based design: zoom, pan, touch, keyboard, controls, fullscreen
+  - Easy to extend with custom features
 
 - 🪶 **Lightweight & zero dependencies**
-  - ~5 KB minified (gzip)
+  - ~15KB minified + gzipped (including all features)
   - No external libraries required
+  - Built with modern TypeScript
 
 - 🎨 **Framework agnostic**
-  - Works with React, Vue, Angular, or plain JavaScript
-  - TypeScript definitions included (100% type coverage)
-
-- 📘 **Full documentation & examples**
-  - API reference, config options, usage snippets, and framework integrations
+  - Works with React, Vue, Angular, or vanilla JavaScript
+  - Complete TypeScript definitions included
+  - Clean, predictable API
 
 ---
 
@@ -52,252 +67,356 @@ Transform any static SVG (Mermaid diagrams, D3 visualizations, static illustrati
 ### 1. Installation
 
 ```bash
-# npm
 npm install svg-toolbelt
-
-# yarn
+# or
 yarn add svg-toolbelt
-
-# pnpm
+# or
 pnpm add svg-toolbelt
-````
+```
 
 ### 2. Import Styles
 
-```css
-/* In your main CSS or JS/TS entry, import the bundled CSS */
-@import "svg-toolbelt/dist/svg-zoom.css";
+```typescript
+// Import the CSS in your main entry file
+import 'svg-toolbelt/dist/svg-zoom.css';
 ```
 
-Or, if using JavaScript/TypeScript:
+### 3. Basic Usage
 
-```js
-import "svg-toolbelt/dist/svg-zoom.css";
+#### Auto-initialize (recommended for most cases)
+
+```typescript
+import { initializeSvgZoom } from 'svg-toolbelt';
+
+// Initialize all elements with the class 'zoomable'
+initializeSvgZoom('.zoomable');
 ```
 
-### 3. Initialize on Any SVG Container
-
-#### Auto-initialize (all matching selectors)
-
-```ts
-import { initializeSvgZoom } from "svg-toolbelt";
-
-/**
- * Finds every element matching the selector (e.g. ".zoomable-svg")
- * and wraps it to enable zoom/pan/etc.
- */
-initializeSvgZoom(".zoomable-svg");
+```html
+<!-- Your HTML -->
+<div class="zoomable">
+  <svg viewBox="0 0 800 600">
+    <!-- Your SVG content (Mermaid, D3, hand-drawn, etc.) -->
+  </svg>
+</div>
 ```
 
-#### Manual instantiation
+#### Manual instantiation (for more control)
 
-```ts
-import { SvgZoom } from "svg-toolbelt";
+```typescript
+import { SvgZoom } from 'svg-toolbelt';
 
-const container = document.querySelector<HTMLElement>("#my-svg-container")!;
-const zoomInstance = new SvgZoom(container, {
+const container = document.querySelector('#my-diagram');
+const enhancer = new SvgZoom(container, {
   minScale: 0.2,
   maxScale: 8,
+  zoomStep: 0.15,
   showControls: true,
-  controlsPosition: "bottom-left",
+  controlsPosition: 'top-right',
   enableTouch: true,
-  enableKeyboard: true,
-  showExportSvg: true,
+  enableKeyboard: true
 });
-zoomInstance.init();
 
-// Later, you can call:
-zoomInstance.zoomIn();
-zoomInstance.zoomOut();
-zoomInstance.destroy();
+enhancer.init();
+
+// Programmatic control
+enhancer.zoomIn();
+enhancer.zoomOut();
+
+// Cleanup when done
+enhancer.destroy();
 ```
 
 ---
 
-## 📖 Documentation
+## 📖 API Reference
 
-### API Reference
+### `SvgZoom` Class
 
-#### `SvgZoom` class
+The main class that provides all zoom/pan functionality.
 
-```ts
-constructor(container: HTMLElement, config?: Partial<SvgEnhancerConfig>);
+```typescript
+constructor(container: HTMLElement, config?: Partial<SvgEnhancerConfig>)
 ```
 
-* **Parameters**
+**Parameters:**
 
-  * `container: HTMLElement`
-    A wrapper element that contains exactly one `<svg>`.
-  * `config?: Partial<SvgEnhancerConfig>`
-    Optional overrides of default behavior (see **Configuration Options** below).
+- `container` - HTMLElement that contains exactly one `<svg>` element
+- `config` - Optional configuration overrides (see Configuration section)
 
-* **Methods**
+**Methods:**
 
-  * `init(): void`
-    Initializes all features (zoom, pan, touch, keyboard, controls, fullscreen, double-click reset, no-context-menu, export).
-  * `zoomIn(): void`
-    Programmatic zoom-in by one `zoomStep`.
-  * `zoomOut(): void`
-    Programmatic zoom-out by one `zoomStep`.
-  * `destroy(): void`
-    Removes event listeners, UI elements, and restores the container to its original state.
+- `init()` - Initialize all features and event listeners
+- `zoomIn()` - Zoom in by one step
+- `zoomOut()` - Zoom out by one step
+- `destroy()` - Clean up all event listeners and UI elements
 
-```ts
-// Example:
-const zoomer = new SvgZoom(containerEl, { showControls: false });
-zoomer.init();
+**Events:**
+
+```typescript
+enhancer.on('zoom', ({ scale, translateX, translateY }) => {
+  console.log(`Zoomed to ${scale}x at (${translateX}, ${translateY})`);
+});
+
+enhancer.on('pan', ({ translateX, translateY }) => {
+  console.log(`Panned to (${translateX}, ${translateY})`);
+});
 ```
 
-#### `initializeSvgZoom`
+### `initializeSvgZoom` Function
 
-```ts
+Convenience function for batch initialization.
+
+```typescript
 function initializeSvgZoom(
   selectorOrElements: string | HTMLElement | HTMLElement[],
   config?: Partial<SvgEnhancerConfig>
-): void;
+): void
 ```
 
-* **`selectorOrElements`**:
+**Parameters:**
+- `selectorOrElements` - CSS selector string, single element, or array of elements
+- `config` - Configuration applied to all instances
 
-  * `string`: A CSS selector (e.g., `".zoomable-svg"`). All matching elements will be wrapped and initialized.
-  * `HTMLElement`: A single container to initialize.
-  * `HTMLElement[]`: An array of container elements to initialize.
+**Examples:**
+```typescript
+// CSS selector
+initializeSvgZoom('.mermaid');
 
-* **`config`**:
+// Single element
+const diagram = document.querySelector('#chart');
+initializeSvgZoom(diagram);
 
-  * A partial set of config overrides, applied to each new `SvgZoom` instance.
+// Array of elements
+const diagrams = document.querySelectorAll('.diagram');
+initializeSvgZoom(Array.from(diagrams));
 
-**Returns**: `void`. Containers already initialized (wrapped with `.svg-zoom-wrapper`) are skipped.
-
-```ts
-// Example:
-initializeSvgZoom(["#chart1", "#chart2"], { enableTouch: false });
+// With custom config
+initializeSvgZoom('.large-diagrams', {
+  minScale: 0.1,
+  maxScale: 20,
+  controlsPosition: 'bottom-right'
+});
 ```
 
 ---
 
-### Configuration Options
+## ⚙️ Configuration Options
 
-All options are optional and extend sensible defaults:
+All options are optional with sensible defaults:
 
-```ts
+```typescript
 interface SvgEnhancerConfig {
   // Zoom settings
-  minScale: number;           // Default: 0.1
-  maxScale: number;           // Default: 10
-  zoomStep: number;           // Default: 0.1
+  minScale: number;           // Default: 0.1 (10%)
+  maxScale: number;           // Default: 10 (1000%)
+  zoomStep: number;           // Default: 0.1 (10% per step)
 
-  // Pan constraints (absolute pixels)
+  // Pan constraints (pixels)
   maxPanX: number;            // Default: 1000
   maxPanY: number;            // Default: 1000
 
-  // Transition/animation
-  transitionDuration: number; // Default: 200 (ms)
+  // Animation
+  transitionDuration: number; // Default: 200 (milliseconds)
 
   // UI Controls
   showControls: boolean;      // Default: true
-  controlsPosition:          // Default: "top-right"
-    | "top-right"
-    | "top-left"
-    | "bottom-right"
-    | "bottom-left";
+  controlsPosition:           // Default: 'top-right'
+    | 'top-right'
+    | 'top-left'
+    | 'bottom-right'
+    | 'bottom-left';
 
-  // Interaction toggles
+  // Feature toggles
   enableTouch: boolean;       // Default: true
   enableKeyboard: boolean;    // Default: true
-  showExportSvg: boolean;     // Default: true
 }
 ```
 
----
+**Example configurations:**
 
-### Keyboard Shortcuts
+```typescript
+// Minimal zoom-only setup
+const minimal = new SvgZoom(container, {
+  showControls: false,
+  enableKeyboard: false,
+  enableTouch: false
+});
 
-| Key          | Action                                 |
-| ------------ | -------------------------------------- |
-| `+` or `=`   | Zoom in (by `zoomStep`)                |
-| `-`          | Zoom out (by `zoomStep`)               |
-| `0`          | Reset zoom & pan to default (1×, 0, 0) |
-| `ArrowUp`    | Pan up (by 20 px)                      |
-| `ArrowDown`  | Pan down (by 20 px)                    |
-| `ArrowLeft`  | Pan left (by 20 px)                    |
-| `ArrowRight` | Pan right (by 20 px)                   |
+// Large diagram optimized
+const largeDiagram = new SvgZoom(container, {
+  minScale: 0.05,
+  maxScale: 50,
+  zoomStep: 0.2,
+  controlsPosition: 'bottom-left'
+});
 
----
-
-### Touch Gestures
-
-| Gesture             | Action                        |
-| ------------------- | ----------------------------- |
-| Pinch (two fingers) | Zoom in/out at gesture center |
-| Drag (one finger)   | Pan (move)                    |
-| Double-tap          | Reset zoom & pan to default   |
-
----
-
-## 🎨 Styling
-
-By default, the package ships with a CSS file:
-
-```css
-/* Import via JS/TS */
-import "svg-toolbelt/dist/svg-zoom.css";
-
-/* Or include via <link> tag */
-<link rel="stylesheet" href="node_modules/svg-toolbelt/dist/svg-zoom.css" />
+// Mobile-optimized
+const mobile = new SvgZoom(container, {
+  zoomStep: 0.25,  // Bigger steps for touch
+  transitionDuration: 150,  // Faster animations
+  enableKeyboard: false     // Focus on touch
+});
 ```
 
-You can override these styles in your own stylesheet:
+---
+
+## ⌨️ Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `+` or `=` | Zoom in by one step |
+| `-` | Zoom out by one step |
+| `0` | Reset zoom and pan to defaults |
+| `↑` `↓` `←` `→` | Pan in the respective direction |
+| **Double-click** | Reset zoom and pan |
+
+**Note:** The container must have focus for keyboard shortcuts to work. Click on the diagram or tab to it.
+
+---
+
+## 👆 Touch Gestures
+
+| Gesture | Action |
+|---------|--------|
+| **Pinch** (two fingers) | Zoom in/out centered on gesture |
+| **Drag** (one finger) | Pan around the diagram |
+| **Double-tap** | Reset zoom and pan to defaults |
+
+All touch interactions are optimized for smooth 60fps performance.
+
+---
+
+## 🎨 Styling & Customization
+
+### Default Styles
+
+The package includes a complete CSS file:
+
+```typescript
+import 'svg-toolbelt/dist/svg-zoom.css';
+```
+
+### Custom Styling
+
+Override default styles in your CSS:
 
 ```css
-/* Example: customize controls container */
+/* Container styling */
+.svg-zoom-wrapper {
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+}
+
+/* Controls styling */
 .svg-zoom-controls {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(8px);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Example: larger buttons */
+/* Button styling */
 .svg-zoom-controls button {
-  width: 36px;
-  height: 36px;
-  border-radius: 6px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 18px;
+  transition: all 0.2s ease;
 }
 
-/* Example: container wrapper override */
-.svg-zoom-wrapper {
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+/* Dark theme */
+.dark .svg-zoom-wrapper {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+.dark .svg-zoom-controls {
+  background: rgba(31, 41, 55, 0.95);
+  border-color: #374151;
+}
+```
+
+### Responsive Design
+
+Built-in responsive breakpoints:
+
+```css
+/* Mobile optimizations (automatically applied) */
+@media (max-width: 768px) {
+  .svg-zoom-controls button {
+    width: 44px;   /* Larger touch targets */
+    height: 44px;
+    font-size: 16px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .svg-zoom-controls {
+    border: 2px solid #000;
+    background: #fff;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .svg-zoom-wrapper * {
+    transition: none !important;
+  }
 }
 ```
 
 ---
 
-## 🎯 Framework Integrations
+## 🛠️ Framework Integration
 
 ### React
 
 ```tsx
 import React, { useEffect, useRef } from 'react';
-import { SvgZoom } from 'svg-toolbelt';
+import { SvgZoom, SvgEnhancerConfig } from 'svg-toolbelt';
 import 'svg-toolbelt/dist/svg-zoom.css';
 
-function InteractiveSvg({ children, config }) {
+interface ZoomableSvgProps {
+  children: React.ReactNode;
+  config?: Partial<SvgEnhancerConfig>;
+  className?: string;
+}
+
+export function ZoomableSvg({ children, config, className }: ZoomableSvgProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const zoomRef = useRef<SvgZoom | null>(null);
+  const enhancerRef = useRef<SvgZoom>();
 
   useEffect(() => {
     if (containerRef.current) {
-      zoomRef.current = new SvgZoom(containerRef.current, config);
-      zoomRef.current.init();
+      enhancerRef.current = new SvgZoom(containerRef.current, config);
+      enhancerRef.current.init();
     }
+
     return () => {
-      zoomRef.current?.destroy();
+      enhancerRef.current?.destroy();
     };
   }, [config]);
 
-  return <div ref={containerRef} className="svg-zoom-container">{children}</div>;
+  return (
+    <div ref={containerRef} className={className}>
+      {children}
+    </div>
+  );
+}
+
+// Usage
+function MyComponent() {
+  return (
+    <ZoomableSvg config={{ minScale: 0.5, maxScale: 4 }}>
+      <svg viewBox="0 0 400 300">
+        {/* Your SVG content */}
+      </svg>
+    </ZoomableSvg>
+  );
 }
 ```
 
@@ -305,139 +424,223 @@ function InteractiveSvg({ children, config }) {
 
 ```vue
 <template>
-  <div ref="containerRef" class="svg-zoom-container">
+  <div ref="containerRef" :class="className">
     <slot />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
-import { SvgZoom } from 'svg-toolbelt';
+import { SvgZoom, SvgEnhancerConfig } from 'svg-toolbelt';
 import 'svg-toolbelt/dist/svg-zoom.css';
 
-const props = defineProps<{ config?: Partial<SvgEnhancerConfig> }>();
-const containerRef = ref<HTMLElement | null>(null);
-let zoomInstance: SvgZoom | null = null;
+interface Props {
+  config?: Partial<SvgEnhancerConfig>;
+  className?: string;
+}
+
+const props = defineProps<Props>();
+const containerRef = ref<HTMLElement>();
+let enhancer: SvgZoom;
 
 onMounted(() => {
   if (containerRef.value) {
-    zoomInstance = new SvgZoom(containerRef.value, props.config);
-    zoomInstance.init();
+    enhancer = new SvgZoom(containerRef.value, props.config);
+    enhancer.init();
   }
 });
 
 onUnmounted(() => {
-  zoomInstance?.destroy();
+  enhancer?.destroy();
 });
 </script>
-
-<style scoped>
-/* Optionally override CSS here */
-</style>
 ```
 
 ### Angular
 
-```ts
-import { Component, ElementRef, Input, AfterViewInit, OnDestroy, ViewChild } from '@angular/core';
+```typescript
+import { Component, ElementRef, Input, OnInit, OnDestroy } from '@angular/core';
 import { SvgZoom, SvgEnhancerConfig } from 'svg-toolbelt';
 import 'svg-toolbelt/dist/svg-zoom.css';
 
 @Component({
-  selector: 'app-interactive-svg',
-  template: '<div #container class="svg-zoom-container"><ng-content /></div>',
+  selector: 'app-zoomable-svg',
+  template: '<ng-content></ng-content>',
+  styleUrls: ['./zoomable-svg.component.css']
 })
-export class InteractiveSvgComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('container', { static: true }) containerRef!: ElementRef<HTMLElement>;
+export class ZoomableSvgComponent implements OnInit, OnDestroy {
   @Input() config?: Partial<SvgEnhancerConfig>;
-  private zoomInstance: SvgZoom | null = null;
 
-  ngAfterViewInit() {
-    this.zoomInstance = new SvgZoom(this.containerRef.nativeElement, this.config);
-    this.zoomInstance.init();
+  private enhancer?: SvgZoom;
+
+  constructor(private elementRef: ElementRef<HTMLElement>) {}
+
+  ngOnInit() {
+    this.enhancer = new SvgZoom(this.elementRef.nativeElement, this.config);
+    this.enhancer.init();
   }
 
   ngOnDestroy() {
-    this.zoomInstance?.destroy();
+    this.enhancer?.destroy();
   }
 }
 ```
 
 ---
 
-## 🗺️ Use Cases
+## 🎯 Real-World Use Cases
 
-Perfect for:
+### Mermaid Diagrams (GitLab-style)
 
-* 📊 **Mermaid diagrams** in documentation sites (GitLab, GitHub, Confluence).
-* 🗺️ **System architecture** diagrams and network topologies.
-* 📈 **Data visualizations** (D3, Chart.js SVG exports).
-* 🌳 **Mind maps** and hierarchical flowcharts.
-* 📱 **Mobile documentation** where pinch-to-zoom is essential.
-* ♿ **Accessible applications** requiring keyboard-driven navigation.
-* 🖼️ **Static SVG illustrations** that need seamless zoom/pan.
-
----
-
-## 🗺️ Browser Support
-
-* ✅ Chrome 60+
-* ✅ Firefox 55+
-* ✅ Safari 12+
-* ✅ Edge 79+
-* ✅ iOS Safari 12+
-* ✅ Chrome Mobile 60+
-* ✅ Samsung Internet 8+
-
-*For older browsers (IE11 or below), a polyfill is required (e.g., for `Promise`, `classList`, or fullscreen APIs).*
-
----
-
-## 🛠️ Development & Testing
-
-```bash
-# Clone the repository
-git clone https://github.com/zakariaf/svg-toolbelt.git
-cd svg-toolbelt
-
-# Install dependencies
-npm install
-
-# Development watch mode
-npm start
-
-# Run unit & integration tests
-npm test
-
-# View coverage report
-npm run test:coverage
-
-# Build for production (CJS, ESM, UMD)
-npm run build
-
-# Check bundle size
-npm run size
+```typescript
+// Wait for Mermaid to render, then enhance
+document.addEventListener('DOMContentLoaded', () => {
+  // Mermaid renders asynchronously
+  setTimeout(() => {
+    initializeSvgZoom('.mermaid', {
+      minScale: 0.2,
+      maxScale: 6,
+      controlsPosition: 'top-right',
+      zoomStep: 0.15
+    });
+  }, 100);
+});
 ```
 
-* **Unit tests** use Jest + JSDOM + @testing-library/dom (≥95 % coverage).
-* **Linting**: ESLint + Prettier + Husky (pre-commit hook).
-* **Build pipeline**: TSDX (produces `dist/` with `.cjs.js`, `.esm.js`, `.umd.js`, and `index.d.ts`).
+### Large System Architecture Diagrams
+
+```typescript
+initializeSvgZoom('.architecture-diagram', {
+  minScale: 0.1,    // Zoom way out to see the big picture
+  maxScale: 20,     // Zoom way in to read details
+  zoomStep: 0.2,    // Bigger steps for faster navigation
+  controlsPosition: 'bottom-right'
+});
+```
+
+### Data Visualizations
+
+```typescript
+// After D3 or Chart.js renders your SVG
+const chartContainer = d3.select('#chart').node().parentElement;
+const enhancer = new SvgZoom(chartContainer, {
+  enableKeyboard: false,  // Let your chart handle keyboard events
+  showControls: false,    // Use your own UI
+  enableTouch: true       // Keep touch for mobile users
+});
+enhancer.init();
+```
+
+### Mobile Documentation
+
+```typescript
+// Mobile-optimized configuration
+initializeSvgZoom('.mobile-diagram', {
+  zoomStep: 0.25,           // Larger steps for touch
+  transitionDuration: 100,  // Faster transitions
+  controlsPosition: 'bottom-right',
+  minScale: 0.3,           // Don't zoom too far out on small screens
+  maxScale: 5              // Don't need extreme zoom on mobile
+});
+```
+
+---
+
+## 🌐 Browser Support
+
+- ✅ **Chrome 60+** (including Android)
+- ✅ **Firefox 55+**
+- ✅ **Safari 12+** (including iOS)
+- ✅ **Edge 79+** (Chromium-based)
+- ✅ **Samsung Internet 8+**
+
+**Legacy Support:**
+
+- For older browsers, ensure these APIs are available (via polyfills if needed):
+  - `addEventListener`
+  - `querySelector` / `querySelectorAll`
+  - `getBoundingClientRect`
+  - `transform` CSS property
+
+---
+
+## 🧪 Development & Testing
+
+```bash
+# Clone and setup
+git clone https://github.com/zakariaf/svg-toolbelt.git
+cd svg-toolbelt
+npm install
+
+# Development
+npm start          # Watch mode with live reload
+npm run build      # Production build
+npm run build:watch # Watch build mode
+
+# Testing
+npm test           # Run all tests
+npm run test:watch # Watch mode testing
+npm run test:coverage # Coverage report
+
+# Quality
+npm run lint       # ESLint
+npm run format     # Prettier
+npm run typecheck  # TypeScript checking
+```
+
+### Test Coverage
+
+- **Unit tests**: Individual features and core logic (>95% coverage)
+- **Integration tests**: End-to-end scenarios and real DOM interactions
+- **Accessibility tests**: Keyboard navigation and screen reader compatibility
+- **Performance tests**: Memory leaks and smooth operation under load
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
+**MIT License** - see [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🎉 Acknowledgments & Inspiration
+## 🙏 Acknowledgments
 
-* Built with [TSDX](https://tsdx.io/) for robust TypeScript development.
-* Inspired by the need for better SVG interaction in documentation platforms (Mermaid, D3, static diagrams).
-* Thanks to the open source community for feedback, issues, and contributions.
+- **GitLab Engineering Team** - For the original requirement and use case
+- **Mermaid.js Community** - For inspiring better diagram accessibility
+- **TSDX** - For excellent TypeScript tooling
+- **Open Source Community** - For feedback, testing, and contributions
 
 ---
 
-**Made with ❤️ for the developer community.**
-*If svg-toolbelt helped you, consider giving it a ⭐ on GitHub!*
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for:
+
+- 🐛 **Bug reports** and fixes
+- ✨ **Feature requests** and implementations
+- 📖 **Documentation** improvements
+- 🧪 **Test coverage** enhancements
+- 🎨 **Accessibility** improvements
+
+### Quick Start for Contributors
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes with tests: `npm test`
+4. Ensure quality: `npm run lint && npm run typecheck`
+5. Submit a pull request
+
+---
+
+**Made with ❤️ for better documentation everywhere**
+
+*If svg-toolbelt helps your project, please consider starring the repository!* ⭐
+
+---
+
+### 📞 Support
+
+- 📖 **Documentation**: [Complete API docs and examples](https://svg-toolbelt.dev)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/zakariaf/svg-toolbelt/discussions)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/zakariaf/svg-toolbelt/issues)
+- 💼 **Enterprise**: [Commercial support available](mailto:enterprise@svg-toolbelt.dev)
