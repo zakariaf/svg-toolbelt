@@ -2,7 +2,7 @@
  * Fullscreen Feature - extracted from original code
  */
 
-import { SvgEnhancer } from "../core/base";
+import { SvgEnhancer } from '../core/base';
 
 export class FullscreenFeature {
   private enhancer: SvgEnhancer;
@@ -15,11 +15,11 @@ export class FullscreenFeature {
     if (this.enhancer.isDestroyed) return;
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {
-        console.warn("Failed to exit fullscreen");
+        console.warn('Failed to exit fullscreen');
       });
     } else {
-      this.enhancer.container.requestFullscreen().catch((err) => {
-        console.warn("Failed to enter fullscreen:", err);
+      this.enhancer.container.requestFullscreen().catch(err => {
+        console.warn('Failed to enter fullscreen:', err);
       });
     }
   }

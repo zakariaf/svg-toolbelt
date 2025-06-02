@@ -1,8 +1,8 @@
 /*
-* Zoom Feature for SVG Enhancer
-*/
+ * Zoom Feature for SVG Enhancer
+ */
 
-import { SvgEnhancer } from "../core/base";
+import { SvgEnhancer } from '../core/base';
 
 export class ZoomFeature {
   private enhancer: SvgEnhancer;
@@ -14,7 +14,7 @@ export class ZoomFeature {
   }
 
   public init(): void {
-    this.enhancer.container.addEventListener("wheel", this.handleWheel, {
+    this.enhancer.container.addEventListener('wheel', this.handleWheel, {
       passive: false,
     });
   }
@@ -65,7 +65,7 @@ export class ZoomFeature {
     this.enhancer.translateY = y - svgY * this.enhancer.scale;
 
     this.enhancer.constrainPan();
-    this.enhancer.emit("zoom", {
+    this.enhancer.emit('zoom', {
       translateX: this.enhancer.translateX,
       translateY: this.enhancer.translateY,
       scale: this.enhancer.scale,
@@ -74,6 +74,6 @@ export class ZoomFeature {
   }
 
   public destroy(): void {
-    this.enhancer.container.removeEventListener("wheel", this.handleWheel);
+    this.enhancer.container.removeEventListener('wheel', this.handleWheel);
   }
 }

@@ -1,7 +1,7 @@
 // src/core/base.ts
 
-import { DEFAULT_SVG_ENHANCER_CONFIG, SvgEnhancerConfig } from "./config";
-import { EventEmitter } from "./events";
+import { DEFAULT_SVG_ENHANCER_CONFIG, SvgEnhancerConfig } from './config';
+import { EventEmitter } from './events';
 
 export interface SvgEnhancerFeatures {
   zoom: any; // we'll type these in feature modules
@@ -32,11 +32,11 @@ export class SvgEnhancer extends EventEmitter {
     super();
     this.container = container;
     this.config = { ...DEFAULT_SVG_ENHANCER_CONFIG, ...config };
-    this.svg = container.querySelector<SVGSVGElement>("svg") || null;
+    this.svg = container.querySelector<SVGSVGElement>('svg') || null;
 
     if (!this.svg) {
       this.isDestroyed = true;
-      console.warn("SvgEnhancer: No <svg> found in container");
+      console.warn('SvgEnhancer: No <svg> found in container');
       return;
     }
   }
@@ -50,8 +50,8 @@ export class SvgEnhancer extends EventEmitter {
   }
 
   protected setupContainer(): void {
-    this.container.classList.add("svg-zoom-container");
-    this.svg!.classList.add("svg-zoom-svg");
+    this.container.classList.add('svg-zoom-container');
+    this.svg!.classList.add('svg-zoom-svg');
   }
 
   /**
@@ -73,7 +73,7 @@ export class SvgEnhancer extends EventEmitter {
 
     // Destroy all feature instances
     Object.values(this.features).forEach((feature: any) => {
-      if (feature && typeof feature.destroy === "function") {
+      if (feature && typeof feature.destroy === 'function') {
         feature.destroy();
       }
     });

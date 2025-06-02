@@ -1,13 +1,13 @@
-import { SvgEnhancer } from "./core/base";
-import { SvgEnhancerConfig } from "./core/config";
-import { ZoomFeature } from "./features/zoom";
-import { PanFeature } from "./features/pan";
-import { TouchFeature } from "./features/touch";
-import { KeyboardFeature } from "./features/keyboard";
-import { ControlsFeature } from "./features/controls";
-import { FullscreenFeature } from "./features/fullscreen";
-import { DblclickResetFeature } from "./features/dblclickReset";
-import { NoContextMenuFeature } from "./features/noContextMenu";
+import { SvgEnhancer } from './core/base';
+import { SvgEnhancerConfig } from './core/config';
+import { ZoomFeature } from './features/zoom';
+import { PanFeature } from './features/pan';
+import { TouchFeature } from './features/touch';
+import { KeyboardFeature } from './features/keyboard';
+import { ControlsFeature } from './features/controls';
+import { FullscreenFeature } from './features/fullscreen';
+import { DblclickResetFeature } from './features/dblclickReset';
+import { NoContextMenuFeature } from './features/noContextMenu';
 
 /**
  * SvgZoom class: a high-level wrapper that sets up all features on the container:
@@ -32,7 +32,9 @@ export class SvgZoom extends SvgEnhancer {
       touch: this.config.enableTouch ? new TouchFeature(this) : null,
       keyboard: this.config.enableKeyboard ? new KeyboardFeature(this) : null,
       controls: this.config.showControls ? new ControlsFeature(this) : null,
-      fullscreen: document.fullscreenEnabled ? new FullscreenFeature(this) : null,
+      fullscreen: document.fullscreenEnabled
+        ? new FullscreenFeature(this)
+        : null,
     } as any;
   }
 
@@ -42,7 +44,7 @@ export class SvgZoom extends SvgEnhancer {
   public init(): void {
     super.init();
     Object.values(this.features).forEach((feature: any) => {
-      if (feature && typeof feature.init === "function") {
+      if (feature && typeof feature.init === 'function') {
         feature.init();
       }
     });
@@ -76,8 +78,10 @@ export function initializeSvgZoom(
 ): void {
   let containers: HTMLElement[] = [];
 
-  if (typeof selectorOrElements === "string") {
-    containers = Array.from(document.querySelectorAll<HTMLElement>(selectorOrElements));
+  if (typeof selectorOrElements === 'string') {
+    containers = Array.from(
+      document.querySelectorAll<HTMLElement>(selectorOrElements)
+    );
   } else if (selectorOrElements instanceof HTMLElement) {
     containers = [selectorOrElements];
   } else if (Array.isArray(selectorOrElements)) {
@@ -85,29 +89,29 @@ export function initializeSvgZoom(
   }
 
   if (containers.length === 0) {
-    console.info("SvgZoom: No containers found to initialize");
+    console.info('SvgZoom: No containers found to initialize');
     return;
   }
 
   containers.forEach((container, idx) => {
-    if (container.closest(".svg-zoom-wrapper")) {
+    if (container.closest('.svg-zoom-wrapper')) {
       // Already initialized
       return;
     }
 
     try {
-      const svg = container.querySelector<SVGSVGElement>("svg");
+      const svg = container.querySelector<SVGSVGElement>('svg');
       if (svg) {
         // Wrap container to preserve layout
-        const wrapper = document.createElement("div");
-        wrapper.className = "svg-zoom-wrapper";
+        const wrapper = document.createElement('div');
+        wrapper.className = 'svg-zoom-wrapper';
 
         container.parentNode!.insertBefore(wrapper, container);
         wrapper.appendChild(container);
 
         const zoomInstance = new SvgZoom(wrapper, config);
         zoomInstance.init();
-        wrapper.setAttribute("data-svg-zoom-initialized", "true");
+        wrapper.setAttribute('data-svg-zoom-initialized', 'true');
         // Store instance for potential future references
         (wrapper as any).svgZoomInstance = zoomInstance;
         console.info(`SvgZoom: Initialized zoom for container #${idx + 1}`);

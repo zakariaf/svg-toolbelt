@@ -1,4 +1,4 @@
-import { SvgEnhancer } from "../core/base";
+import { SvgEnhancer } from '../core/base';
 
 export class NoContextMenuFeature {
   private enhancer: SvgEnhancer;
@@ -10,10 +10,16 @@ export class NoContextMenuFeature {
   }
 
   public init(): void {
-    this.enhancer.container.addEventListener("contextmenu", this.handleContextMenu);
+    this.enhancer.container.addEventListener(
+      'contextmenu',
+      this.handleContextMenu
+    );
   }
 
   public destroy(): void {
-    this.enhancer.container.removeEventListener("contextmenu", this.handleContextMenu);
+    this.enhancer.container.removeEventListener(
+      'contextmenu',
+      this.handleContextMenu
+    );
   }
 }

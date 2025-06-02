@@ -10,7 +10,10 @@ export function getTouchDistance(touch1: Touch, touch2: Touch): number {
 /**
  * Calculate center point between two touches.
  */
-export function getTouchCenter(touch1: Touch, touch2: Touch): { x: number; y: number } {
+export function getTouchCenter(
+  touch1: Touch,
+  touch2: Touch
+): { x: number; y: number } {
   return {
     x: (touch1.clientX + touch2.clientX) / 2,
     y: (touch1.clientY + touch2.clientY) / 2,
@@ -25,12 +28,12 @@ export function createControlButton(
   title: string,
   onClick: () => void
 ): HTMLButtonElement {
-  const button = document.createElement("button");
+  const button = document.createElement('button');
   button.textContent = text;
   button.title = title;
-  button.className = "svg-zoom-btn";
+  button.className = 'svg-zoom-btn';
 
-  button.addEventListener("click", (e) => {
+  button.addEventListener('click', e => {
     e.preventDefault();
     e.stopPropagation();
     onClick();
@@ -48,7 +51,7 @@ export function getSVGBoundingBox(
   try {
     const bbox = svg.getBBox();
     if (bbox.width === 0 || bbox.height === 0) {
-      console.warn("SVG has zero dimensions");
+      console.warn('SVG has zero dimensions');
       return null;
     }
     return {

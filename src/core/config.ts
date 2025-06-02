@@ -19,7 +19,7 @@ export interface SvgEnhancerConfig {
   showControls: boolean;
 
   // Position of controls: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'
-  controlsPosition: "top-right" | "top-left" | "bottom-right" | "bottom-left";
+  controlsPosition: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
 
   // Touch support
   enableTouch: boolean;
@@ -28,15 +28,17 @@ export interface SvgEnhancerConfig {
   enableKeyboard: boolean;
 }
 
-export const DEFAULT_SVG_ENHANCER_CONFIG: Readonly<SvgEnhancerConfig> = Object.freeze({
-  minScale: 0.1,
-  maxScale: 10,
-  zoomStep: 0.1,
-  maxPanX: 1000,
-  maxPanY: 1000,
-  transitionDuration: 200,
-  showControls: true,
-  controlsPosition: "top-right",
-  enableTouch: true,
-  enableKeyboard: true,
-});
+export const DEFAULT_SVG_ENHANCER_CONFIG: Readonly<SvgEnhancerConfig> = Object.freeze(
+  {
+    minScale: 0.1,
+    maxScale: 10,
+    zoomStep: 0.1,
+    maxPanX: 1000,
+    maxPanY: 1000,
+    transitionDuration: 200,
+    showControls: true,
+    controlsPosition: 'top-right',
+    enableTouch: true,
+    enableKeyboard: true,
+  }
+);

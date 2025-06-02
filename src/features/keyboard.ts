@@ -2,7 +2,7 @@
  * Keyboard Feature
  */
 
-import { SvgEnhancer } from "../core/base";
+import { SvgEnhancer } from '../core/base';
 
 export class KeyboardFeature {
   private enhancer: SvgEnhancer;
@@ -14,8 +14,8 @@ export class KeyboardFeature {
   }
 
   public init(): void {
-    this.enhancer.container.setAttribute("tabindex", "0");
-    this.enhancer.container.addEventListener("keydown", this.handleKeyDown);
+    this.enhancer.container.setAttribute('tabindex', '0');
+    this.enhancer.container.addEventListener('keydown', this.handleKeyDown);
   }
 
   private _handleKeyDown(e: KeyboardEvent): void {
@@ -23,40 +23,40 @@ export class KeyboardFeature {
     const step = 20;
 
     switch (true) {
-      case e.key === "+" || e.key === "=":
+      case e.key === '+' || e.key === '=':
         e.preventDefault();
         this.enhancer.features.zoom.zoomIn();
         break;
-      case e.key === "-":
+      case e.key === '-':
         e.preventDefault();
         this.enhancer.features.zoom.zoomOut();
         break;
-      case e.key === "0":
+      case e.key === '0':
         e.preventDefault();
         this.enhancer.scale = 1;
         this.enhancer.translateX = 0;
         this.enhancer.translateY = 0;
         this.enhancer.svg!.style.transform = `translate(0px, 0px) scale(1)`;
         break;
-      case e.key === "ArrowUp":
+      case e.key === 'ArrowUp':
         e.preventDefault();
         this.enhancer.translateY += step;
         this.enhancer.constrainPan();
         this.enhancer.svg!.style.transform = `translate(${this.enhancer.translateX}px, ${this.enhancer.translateY}px) scale(${this.enhancer.scale})`;
         break;
-      case e.key === "ArrowDown":
+      case e.key === 'ArrowDown':
         e.preventDefault();
         this.enhancer.translateY -= step;
         this.enhancer.constrainPan();
         this.enhancer.svg!.style.transform = `translate(${this.enhancer.translateX}px, ${this.enhancer.translateY}px) scale(${this.enhancer.scale})`;
         break;
-      case e.key === "ArrowLeft":
+      case e.key === 'ArrowLeft':
         e.preventDefault();
         this.enhancer.translateX += step;
         this.enhancer.constrainPan();
         this.enhancer.svg!.style.transform = `translate(${this.enhancer.translateX}px, ${this.enhancer.translateY}px) scale(${this.enhancer.scale})`;
         break;
-      case e.key === "ArrowRight":
+      case e.key === 'ArrowRight':
         e.preventDefault();
         this.enhancer.translateX -= step;
         this.enhancer.constrainPan();
@@ -69,6 +69,6 @@ export class KeyboardFeature {
   }
 
   public destroy(): void {
-    this.enhancer.container.removeEventListener("keydown", this.handleKeyDown);
+    this.enhancer.container.removeEventListener('keydown', this.handleKeyDown);
   }
 }

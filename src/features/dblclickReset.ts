@@ -1,5 +1,4 @@
-
-import { SvgEnhancer } from "../core/base";
+import { SvgEnhancer } from '../core/base';
 
 export class DblclickResetFeature {
   private enhancer: SvgEnhancer;
@@ -11,7 +10,7 @@ export class DblclickResetFeature {
   }
 
   public init(): void {
-    this.enhancer.svg!.addEventListener("dblclick", this.handleDblClick);
+    this.enhancer.svg!.addEventListener('dblclick', this.handleDblClick);
   }
 
   private _handleDblClick(_: MouseEvent): void {
@@ -24,6 +23,6 @@ export class DblclickResetFeature {
   }
 
   public destroy(): void {
-    this.enhancer.svg!.removeEventListener("dblclick", this.handleDblClick);
+    this.enhancer.svg!.removeEventListener('dblclick', this.handleDblClick);
   }
 }

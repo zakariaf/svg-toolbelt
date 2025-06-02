@@ -1,6 +1,5 @@
-
-import { SvgEnhancer } from "../core/base";
-import { getTouchDistance, getTouchCenter } from "../core/utils";
+import { SvgEnhancer } from '../core/base';
+import { getTouchDistance, getTouchCenter } from '../core/utils';
 
 export class TouchFeature {
   private enhancer: SvgEnhancer;
@@ -22,9 +21,13 @@ export class TouchFeature {
 
   public init(): void {
     const svgEl = this.enhancer.svg!;
-    svgEl.addEventListener("touchstart", this.handleTouchStart, { passive: false });
-    svgEl.addEventListener("touchmove", this.handleTouchMove, { passive: false });
-    svgEl.addEventListener("touchend", this.handleTouchEnd);
+    svgEl.addEventListener('touchstart', this.handleTouchStart, {
+      passive: false,
+    });
+    svgEl.addEventListener('touchmove', this.handleTouchMove, {
+      passive: false,
+    });
+    svgEl.addEventListener('touchend', this.handleTouchEnd);
   }
 
   private _handleTouchStart(e: TouchEvent): void {
@@ -65,7 +68,8 @@ export class TouchFeature {
       const center = getTouchCenter(t1, t2);
 
       if (this.lastTouchDistance > 0) {
-        const scaleDelta = (distance / this.lastTouchDistance - 1) * this.enhancer.scale;
+        const scaleDelta =
+          (distance / this.lastTouchDistance - 1) * this.enhancer.scale;
         const rect = this.enhancer.containerRect;
         const centerX = center.x - rect.left;
         const centerY = center.y - rect.top;
@@ -85,8 +89,8 @@ export class TouchFeature {
 
   public destroy(): void {
     const svgEl = this.enhancer.svg!;
-    svgEl.removeEventListener("touchstart", this.handleTouchStart);
-    svgEl.removeEventListener("touchmove", this.handleTouchMove);
-    svgEl.removeEventListener("touchend", this.handleTouchEnd);
+    svgEl.removeEventListener('touchstart', this.handleTouchStart);
+    svgEl.removeEventListener('touchmove', this.handleTouchMove);
+    svgEl.removeEventListener('touchend', this.handleTouchEnd);
   }
 }

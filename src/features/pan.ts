@@ -2,7 +2,7 @@
  * Pan Feature - extracted from original code
  */
 
-import { SvgEnhancer } from "../core/base";
+import { SvgEnhancer } from '../core/base';
 
 export class PanFeature {
   private enhancer: SvgEnhancer;
@@ -22,9 +22,9 @@ export class PanFeature {
   }
 
   public init(): void {
-    this.enhancer.svg!.addEventListener("mousedown", this.handleMouseDown);
-    document.addEventListener("mousemove", this.handleMouseMove);
-    document.addEventListener("mouseup", this.handleMouseUp);
+    this.enhancer.svg!.addEventListener('mousedown', this.handleMouseDown);
+    document.addEventListener('mousemove', this.handleMouseMove);
+    document.addEventListener('mouseup', this.handleMouseUp);
   }
 
   private _handleMouseDown(e: MouseEvent): void {
@@ -49,7 +49,7 @@ export class PanFeature {
     this.lastMouseY = e.clientY;
 
     this.enhancer.constrainPan();
-    this.enhancer.emit("pan", {
+    this.enhancer.emit('pan', {
       translateX: this.enhancer.translateX,
       translateY: this.enhancer.translateY,
       scale: this.enhancer.scale,
@@ -64,8 +64,8 @@ export class PanFeature {
   }
 
   public destroy(): void {
-    this.enhancer.svg!.removeEventListener("mousedown", this.handleMouseDown);
-    document.removeEventListener("mousemove", this.handleMouseMove);
-    document.removeEventListener("mouseup", this.handleMouseUp);
+    this.enhancer.svg!.removeEventListener('mousedown', this.handleMouseDown);
+    document.removeEventListener('mousemove', this.handleMouseMove);
+    document.removeEventListener('mouseup', this.handleMouseUp);
   }
 }
