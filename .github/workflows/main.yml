@@ -9,10 +9,6 @@ jobs:
       fail-fast: false  # Don't cancel other jobs if one fails
       matrix:
         include:
-          - node: '16.x'
-            os: ubuntu-latest
-          - node: '16.x'
-            os: windows-latest
           - node: '18.x'
             os: ubuntu-latest
           - node: '18.x'
