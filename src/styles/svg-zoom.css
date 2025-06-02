@@ -1,0 +1,296 @@
+/* Mermaid Zoom Enhancement Styles */
+
+/* Base Mermaid wrapper for zoom functionality */
+.mermaid-zoom-wrapper {
+  position: relative;
+  display: block;
+  margin: 1.5rem 0;
+  min-height: 200px;
+  max-height: 600px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Container styling when zoom is active */
+.mermaid-zoom-container {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: #ffffff;
+}
+
+/* SVG styling for zoom functionality */
+.mermaid-zoom-svg,
+.mermaid svg,
+.mermaid-zoom-wrapper svg {
+  cursor: grab;
+  user-select: none;
+  max-width: none !important;
+  width: 100%;
+  height: auto;
+  transform-origin: 0 0;
+  display: block;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+}
+
+.mermaid-zoom-svg:active {
+  cursor: grabbing;
+}
+
+/* Preserve unprocessed state */
+.mermaid:not([data-processed='true']) { display: none; }
+.mermaid-zoom-wrapper .mermaid[data-processed='true'] { display: block; }
+
+/* Zoom control buttons container */
+.mermaid-zoom-controls {
+  position: absolute;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Position controls based on config.controlsPosition */
+.mermaid-zoom-controls.position-top-right    {
+  top: 12px;
+  right: 12px;
+}
+.mermaid-zoom-controls.position-top-left     {
+  top: 12px;
+  left: 12px;
+}
+.mermaid-zoom-controls.position-bottom-right {
+  bottom: 12px;
+  right: 12px;
+}
+.mermaid-zoom-controls.position-bottom-left  {
+  bottom: 12px;
+  left: 12px;
+}
+
+/* Individual control buttons */
+.mermaid-zoom-controls .mermaid-zoom-btn,
+.mermaid-zoom-controls button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #a4a3a8;
+  background: #ffffff;
+  color: #535158;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+}
+
+.mermaid-zoom-controls .mermaid-zoom-btn:hover,
+.mermaid-zoom-controls button:hover {
+  background-color: #ececef;
+  border-color: #89888d;
+  color: #333238;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+.mermaid-zoom-controls .mermaid-zoom-btn:active,
+.mermaid-zoom-controls button:active {
+  background-color: #dcdcde;
+  border-color: #737278;
+  color: #333238;
+  transform: translateY(0) scale(0.95);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.mermaid-zoom-controls .mermaid-zoom-btn:focus,
+.mermaid-zoom-controls button:focus {
+  outline: 2px solid #428fdc;
+  outline-offset: 2px;
+  border-color: #428fdc;
+}
+
+/* Fullscreen styles */
+:fullscreen .mermaid,
+:fullscreen .mermaid-zoom-wrapper {
+  max-height: none;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  margin: 0;
+  background: #ffffff;
+}
+
+/* Loading state */
+.mermaid-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #737278;
+  font-style: italic;
+  background: #fbfafd;
+}
+.mermaid-loading::before {
+  content: "Loading diagram...";
+}
+
+/* Error state */
+.mermaid-error {
+  border: 2px dashed #ec5941;
+  border-radius: 6px;
+  padding: 1rem;
+  background-color: #fcf1ef;
+  color: #c91c00;
+  text-align: left;
+  margin: 1.5rem 0;
+}
+.mermaid-error summary:hover {
+  text-decoration: underline;
+  color: #ec5941;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .mermaid-zoom-controls {
+    padding: 6px;
+    gap: 2px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+  }
+  .mermaid-zoom-controls .mermaid-zoom-btn,
+  .mermaid-zoom-controls button {
+    width: 40px !important; /* Larger touch targets */
+    height: 40px !important;
+    font-size: 14px !important;
+    border-radius: 3px;
+    min-width: 44px; /* iOS/Android recommended minimum */
+    min-height: 44px;
+  }
+}
+
+/* Tablet optimizations */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .mermaid-zoom-controls {
+    padding: 7px;
+    gap: 3px;
+  }
+  .mermaid-zoom-controls .mermaid-zoom-btn,
+  .mermaid-zoom-controls button {
+    width: 36px;
+    height: 36px;
+    font-size: 15px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .mermaid-zoom-wrapper,
+  .mermaid-zoom-container {
+    border: 2px solid #000;
+  }
+  .mermaid-zoom-controls,
+  .mermaid-zoom-controls button {
+    background: #ffffff;
+    border: 2px solid #000;
+    color: #000;
+  }
+  .mermaid-zoom-controls button:hover {
+    background: #000;
+    color: #ffffff;
+  }
+  .mermaid-zoom-controls button:focus {
+    outline: 3px solid #1068bf;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .mermaid svg,
+  .mermaid-zoom-controls button {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .mermaid-zoom-controls {
+    display: none !important;
+  }
+  .mermaid-zoom-wrapper,
+  .mermaid {
+    border: 1px solid #000;
+    background: #ffffff;
+    page-break-inside: avoid;
+    box-shadow: none;
+  }
+  .mermaid svg {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
+
+/* Keyboard navigation hint */
+.mermaid::after {
+  content: "Use +/- to zoom, arrows to pan, 0 to reset, or double-click";
+  position: absolute;
+  bottom: 8px;
+  left: 12px;
+  background: #333238;
+  color: #ffffff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 5;
+  font-weight: 500;
+}
+
+:fullscreen .mermaid::after,
+:fullscreen .mermaid-zoom-wrapper .mermaid::after,
+:full-screen .mermaid::after,
+:full-screen .mermaid-zoom-wrapper .mermaid::after {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  max-width: 90%;
+}
+
+.mermaid:focus::after,
+.mermaid:hover::after {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .mermaid::after {
+    content: "Pinch to zoom, drag to pan, double-tap to reset";
+    bottom: 4px;
+    left: 8px;
+    font-size: 10px;
+    padding: 3px 6px;
+    background: rgba(51, 50, 56, 0.9); /* --gray-900 with transparency */
+    backdrop-filter: blur(4px);
+  }
+}
