@@ -41,14 +41,9 @@
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "type-check": "tsc --noEmit",
-    "prepare": "npm run build",
+    "prepare": "husky",
     "size": "size-limit",
     "analyze": "size-limit --why"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsdx lint"
-    }
   },
   "prettier": {
     "printWidth": 80,
@@ -80,7 +75,6 @@
     "size-limit": "^11.2.0",
     "typescript": "^5.8.3",
     "vite": "^6.0.0",
-    "vite-plugin-css-injected-by-js": "^3.5.0",
     "vite-plugin-dts": "^4.0.0",
     "vitest": "^3.2.1"
   }

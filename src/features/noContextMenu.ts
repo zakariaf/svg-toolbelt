@@ -6,7 +6,7 @@ export class NoContextMenuFeature {
 
   constructor(enhancer: SvgEnhancer) {
     this.enhancer = enhancer;
-    this.handleContextMenu = (e: MouseEvent) => e.preventDefault();
+    this.handleContextMenu = (e: MouseEvent): void => e.preventDefault();
   }
 
   public init(): void {

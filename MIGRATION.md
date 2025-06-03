@@ -11,7 +11,7 @@
 - **Old (TSDX)**: Used Rollup internally with limited CSS support
 - **New (Vite)**: Modern build tool with excellent CSS handling
 - **CSS Benefits**:
-  - Automatic minification (4.66 kB → 1.43 kB gzipped)
+  - Automatic CSS minification (CSS file: 4.66 kB → 1.43 kB gzipped)
   - Better tree-shaking
   - Faster builds
   - Better source maps
@@ -28,7 +28,9 @@
   "dev": "vite build --watch",
   "build": "vite build",
   "test": "vitest",
-  "lint": "eslint src --ext .ts,.tsx"
+  "lint": "eslint src --ext .ts,.tsx",
+  "lint:fix": "eslint src --ext .ts,.tsx --fix",
+  "type-check": "tsc --noEmit"
 }
 ```
 

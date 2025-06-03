@@ -33,6 +33,13 @@ export default [
     },
   },
   {
+    files: ['src/**/*.ts'],
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': 'error',
+      '@typescript-eslint/explicit-module-boundary-types': 'error',
+    },
+  },
+  {
     files: ['test/**/*.ts'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
