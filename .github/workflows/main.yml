@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build, lint, test & coverage on Node ${{ matrix.node }} / ${{ matrix.os }}
+    name: Build, Lint, Test & Coverage on Node ${{ matrix.node }} / ${{ matrix.os }}
 
     runs-on: ${{ matrix.os }}
     strategy:
@@ -30,7 +30,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Use Node ${{ matrix.node }}
+      - name: Use Node.js ${{ matrix.node }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
@@ -49,6 +49,28 @@ jobs:
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Create a unique flag name per job, so Coveralls can combine them later.
+          # Replace slashes and dots so the flag has no special characters
+          flag-name: ${{ matrix.os }}-node${{ matrix.node }}
+          parallel: true
 
       - name: Build
         run: yarn build
+
+  finish:
+    name: Notify Coveralls – all parallel jobs done
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    steps:
+      - name: Notify Coveralls parallel-finished
+        uses: coverallsapp/github-action@v2
+        with:
+          # Signal Coveralls that all "flag-name" uploads are complete
+          parallel-finished: true
+          carryforward: |
+            ubuntu-latest-node18.x,
+            windows-latest-node18.x,
+            ubuntu-latest-node20.x,
+            windows-latest-node20.x,
+            macOS-latest-node20.x
