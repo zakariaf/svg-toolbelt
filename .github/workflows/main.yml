@@ -34,16 +34,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          cache: 'yarn'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Lint
-        run: yarn lint
+        run: npm run lint
 
       - name: Test
-        run: yarn test --ci --coverage --maxWorkers=2
+        run: npm run test -- --coverage
 
       - name: Upload coverage to Coveralls
         uses: coverallsapp/github-action@v2
@@ -55,7 +55,7 @@ jobs:
           parallel: true
 
       - name: Build
-        run: yarn build
+        run: npm run build
 
   finish:
     name: Notify Coveralls – all parallel jobs done
