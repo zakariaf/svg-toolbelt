@@ -80,4 +80,37 @@ describe('TouchFeature (advanced)', () => {
 
     expect(enhancer.scale).toBeGreaterThan(initialScale);
   });
+
+  describe('TouchFeature: touchend handling', () => {
+    it('should handle touchend event and stop dragging', () => {
+      const container = document.createElement('div');
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      container.appendChild(svg);
+      document.body.appendChild(container);
+
+      const enhancer = new SvgEnhancer(container);
+      const touchFeature = new TouchFeature(enhancer);
+      touchFeature.init();
+
+      // Start dragging by triggering touchstart
+      const touchStartEvent = new TouchEvent('touchstart', {
+        touches: [
+          { clientX: 100, clientY: 100 } as Touch,
+        ],
+      });
+      svg.dispatchEvent(touchStartEvent);
+      expect((touchFeature as any).isDragging).toBe(true);
+
+      // Trigger touchend to stop dragging
+      const touchEndEvent = new TouchEvent('touchend', {
+        touches: [],
+      });
+      svg.dispatchEvent(touchEndEvent);
+
+      // Verify dragging is stopped
+      expect((touchFeature as any).isDragging).toBe(false);
+
+      document.body.removeChild(container);
+    });
+  });
 });

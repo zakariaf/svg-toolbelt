@@ -4,6 +4,7 @@
 
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { SvgEnhancer } from '../src/core/base';
+import { SvgZoom } from '../src/index';
 import { DEFAULT_SVG_ENHANCER_CONFIG } from '../src/core/config';
 
 describe('SvgEnhancer (core)', () => {
@@ -56,5 +57,55 @@ describe('SvgEnhancer (core)', () => {
     enhancer.destroy();
     expect(enhancer.isDestroyed).toBe(true);
     expect(enhancer.emit('test')).toBe(false);
+  });
+});
+
+describe('SvgZoom public API', () => {
+  let container: HTMLElement;
+  let svg: SVGSVGElement;
+
+  beforeEach(() => {
+    container = document.createElement('div');
+    svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '100');
+    svg.setAttribute('height', '100');
+    container.appendChild(svg);
+    document.body.appendChild(container);
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('should expose zoomIn and zoomOut methods', () => {
+    const enhancer = new SvgZoom(container);
+    enhancer.init();
+
+    const initialScale = enhancer.scale;
+
+    // Test zoomIn
+    enhancer.zoomIn();
+    expect(enhancer.scale).toBeGreaterThan(initialScale);
+
+    // Test zoomOut
+    const zoomedScale = enhancer.scale;
+    enhancer.zoomOut();
+    expect(enhancer.scale).toBeLessThan(zoomedScale);
+  });
+
+  it('should handle keyboard feature edge case', () => {
+    const enhancer = new SvgZoom(container, { enableKeyboard: true });
+    enhancer.init();
+
+    // Test potential edge case in keyboard handling
+    expect(enhancer.features.keyboard).toBeTruthy();
+  });
+
+  it('should handle touch feature edge case', () => {
+    const enhancer = new SvgZoom(container, { enableTouch: true });
+    enhancer.init();
+
+    // Test touch feature initialization
+    expect(enhancer.features.touch).toBeTruthy();
   });
 });
