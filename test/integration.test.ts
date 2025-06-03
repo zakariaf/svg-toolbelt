@@ -3,6 +3,7 @@
  * calling initializeSvgZoom, and verifying wrapper and data attributes.
  */
 
+import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import { initializeSvgZoom } from '../src';
 
 describe('initializeSvgZoom (integration)', () => {

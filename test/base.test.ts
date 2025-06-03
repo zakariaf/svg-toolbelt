@@ -2,6 +2,7 @@
  * Tests for SvgEnhancer core logic (no DOM manipulation)
  */
 
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { SvgEnhancer } from '../src/core/base';
 import { DEFAULT_SVG_ENHANCER_CONFIG } from '../src/core/config';
 
@@ -49,7 +50,7 @@ describe('SvgEnhancer (core)', () => {
     const enhancer = new SvgEnhancer(container);
     enhancer.init();
     // Mock a dummy listener
-    const cb = jest.fn();
+    const cb = vi.fn();
     enhancer.on('test', cb);
     expect(enhancer.emit('test')).toBe(true);
     enhancer.destroy();
