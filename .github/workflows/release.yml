@@ -111,16 +111,24 @@ jobs:
       - name: Update demo to use latest version
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          
+          echo "📦 Updating demo to use svg-toolbelt@$PACKAGE_VERSION"
 
-          # Update the demo HTML file to use the new version
+          # Update the demo HTML file to use the new version (Linux sed syntax)
           sed -i "s|svg-toolbelt@[0-9]\+\.[0-9]\+\.[0-9]\+|svg-toolbelt@$PACKAGE_VERSION|g" docs/index.html
           sed -i "s|v[0-9]\+\.[0-9]\+\.[0-9]\+|v$PACKAGE_VERSION|g" docs/index.html
 
+          # Show what changed
+          echo "✅ Updated version references:"
+          grep -n "svg-toolbelt@\|v[0-9]" docs/index.html || echo "No version references found"
+
           # Check if there were any changes
           if git diff --quiet; then
-            echo "No changes needed in demo site"
+            echo "ℹ️  No changes needed in demo site"
             exit 0
           fi
+
+          echo "📝 Changes detected, committing..."
 
           # Commit and push changes
           git config --local user.email "action@github.com"
