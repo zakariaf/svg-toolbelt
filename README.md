@@ -591,7 +591,7 @@ npm run typecheck  # TypeScript checking
 
 ### Test Coverage
 
-- **Unit tests**: Individual features and core logic (>95% coverage)
+- **Unit tests**: Individual features and core logic (>98% coverage)
 - **Integration tests**: End-to-end scenarios and real DOM interactions
 - **Accessibility tests**: Keyboard navigation and screen reader compatibility
 - **Performance tests**: Memory leaks and smooth operation under load
