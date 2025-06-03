@@ -82,7 +82,7 @@ export class TouchFeature {
     }
   }
 
-  private _handleTouchEnd(_: TouchEvent): void {
+  private _handleTouchEnd(_event: TouchEvent): void {
     // Stop panning on touch end
     this.isDragging = false;
   }
