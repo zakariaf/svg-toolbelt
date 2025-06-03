@@ -9,6 +9,9 @@ import { FullscreenFeature } from './features/fullscreen';
 import { DblclickResetFeature } from './features/dblclickReset';
 import { NoContextMenuFeature } from './features/noContextMenu';
 
+// Import CSS for Vite to process
+import './styles/svg-toolbelt.css';
+
 /**
  * SvgZoom class: a high-level wrapper that sets up all features on the container:
  *  - zoom (mouse wheel)
