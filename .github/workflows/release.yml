@@ -1,0 +1,153 @@
+name: Release & Publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  test:
+    name: Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run type check
+        run: npm run type-check
+
+      - name: Run tests
+        run: npm test -- --run --coverage
+
+      - name: Build package
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
+
+  publish:
+    name: Publish to NPM
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Verify package version matches release tag
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          RELEASE_TAG=${GITHUB_REF#refs/tags/}
+
+          # Remove 'v' prefix from tag if present
+          RELEASE_VERSION=${RELEASE_TAG#v}
+
+          echo "Package version: $PACKAGE_VERSION"
+          echo "Release version: $RELEASE_VERSION"
+
+          if [ "$PACKAGE_VERSION" != "$RELEASE_VERSION" ]; then
+            echo "❌ Version mismatch: package.json ($PACKAGE_VERSION) != release tag ($RELEASE_VERSION)"
+            exit 1
+          fi
+
+          echo "✅ Version match confirmed"
+
+      - name: Publish to NPM
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub release comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: release } = await github.rest.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: context.ref.replace('refs/tags/', '')
+            });
+
+            const comment = `🚀 **Successfully published to NPM!**
+
+            📦 **Package:** \`svg-toolbelt@${process.env.PACKAGE_VERSION}\`
+            🔗 **NPM:** https://www.npmjs.com/package/svg-toolbelt
+            📥 **Install:** \`npm install svg-toolbelt@${process.env.PACKAGE_VERSION}\`
+
+            ---
+
+            **Changes in this release:**
+            ${release.body || 'No changelog provided.'}`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: release.number,
+              body: comment
+            });
+        env:
+          PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
+
+  update-demo:
+    name: Update Demo Site
+    needs: publish
+    runs-on: ubuntu-latest
+    if: github.repository == 'zakariaf/svg-toolbelt'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update demo to use latest version
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+
+          # Update the demo HTML file to use the new version
+          sed -i "s|svg-toolbelt@[0-9]\+\.[0-9]\+\.[0-9]\+|svg-toolbelt@$PACKAGE_VERSION|g" docs/index.html
+          sed -i "s|v[0-9]\+\.[0-9]\+\.[0-9]\+|v$PACKAGE_VERSION|g" docs/index.html
+
+          # Check if there were any changes
+          if git diff --quiet; then
+            echo "No changes needed in demo site"
+            exit 0
+          fi
+
+          # Commit and push changes
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add docs/index.html
+          git commit -m "docs: update demo to use svg-toolbelt@$PACKAGE_VERSION"
+          git push

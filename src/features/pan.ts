@@ -58,7 +58,7 @@ export class PanFeature {
     this.enhancer.svg!.style.transform = `translate(${this.enhancer.translateX}px, ${this.enhancer.translateY}px) scale(${this.enhancer.scale})`;
   }
 
-  private _handleMouseUp(_: MouseEvent): void {
+  private _handleMouseUp(_event: MouseEvent): void {
     if (this.enhancer.isDestroyed || !this.isDragging) return;
     this.isDragging = false;
   }

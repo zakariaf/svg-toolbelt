@@ -13,7 +13,7 @@ export class DblclickResetFeature {
     this.enhancer.svg!.addEventListener('dblclick', this.handleDblClick);
   }
 
-  private _handleDblClick(_: MouseEvent): void {
+  private _handleDblClick(_event: MouseEvent): void {
     if (!this.enhancer.isDestroyed) {
       this.enhancer.scale = 1;
       this.enhancer.translateX = 0;

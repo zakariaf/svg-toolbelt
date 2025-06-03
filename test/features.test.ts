@@ -2,6 +2,7 @@
  * Tests for individual feature modules, simulating minimal DOM events.
  */
 
+import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import { SvgEnhancer } from '../src/core/base';
 import { ZoomFeature } from '../src/features/zoom';
 import { PanFeature } from '../src/features/pan';
