@@ -7,5 +7,21 @@ export default defineConfig({
     setupFiles: [],
     include: ['test/**/*.test.ts', 'src/**/*.test.ts'],
     exclude: ['node_modules', 'dist'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.ts'],
+      exclude: [
+        'node_modules/**',
+        'dist/**',
+        'demo/**',
+        'docs/**',
+        'coverage/**',
+        'test/**',
+        '**/*.d.ts',
+        '**/*.config.*',
+      ],
+      reporter: ['text', 'json', 'html'],
+      all: true,
+    },
   },
 });
