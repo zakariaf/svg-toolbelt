@@ -99,14 +99,20 @@ pnpm add svg-toolbelt
 - Node.js ≥18 (for development)
 - Modern browsers with ES2020+ support
 
-### 2. Import Styles
+### 2. Try the Demo
+
+**Online demo:** [zakariaf.github.io/svg-toolbelt](https://zakariaf.github.io/svg-toolbelt)
+
+**Local development demo:** Available in the `/demo` directory with Node.js server
+
+### 3. Import Styles
 
 ```typescript
 // Import the CSS in your main entry file
 import 'svg-toolbelt/dist/svg-toolbelt.css';
 ```
 
-### 3. Basic Usage
+### 4. Basic Usage
 
 #### Auto-initialize (recommended for most cases)
 
@@ -604,6 +610,15 @@ npm install
 # Development
 npm run dev        # Watch mode build (vite build --watch)
 npm run build      # Production build
+
+# Local development demo
+npm run demo       # Build and serve demo on http://localhost:8080 (Node.js server)
+# or
+npm run serve      # Start server only (if already built)
+
+# Development with live reload
+npm run dev        # Watch mode build (in one terminal)
+npm run serve      # Start server (in another terminal)
 
 # Testing
 npm test           # Run tests with vitest (watch mode)

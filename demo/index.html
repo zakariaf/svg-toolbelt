@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SVG Toolbelt – Local Development Demo</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Local SVG Toolbelt CSS -->
+  <link rel="stylesheet" href="./dist/svg-toolbelt.css" />
+
+  <!-- Mermaid.js (ESM) -->
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose',
+      fontFamily: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+      flowchart: { useMaxWidth: false, htmlLabels: true, curve: 'basis', padding: 10 },
+      sequence: { useMaxWidth: false, wrap: true, width: 150, height: 65, boxMargin: 10, boxTextMargin: 5, noteMargin: 10, messageMargin: 35 },
+      gantt: { useMaxWidth: false, leftPadding: 75, gridLineStartPadding: 35, fontSize: 11, sectionFontSize: 24, numberSectionStyles: 3 },
+      class: { useMaxWidth: false },
+      state: { useMaxWidth: false },
+      journey: { useMaxWidth: false }
+    });
+    window.mermaid = mermaid;
+  </script>
+
+  <!-- Custom Styles -->
+  <style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f3f4f6;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #9ca3af;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #6b7280;
+    }
+
+    /* SVG demo container styles */
+    .svg-demo-container {
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      min-height: 300px;
+      max-height: 500px;
+      position: relative;
+    }
+    .svg-demo-container:hover {
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      border-color: #d1d5db;
+    }
+
+    /* Development banner */
+    .dev-banner {
+      background: linear-gradient(90deg, #f59e0b, #d97706);
+      color: white;
+      padding: 8px 0;
+      text-align: center;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 font-sans">
+  <!-- Development Banner -->
+  <div class="dev-banner">
+    🚧 Local Development Mode - Using ./dist/svg-toolbelt.cjs.production.min.js & ./dist/svg-toolbelt.css
+  </div>
+
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b border-gray-200 py-6">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+            <span class="text-white font-bold">🧰</span>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">SVG Toolbelt</h1>
+            <p class="text-sm text-gray-600">Local Development Demo</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="text-right hidden md:block">
+            <div class="text-xs text-gray-500">Run via Node.js server:</div>
+            <code class="text-xs bg-gray-100 px-2 py-1 rounded">npm run demo</code>
+          </div>
+          <button id="buildBtn"
+                  class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+            Build & Reload
+          </button>
+          <button id="testBtn"
+                  class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+            Run Tests
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation -->
+  <nav class="bg-gray-50 border-b border-gray-200">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex items-center space-x-6 py-3">
+        <span class="text-sm font-medium text-gray-700">Examples:</span>
+        <a href="/" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+          Main Demo
+        </a>
+        <a href="/demo/examples/simple.html" class="text-sm text-gray-600 hover:text-gray-800">
+          Simple Example
+        </a>
+        <a href="/demo/examples/multiple.html" class="text-sm text-gray-600 hover:text-gray-800">
+          Multiple Examples
+        </a>
+        <a href="../docs/index.html" class="text-sm text-gray-600 hover:text-gray-800">
+          Production Demo
+        </a>
+        <div class="flex-1"></div>
+        <a href="https://github.com/zakariaf/svg-toolbelt"
+           class="text-sm text-gray-500 hover:text-gray-700 flex items-center space-x-1">
+          <span>📂</span>
+          <span>GitHub Repository</span>
+        </a>
+        <a href="https://www.npmjs.com/package/svg-toolbelt"
+           class="text-sm text-gray-500 hover:text-gray-700 flex items-center space-x-1">
+          <span>📦</span>
+          <span>NPM Package</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 py-8">
+    <!-- Loading indicator -->
+    <div id="loading" class="text-center py-12">
+      <div class="inline-flex items-center space-x-2">
+        <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+        <span class="text-gray-600">Loading local SVG Toolbelt build...</span>
+      </div>
+    </div>
+
+    <!-- Error state -->
+    <div id="error" class="hidden bg-red-50 border border-red-200 rounded-lg p-6 text-center mb-8">
+      <div class="text-red-600 mb-2">⚠️ Failed to load SVG Toolbelt</div>
+      <p class="text-red-500 text-sm mb-2">Make sure you've built the project with <code class="bg-gray-100 px-1 rounded">npm run build</code></p>
+      <p class="text-red-500 text-sm">For best results, serve via HTTP: <code class="bg-gray-100 px-1 rounded">npm run demo</code></p>
+      <button id="retryBtn"
+              class="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+        Retry
+      </button>
+    </div>
+
+    <!-- Demo content (hidden until loaded) -->
+    <div id="demoContent" class="hidden space-y-8">
+      <!-- Quick Usage Guide -->
+      <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-6">
+        <h2 class="text-lg font-bold mb-3 text-blue-900">🚀 Quick Usage Guide</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div class="bg-white rounded-lg p-3 border border-blue-100">
+            <div class="font-semibold text-blue-700 mb-1">🖱️ Mouse Controls</div>
+            <ul class="text-gray-600 space-y-1">
+              <li>• Scroll wheel: Zoom in/out</li>
+              <li>• Click + drag: Pan around</li>
+              <li>• Double-click: Reset view</li>
+            </ul>
+          </div>
+          <div class="bg-white rounded-lg p-3 border border-blue-100">
+            <div class="font-semibold text-blue-700 mb-1">⌨️ Keyboard Shortcuts</div>
+            <ul class="text-gray-600 space-y-1">
+              <li>• <kbd class="px-1 bg-gray-100 rounded">+</kbd> or <kbd class="px-1 bg-gray-100 rounded">=</kbd>: Zoom in</li>
+              <li>• <kbd class="px-1 bg-gray-100 rounded">-</kbd>: Zoom out</li>
+              <li>• <kbd class="px-1 bg-gray-100 rounded">0</kbd>: Reset to center</li>
+              <li>• <kbd class="px-1 bg-gray-100 rounded">Arrow keys</kbd>: Pan</li>
+            </ul>
+          </div>
+          <div class="bg-white rounded-lg p-3 border border-blue-100">
+            <div class="font-semibold text-blue-700 mb-1">📱 Touch Gestures</div>
+            <ul class="text-gray-600 space-y-1">
+              <li>• Pinch: Zoom in/out</li>
+              <li>• Single finger: Pan</li>
+              <li>• Double tap: Reset view</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls Section -->
+      <div class="bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-bold mb-4">Live Configuration Panel</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Zoom Settings -->
+          <div>
+            <h3 class="font-medium mb-3">Zoom Settings</h3>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">Zoom Step (<span id="zoomStepValue" class="text-blue-600">0.1</span>)</label>
+                <input type="range" id="zoomStep" min="0.05" max="0.5" step="0.05" value="0.1"
+                       class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" />
+              </div>
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">Max Scale (<span id="maxScaleValue" class="text-blue-600">10</span>)</label>
+                <input type="range" id="maxScale" min="2" max="20" step="1" value="10"
+                       class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" />
+              </div>
+            </div>
+          </div>
+
+          <!-- UI Settings -->
+          <div>
+            <h3 class="font-medium mb-3">UI Settings</h3>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">Controls Position</label>
+                <select id="controlsPosition" class="w-full p-2 border border-gray-300 rounded-lg text-sm">
+                  <option value="top-right">Top Right</option>
+                  <option value="top-left">Top Left</option>
+                  <option value="bottom-right">Bottom Right</option>
+                  <option value="bottom-left">Bottom Left</option>
+                </select>
+              </div>
+              <div class="flex flex-col space-y-2">
+                <label class="flex items-center">
+                  <input type="checkbox" id="showControls" checked class="mr-2" />
+                  <span class="text-sm">Show Controls</span>
+                </label>
+                <label class="flex items-center">
+                  <input type="checkbox" id="enableTouch" checked class="mr-2" />
+                  <span class="text-sm">Enable Touch</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div>
+            <h3 class="font-medium mb-3">Actions</h3>
+            <div class="space-y-2">
+              <button id="applyConfig"
+                      class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 text-sm">
+                Apply Configuration
+              </button>
+              <button id="resetDemo"
+                      class="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 text-sm">
+                Reset All Diagrams
+              </button>
+              <button id="logInfo"
+                      class="w-full bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 text-sm">
+                Log Instance Info
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Demo Diagrams -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Flowchart Demo -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+          <h3 class="text-lg font-bold mb-2">Complex Flowchart</h3>
+          <p class="text-gray-600 text-sm mb-4">Try zooming, panning, and keyboard shortcuts (+ / - / 0 / arrows)</p>
+          <div class="svg-demo-container" id="demo1">
+            <div class="diagram">
+              flowchart TD
+                A[Start Process] --> B{Check Requirements}
+                B -->|Missing| C[Gather Requirements]
+                B -->|Complete| D[Design Phase]
+                C --> E[Validate Requirements]
+                E --> F{Requirements OK?}
+                F -->|No| C
+                F -->|Yes| D
+                D --> G[Create Prototype]
+                G --> H[User Testing]
+                H --> I{Feedback Positive?}
+                I -->|No| J[Refine Design]
+                J --> G
+                I -->|Yes| K[Development]
+                K --> L[Unit Testing]
+                L --> M[Integration Testing]
+                M --> N{Tests Pass?}
+                N -->|No| O[Fix Issues]
+                O --> L
+                N -->|Yes| P[Deployment]
+                P --> Q[Monitor Performance]
+                Q --> R{Performance OK?}
+                R -->|No| S[Optimize & Scale]
+                S --> P
+                R -->|Yes| T[🎉 Success!]
+
+                style A fill:#e1f5fe
+                style T fill:#e8f5e8
+                style O fill:#ffebee
+                style S fill:#fff3e0
+
+                classDef processStyle fill:#bbdefb,stroke:#1976d2,stroke-width:2px
+                classDef decisionStyle fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+                classDef successStyle fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
+                classDef errorStyle fill:#ffcdd2,stroke:#d32f2f,stroke-width:2px
+
+                class G,K,L,M,P,Q processStyle
+                class B,F,I,N,R decisionStyle
+                class T successStyle
+                class O,S errorStyle
+            </div>
+          </div>
+        </div>
+
+        <!-- Sequence Diagram Demo -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+          <h3 class="text-lg font-bold mb-2">Sequence Diagram</h3>
+          <p class="text-gray-600 text-sm mb-4">Interactive sequence diagram with multiple actors</p>
+          <div class="svg-demo-container" id="demo2">
+            <div class="diagram">
+              sequenceDiagram
+                participant U as User
+                participant F as Frontend
+                participant A as API Gateway
+                participant S as Service
+                participant D as Database
+                participant C as Cache
+
+                U->>F: Login Request
+                F->>A: POST /auth/login
+                A->>S: Validate Credentials
+                S->>D: Query User
+                D-->>S: User Data
+                S->>C: Cache Session
+                C-->>S: Session Stored
+                S-->>A: JWT Token
+                A-->>F: 200 OK + Token
+                F-->>U: Welcome Dashboard
+
+                Note over U,F: User authenticated
+
+                U->>F: View Profile
+                F->>A: GET /user/profile
+                A->>C: Check Cache
+                C-->>A: Cache Hit
+                A-->>F: Profile Data
+                F-->>U: Display Profile
+
+                Note over A,C: Cache improves performance
+            </div>
+          </div>
+        </div>
+
+        <!-- State Diagram Demo -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+          <h3 class="text-lg font-bold mb-2">State Diagram</h3>
+          <p class="text-gray-600 text-sm mb-4">Order processing state machine</p>
+          <div class="svg-demo-container" id="demo3">
+            <div class="diagram">
+              stateDiagram-v2
+                [*] --> Pending
+                Pending --> Processing : Payment Confirmed
+                Pending --> Cancelled : Payment Failed
+                Processing --> Shipped : Items Packed
+                Processing --> Cancelled : Out of Stock
+                Shipped --> Delivered : Package Received
+                Shipped --> Returned : Return Requested
+                Delivered --> [*]
+                Returned --> Refunded : Return Processed
+                Cancelled --> [*]
+                Refunded --> [*]
+
+                note right of Processing
+                  Inventory checked
+                  Items prepared
+                end note
+
+                note left of Shipped
+                  Tracking number
+                  generated
+                end note
+            </div>
+          </div>
+        </div>
+
+        <!-- Class Diagram Demo -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+          <h3 class="text-lg font-bold mb-2">Class Diagram</h3>
+          <p class="text-gray-600 text-sm mb-4">Object-oriented design visualization</p>
+          <div class="svg-demo-container" id="demo4">
+            <div class="diagram">
+              classDiagram
+                class User {
+                    +String id
+                    +String email
+                    +String name
+                    +Date createdAt
+                    +login()
+                    +logout()
+                    +updateProfile()
+                }
+
+                class Order {
+                    +String id
+                    +String userId
+                    +Date orderDate
+                    +OrderStatus status
+                    +Float total
+                    +addItem()
+                    +removeItem()
+                    +calculateTotal()
+                }
+
+                class OrderItem {
+                    +String id
+                    +String productId
+                    +Integer quantity
+                    +Float price
+                    +Float subtotal
+                    +updateQuantity()
+                }
+
+                class Product {
+                    +String id
+                    +String name
+                    +String description
+                    +Float price
+                    +Integer stock
+                    +updateStock()
+                    +setPrice()
+                }
+
+                %% User “1” aggregates to many Orders
+                User "1" o-- "0..*" Order : places
+
+                %% Order “1” composes to many OrderItems
+                Order "1" *-- "0..*" OrderItem : contains
+
+                %% Product “1” aggregates to many OrderItems
+                Product "1" o-- "0..*" OrderItem : referenced_by
+
+                class OrderStatus {
+                    <<enumeration>>
+                    PENDING
+                    PROCESSING
+                    SHIPPED
+                    DELIVERED
+                    CANCELLED
+                }
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Console Output -->
+      <div class="bg-gray-900 text-green-400 rounded-xl p-4 font-mono text-sm">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-white font-bold">Console Output</h3>
+          <button id="clearLog" class="text-gray-400 hover:text-white text-xs">Clear</button>
+        </div>
+        <div id="console" class="max-h-40 overflow-y-auto space-y-1">
+          <div>Welcome to SVG Toolbelt local development demo!</div>
+          <div>Check the browser's developer console for detailed logs.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Local SVG Toolbelt JS (CommonJS version for file:// protocol compatibility) -->
+  <script src="./dist/svg-toolbelt.cjs.production.min.js"></script>
+  <script>
+    let currentInstances = [];
+    let SvgZoom;
+
+    // Console logging helper
+    function logToConsole(message, type = 'info') {
+      const console = document.getElementById('console');
+      const div = document.createElement('div');
+      div.className = type === 'error' ? 'text-red-400' : type === 'warn' ? 'text-yellow-400' : 'text-green-400';
+      div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      console.appendChild(div);
+      console.scrollTop = console.scrollHeight;
+    }
+
+    async function initializeDemo() {
+      const loadingEl = document.getElementById('loading');
+      const errorEl = document.getElementById('error');
+      const demoContentEl = document.getElementById('demoContent');
+
+      try {
+        logToConsole('Loading local SVG Toolbelt build...');
+
+        // Get SvgZoom from global scope (CommonJS build)
+        SvgZoom = window.SvgToolbelt?.SvgZoom || window.SvgZoom;
+
+        if (!SvgZoom) {
+          throw new Error('SvgZoom class not found in global scope. Make sure the CommonJS build loaded properly.');
+        }
+
+        logToConsole('✅ SVG Toolbelt loaded successfully');
+
+        // Render Mermaid diagrams
+        logToConsole('Rendering Mermaid diagrams...');
+        const diagrams = document.querySelectorAll('.diagram');
+
+        for (let i = 0; i < diagrams.length; i++) {
+          const diagram = diagrams[i];
+          const diagramDef = diagram.textContent.trim();
+          const id = `diagram-${i}`;
+
+          try {
+            const { svg } = await window.mermaid.render(id, diagramDef);
+            diagram.innerHTML = svg;
+            logToConsole(`✅ Rendered diagram ${i + 1}/${diagrams.length}`);
+          } catch (error) {
+            logToConsole(`❌ Failed to render diagram ${i + 1}: ${error.message}`, 'error');
+            diagram.innerHTML = `<div class="p-4 text-red-600">Failed to render diagram</div>`;
+          }
+        }
+
+        // Initialize SVG Toolbelt on all demo containers
+        logToConsole('Initializing SVG Toolbelt instances...');
+        const demoContainers = document.querySelectorAll('.svg-demo-container');
+
+        demoContainers.forEach((container, index) => {
+          try {
+            const instance = new SvgZoom(container, {
+              zoomStep: 0.1,
+              maxScale: 10,
+              controlsPosition: 'top-right',
+              showControls: true,
+              enableTouch: true
+            });
+            instance.init();
+            currentInstances.push(instance);
+            logToConsole(`✅ Initialized SVG Toolbelt on demo ${index + 1}`);
+          } catch (error) {
+            logToConsole(`❌ Failed to initialize demo ${index + 1}: ${error.message}`, 'error');
+          }
+        });
+
+        loadingEl.classList.add('hidden');
+        demoContentEl.classList.remove('hidden');
+        logToConsole(`🎉 Demo ready! ${currentInstances.length} instances initialized.`);
+
+      } catch (error) {
+        logToConsole(`❌ Failed to load SVG Toolbelt: ${error.message}`, 'error');
+        console.error('Demo initialization error:', error);
+        loadingEl.classList.add('hidden');
+        errorEl.classList.remove('hidden');
+      }
+    }
+
+    function applyLiveConfiguration() {
+      const config = {
+        zoomStep: parseFloat(document.getElementById('zoomStep').value),
+        maxScale: parseInt(document.getElementById('maxScale').value, 10),
+        controlsPosition: document.getElementById('controlsPosition').value,
+        showControls: document.getElementById('showControls').checked,
+        enableTouch: document.getElementById('enableTouch').checked
+      };
+
+      // Reinitialize first demo with new config
+      const demo1Instance = currentInstances[0];
+      if (demo1Instance) {
+        try {
+          demo1Instance.destroy();
+          const demo1Container = document.getElementById('demo1');
+          const newInstance = new SvgZoom(demo1Container, config);
+          newInstance.init();
+          currentInstances[0] = newInstance;
+          logToConsole(`🔄 Applied new config to demo 1: ${JSON.stringify(config)}`);
+        } catch (error) {
+          logToConsole(`❌ Failed to apply config: ${error.message}`, 'error');
+        }
+      }
+    }
+
+    function setupControls() {
+      // Slider value updates
+      const zoomStepSlider = document.getElementById('zoomStep');
+      const zoomStepValue = document.getElementById('zoomStepValue');
+      const maxScaleSlider = document.getElementById('maxScale');
+      const maxScaleValue = document.getElementById('maxScaleValue');
+
+      zoomStepSlider.oninput = () => (zoomStepValue.textContent = zoomStepSlider.value);
+      maxScaleSlider.oninput = () => (maxScaleValue.textContent = maxScaleSlider.value);
+
+      // Button event listeners
+      document.getElementById('applyConfig').onclick = applyLiveConfiguration;
+
+      document.getElementById('resetDemo').onclick = () => {
+        currentInstances.forEach(inst => {
+          if (inst.reset) inst.reset();
+        });
+        logToConsole('♻️ All diagrams reset to center.');
+      };
+
+      document.getElementById('logInfo').onclick = () => {
+        logToConsole(`📊 Active instances: ${currentInstances.length}`);
+        currentInstances.forEach((inst, i) => {
+          logToConsole(`  Instance ${i + 1}: container=${inst.container.id}, scale=${inst.scale?.toFixed(2) || 'N/A'}`);
+        });
+      };
+
+      document.getElementById('retryBtn').onclick = initializeDemo;
+
+      document.getElementById('clearLog').onclick = () => {
+        document.getElementById('console').innerHTML = '';
+      };
+
+      // Development buttons
+      document.getElementById('buildBtn').onclick = async () => {
+        logToConsole('🔨 Building project...');
+        try {
+          // In a real development environment, you might want to trigger a build process
+          // For now, we'll just reload the page
+          window.location.reload();
+        } catch (error) {
+          logToConsole(`❌ Build failed: ${error.message}`, 'error');
+        }
+      };
+
+      document.getElementById('testBtn').onclick = () => {
+        logToConsole('🧪 Running tests...');
+        logToConsole('Open terminal and run: npm test');
+        logToConsole('This demo focuses on manual testing and visual validation.');
+      };
+    }
+
+    // Initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      setupControls();
+      initializeDemo();
+    });
+  </script>
+</body>
+</html>

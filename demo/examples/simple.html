@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple SVG Pan & Zoom Example</title>
+
+    <!-- Include svg-toolbelt CSS -->
+    <link rel="stylesheet" href="../../dist/svg-toolbelt.css">
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .diagram {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 20px 0;
+            height: 400px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simple SVG Pan & Zoom Example</h1>
+        <p>This is a minimal example showing how to add pan and zoom to any SVG diagram.</p>
+
+        <div class="diagram">
+            <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                <rect x="50" y="50" width="100" height="60" fill="#4CAF50" rx="5"/>
+                <text x="100" y="85" text-anchor="middle" fill="white" font-family="Arial">Start</text>
+
+                <line x1="150" y1="80" x2="200" y2="80" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+                <rect x="200" y="50" width="100" height="60" fill="#2196F3" rx="5"/>
+                <text x="250" y="85" text-anchor="middle" fill="white" font-family="Arial">Process</text>
+
+                <line x1="250" y1="110" x2="250" y2="160" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+                <rect x="200" y="160" width="100" height="60" fill="#FF9800" rx="5"/>
+                <text x="250" y="195" text-anchor="middle" fill="white" font-family="Arial">End</text>
+
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7"
+                            refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+                    </marker>
+                </defs>
+            </svg>
+        </div>
+
+        <div class="instructions">
+            <h3>Try these interactions:</h3>
+            <ul>
+                <li><strong>Mouse:</strong> Drag to pan, scroll to zoom</li>
+                <li><strong>Touch:</strong> Pinch to zoom, drag to pan</li>
+                <li><strong>Keyboard:</strong> Arrow keys to pan, +/- to zoom</li>
+                <li><strong>Double-click:</strong> Reset to original view</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Include svg-toolbelt -->
+    <script src="../../dist/svg-toolbelt.cjs.production.min.js"></script>
+    <script>
+        // Initialize svg-toolbelt on the diagram
+        const SvgZoom = window.SvgToolbelt?.SvgZoom || window.SvgZoom;
+        const svgElement = document.querySelector('.diagram svg');
+
+        if (SvgZoom && svgElement) {
+            const container = document.querySelector('.diagram');
+            const instance = new SvgZoom(container, {
+                pan: true,
+                zoom: true,
+                keyboard: true,
+                touch: true,
+                dblclickReset: true
+            });
+            instance.init();
+        } else {
+            console.error('SvgZoom not found or no SVG element');
+        }
+    </script>
+</body>
+</html>
