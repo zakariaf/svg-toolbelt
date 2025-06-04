@@ -8,6 +8,7 @@ import { ControlsFeature } from './features/controls';
 import { FullscreenFeature } from './features/fullscreen';
 import { DblclickResetFeature } from './features/dblclickReset';
 import { NoContextMenuFeature } from './features/noContextMenu';
+import { ZoomLevelIndicatorFeature } from './features/zoomLevelIndicator';
 
 // Import CSS for Vite to process
 import './styles/svg-toolbelt.css';
@@ -37,6 +38,9 @@ export class SvgZoom extends SvgEnhancer {
       controls: this.config.showControls ? new ControlsFeature(this) : null,
       fullscreen: document.fullscreenEnabled
         ? new FullscreenFeature(this)
+        : null,
+      zoomLevelIndicator: this.config.showZoomLevelIndicator
+        ? new ZoomLevelIndicatorFeature(this)
         : null,
     } as any;
   }
@@ -126,3 +130,16 @@ export function initializeSvgZoom(
     }
   });
 }
+
+// Export individual features for advanced use cases
+export { SvgEnhancer } from './core/base';
+export type { SvgEnhancerConfig } from './core/config';
+export { ZoomFeature } from './features/zoom';
+export { PanFeature } from './features/pan';
+export { TouchFeature } from './features/touch';
+export { KeyboardFeature } from './features/keyboard';
+export { ControlsFeature } from './features/controls';
+export { FullscreenFeature } from './features/fullscreen';
+export { DblclickResetFeature } from './features/dblclickReset';
+export { NoContextMenuFeature } from './features/noContextMenu';
+export { ZoomLevelIndicatorFeature } from './features/zoomLevelIndicator';

@@ -35,6 +35,12 @@ This library was born from a real need at **GitLab** - making large Mermaid diag
   - Four positioning options: any corner of the container
   - Fully customizable styling and behavior
 
+- 📊 **Visual feedback**
+  - Transient zoom level indicator showing current zoom percentage
+  - Appears briefly when zoom level changes (e.g., "150%")
+  - Accessible with screen reader support
+  - Auto-fades after 1.5 seconds
+
 - 📱 **Mobile-first design**
   - Optimized touch interactions with proper gesture recognition
   - Responsive UI that adapts to screen size
@@ -263,6 +269,7 @@ interface SvgEnhancerConfig {
   // Feature toggles
   enableTouch: boolean;       // Default: true
   enableKeyboard: boolean;    // Default: true
+  showZoomLevelIndicator: boolean; // Default: true
 }
 ```
 
@@ -273,7 +280,8 @@ interface SvgEnhancerConfig {
 const minimal = new SvgZoom(container, {
   showControls: false,
   enableKeyboard: false,
-  enableTouch: false
+  enableTouch: false,
+  showZoomLevelIndicator: false  // Hide zoom percentage indicator
 });
 
 // Large diagram optimized

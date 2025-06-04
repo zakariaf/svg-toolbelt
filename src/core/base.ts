@@ -12,6 +12,7 @@ export interface SvgEnhancerFeatures {
   fullscreen: any | null;
   dblclickReset: any;
   noContextMenu: any;
+  zoomLevelIndicator: any | null;
 }
 
 /**

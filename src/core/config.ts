@@ -26,6 +26,9 @@ export interface SvgEnhancerConfig {
 
   // Keyboard support
   enableKeyboard: boolean;
+
+  // Zoom level indicator
+  showZoomLevelIndicator: boolean;
 }
 
 export const DEFAULT_SVG_ENHANCER_CONFIG: Readonly<SvgEnhancerConfig> = Object.freeze(
@@ -40,5 +43,6 @@ export const DEFAULT_SVG_ENHANCER_CONFIG: Readonly<SvgEnhancerConfig> = Object.f
     controlsPosition: 'top-right',
     enableTouch: true,
     enableKeyboard: true,
+    showZoomLevelIndicator: true,
   }
 );
