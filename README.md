@@ -1,12 +1,11 @@
 # 🧰 svg-toolbelt
 
-[![npm version](https://badge.fury.io/js/svg-toolbelt.svg)](https://badge.fury.io/js/svg-toolbelt)
 [![Build Status](https://github.com/zakariaf/svg-toolbelt/actions/workflows/main.yml/badge.svg)](https://github.com/zakariaf/svg-toolbelt/actions)
 [![Coverage Status](https://coveralls.io/repos/github/zakariaf/svg-toolbelt/badge.svg?branch=main)](https://coveralls.io/github/zakariaf/svg-toolbelt?branch=main)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**A comprehensive, zero-dependency toolkit for SVG interaction: smooth zoom, pan, touch, keyboard controls, fullscreen, and more.**
+**A lightweight, zero-dependency library to add smooth zoom, pan, touch, keyboard controls and fullscreen support to any SVG.**
 
 Transform any static SVG (Mermaid diagrams, D3 visualizations, technical drawings) into an interactive, zoomable, and pannable experience—fully accessible, mobile-first, and production-ready.
 
@@ -32,6 +31,7 @@ This library was born from a real need at **GitLab** - making large Mermaid diag
 
 - 🎛️ **Smart on-screen controls**
   - Zoom in/out, reset, and fullscreen buttons
+  - Export functionality for saving SVG content
   - Four positioning options: any corner of the container
   - Fully customizable styling and behavior
 
@@ -51,8 +51,7 @@ This library was born from a real need at **GitLab** - making large Mermaid diag
   - Easy to extend with custom features
 
 - 🪶 **Lightweight & zero dependencies**
-  - ~3KB minified + gzipped (JavaScript)
-  - ~1.4KB minified + gzipped (CSS)
+  - Under 5KB minified + gzipped for both ESM and CJS builds
   - No external libraries required
   - Built with modern TypeScript
 
@@ -67,6 +66,8 @@ This library was born from a real need at **GitLab** - making large Mermaid diag
 
 ### 1. Installation
 
+**Via npm/yarn/pnpm:**
+
 ```bash
 npm install svg-toolbelt
 # or
@@ -74,6 +75,29 @@ yarn add svg-toolbelt
 # or
 pnpm add svg-toolbelt
 ```
+
+**Via CDN (unpkg):**
+
+```html
+<!-- Include the library -->
+<script src="https://unpkg.com/svg-toolbelt@latest/dist/svg-toolbelt.cjs.production.min.js"></script>
+<!-- Include the styles -->
+<link rel="stylesheet" href="https://unpkg.com/svg-toolbelt@latest/dist/svg-toolbelt.css">
+```
+
+**For ES modules:**
+
+```html
+<script type="module">
+  import { initializeSvgZoom } from 'https://unpkg.com/svg-toolbelt@latest/dist/svg-toolbelt.esm.js';
+  // Your code here
+</script>
+```
+
+**Requirements:**
+
+- Node.js ≥18 (for development)
+- Modern browsers with ES2020+ support
 
 ### 2. Import Styles
 
@@ -176,10 +200,12 @@ function initializeSvgZoom(
 ```
 
 **Parameters:**
+
 - `selectorOrElements` - CSS selector string, single element, or array of elements
 - `config` - Configuration applied to all instances
 
 **Examples:**
+
 ```typescript
 // CSS selector
 initializeSvgZoom('.mermaid');
@@ -565,7 +591,9 @@ initializeSvgZoom('.mobile-diagram', {
 
 ---
 
-## 🧪 Development & Testing
+## 🛠️ Development & Testing
+
+### Getting Started
 
 ```bash
 # Clone and setup
@@ -574,19 +602,27 @@ cd svg-toolbelt
 npm install
 
 # Development
-npm start          # Watch mode with live reload
+npm run dev        # Watch mode build (vite build --watch)
 npm run build      # Production build
-npm run build:watch # Watch build mode
 
 # Testing
-npm test           # Run all tests
-npm run test:watch # Watch mode testing
-npm run test:coverage # Coverage report
+npm test           # Run tests with vitest (watch mode)
+npm test -- --run  # Run tests once (no watch mode)
+npm test -- --coverage  # Run tests with coverage report
 
 # Quality
-npm run lint       # ESLint
-npm run format     # Prettier
-npm run typecheck  # TypeScript checking
+npm run lint       # ESLint check
+npm run lint:fix   # ESLint with auto-fix
+npm run type-check # TypeScript type checking
+
+# Bundle analysis
+npm run size       # Check bundle size against limits (10KB)
+npm run analyze    # Detailed bundle analysis with size-limit --why
+
+# Release (creates git tags and pushes)
+npm run release:patch  # 0.2.0 -> 0.2.1
+npm run release:minor  # 0.2.0 -> 0.3.0
+npm run release:major  # 0.2.0 -> 1.0.0
 ```
 
 ### Test Coverage
@@ -635,7 +671,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 **Made with ❤️ for better documentation everywhere**
 
-*If svg-toolbelt helps your project, please consider starring the repository!* ⭐
+If svg-toolbelt helps your project, please consider starring the repository! ⭐
 
 ---
 
