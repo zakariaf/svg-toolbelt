@@ -1,4 +1,5 @@
 import { SvgEnhancer } from '../core/base';
+import { ZoomEventPayload } from '../core/events';
 
 /**
  * ZoomLevelIndicatorFeature
@@ -10,7 +11,7 @@ export class ZoomLevelIndicatorFeature {
   private enhancer: SvgEnhancer;
   private badge: HTMLDivElement;
   private hideTimeout: number | null = null;
-  private onZoom: (event: any) => void;
+  private onZoom: (event: ZoomEventPayload) => void;
 
   constructor(enhancer: SvgEnhancer) {
     this.enhancer = enhancer;
@@ -32,7 +33,7 @@ export class ZoomLevelIndicatorFeature {
     this.enhancer.on('zoom', this.onZoom);
   }
 
-  private _onZoom(event: { scale: number; translateX: number; translateY: number }): void {
+  private _onZoom(event: ZoomEventPayload): void {
     if (this.enhancer.isDestroyed) return;
 
     // Convert scale (e.g. 1.5) to percent string "150%"
