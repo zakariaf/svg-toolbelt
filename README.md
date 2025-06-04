@@ -208,14 +208,14 @@ function initializeSvgZoom(
 
 ```typescript
 // CSS selector
-initializeSvgZoom('.mermaid');
+initializeSvgZoom('.diagram');
 
 // Single element
-const diagram = document.querySelector('#chart');
-initializeSvgZoom(diagram);
+const chart = document.querySelector('#chart');
+initializeSvgZoom(chart);
 
 // Array of elements
-const diagrams = document.querySelectorAll('.diagram');
+const diagrams = document.querySelectorAll('.svg-container');
 initializeSvgZoom(Array.from(diagrams));
 
 // With custom config

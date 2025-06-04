@@ -22,14 +22,17 @@
     "src"
   ],
   "keywords": [
-    "mermaid",
     "svg",
     "zoom",
     "pan",
     "touch",
     "typescript",
     "svg-toolbelt",
-    "svg-pan"
+    "svg-pan",
+    "mermaid",
+    "d3",
+    "diagrams",
+    "visualization"
   ],
   "engines": {
     "node": ">=18"

@@ -1,6 +1,6 @@
-/* Mermaid Zoom Enhancement Styles */
+/* SVG Toolbelt - Universal SVG Enhancement Styles */
 
-/* Base Mermaid wrapper for zoom functionality */
+/* Base wrapper for zoom functionality */
 .svg-toolbelt-wrapper {
   position: relative;
   display: block;
@@ -25,7 +25,6 @@
 
 /* SVG styling for zoom functionality */
 .svg-toolbelt-svg,
-.mermaid svg,
 .svg-toolbelt-wrapper svg {
   cursor: grab;
   user-select: none;
@@ -34,8 +33,6 @@
   height: auto;
   transform-origin: 0 0;
   display: block;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif;
 }
 
 .svg-toolbelt-svg:active {
@@ -125,7 +122,6 @@
 }
 
 /* Fullscreen styles */
-:fullscreen .mermaid,
 :fullscreen .svg-toolbelt-wrapper {
   max-height: none;
   width: 100vw;
@@ -133,35 +129,6 @@
   border-radius: 0;
   margin: 0;
   background: #ffffff;
-}
-
-/* Loading state */
-.mermaid-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
-  color: #737278;
-  font-style: italic;
-  background: #fbfafd;
-}
-.mermaid-loading::before {
-  content: "Loading diagram...";
-}
-
-/* Error state */
-.mermaid-error {
-  border: 2px dashed #ec5941;
-  border-radius: 6px;
-  padding: 1rem;
-  background-color: #fcf1ef;
-  color: #c91c00;
-  text-align: left;
-  margin: 1.5rem 0;
-}
-.mermaid-error summary:hover {
-  text-decoration: underline;
-  color: #ec5941;
 }
 
 /* Mobile optimizations */
@@ -221,7 +188,7 @@
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  .mermaid svg,
+  .svg-toolbelt-wrapper svg,
   .svg-toolbelt-controls button {
     transition: none !important;
     transform: none !important;
@@ -233,21 +200,20 @@
   .svg-toolbelt-controls {
     display: none !important;
   }
-  .svg-toolbelt-wrapper,
-  .mermaid {
+  .svg-toolbelt-wrapper {
     border: 1px solid #000;
     background: #ffffff;
     page-break-inside: avoid;
     box-shadow: none;
   }
-  .mermaid svg {
+  .svg-toolbelt-wrapper svg {
     max-width: 100% !important;
     height: auto !important;
   }
 }
 
 /* Keyboard navigation hint */
-.mermaid::after {
+.svg-toolbelt-wrapper::after {
   content: "Use +/- to zoom, arrows to pan, 0 to reset, or double-click";
   position: absolute;
   bottom: 8px;
@@ -264,23 +230,20 @@
   font-weight: 500;
 }
 
-:fullscreen .mermaid::after,
-:fullscreen .svg-toolbelt-wrapper .mermaid::after,
-:full-screen .mermaid::after,
-:full-screen .svg-toolbelt-wrapper .mermaid::after {
+:fullscreen .svg-toolbelt-wrapper::after {
   position: fixed;
   bottom: 16px;
   left: 16px;
   max-width: 90%;
 }
 
-.mermaid:focus::after,
-.mermaid:hover::after {
+.svg-toolbelt-wrapper:focus::after,
+.svg-toolbelt-wrapper:hover::after {
   opacity: 1;
 }
 
 @media (max-width: 768px) {
-  .mermaid::after {
+  .svg-toolbelt-wrapper::after {
     content: "Pinch to zoom, drag to pan, double-tap to reset";
     bottom: 4px;
     left: 8px;
