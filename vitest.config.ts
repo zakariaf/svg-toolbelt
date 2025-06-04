@@ -20,7 +20,6 @@ export default defineConfig({
         '**/*.d.ts',
         '**/*.config.*',
       ],
-      reporter: ['text', 'json', 'html'],
       all: true,
     },
   },
