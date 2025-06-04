@@ -107,11 +107,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main  # Explicitly checkout main branch instead of the tag
 
       - name: Update demo to use latest version
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          
+
           echo "📦 Updating demo to use svg-toolbelt@$PACKAGE_VERSION"
 
           # Update the demo HTML file to use the new version (Linux sed syntax)
@@ -135,4 +136,4 @@ jobs:
           git config --local user.name "GitHub Action"
           git add docs/index.html
           git commit -m "docs: update demo to use svg-toolbelt@$PACKAGE_VERSION"
-          git push
+          git push origin main
