@@ -311,6 +311,10 @@
                     <input type="checkbox" id="enableTouch" checked class="mr-2" />
                     <span class="text-sm">Enable Touch</span>
                   </label>
+                  <label class="flex items-center">
+                    <input type="checkbox" id="showZoomLevelIndicator" checked class="mr-2" />
+                    <span class="text-sm">Show Zoom Level</span>
+                  </label>
                 </div>
                 <button id="applyConfig"
                         class="w-full bg-gitlab-500 text-white py-2 px-4 rounded-lg hover:bg-gitlab-600">
@@ -870,7 +874,8 @@
         maxScale: parseInt(document.getElementById('maxScale').value, 10),
         controlsPosition: document.getElementById('controlsPosition').value,
         showControls: document.getElementById('showControls').checked,
-        enableTouch: document.getElementById('enableTouch').checked
+        enableTouch: document.getElementById('enableTouch').checked,
+        showZoomLevelIndicator: document.getElementById('showZoomLevelIndicator').checked
       };
       if (targetInstance && typeof targetInstance.destroy === 'function') {
         targetInstance.destroy();

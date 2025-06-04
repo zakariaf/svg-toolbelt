@@ -3,6 +3,15 @@
  */
 export type Listener = (...args: any[]) => void;
 
+/**
+ * Event payload for zoom events
+ */
+export interface ZoomEventPayload {
+  scale: number;
+  translateX: number;
+  translateY: number;
+}
+
 export class EventEmitter {
   private events: Map<string, Listener[]> = new Map();
 
