@@ -174,7 +174,6 @@
 :fullscreen .svg-toolbelt-wrapper {
   width: 100vw;
   height: 100vh;
-  background: #ffffff;
 }
 
 /* Mobile optimizations */
@@ -240,9 +239,6 @@
 @media print {
   .svg-toolbelt-controls {
     display: none !important;
-  }
-  .svg-toolbelt-wrapper {
-    background: #ffffff;
   }
 }
 
