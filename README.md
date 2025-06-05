@@ -368,6 +368,11 @@ Override default styles in your CSS:
   transition: all 0.2s ease;
 }
 
+/* Fullscreen styles */
+:fullscreen .svg-toolbelt-wrapper {
+  background: #ffffff;
+}
+
 /* Dark theme */
 .dark .svg-toolbelt-wrapper {
   background: #1f2937;
