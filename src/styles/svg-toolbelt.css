@@ -1,38 +1,20 @@
 /* SVG Toolbelt - Universal SVG Enhancement Styles */
 
-/* Base wrapper for zoom functionality */
-.svg-toolbelt-wrapper {
-  position: relative;
-  display: block;
-  margin: 1.5rem 0;
-  min-height: 200px;
-  max-height: 600px;
-  overflow: hidden;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  background: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-/* Container styling when zoom is active */
+/* Base container for zoom functionality - minimal styling only for functionality */
+.svg-toolbelt-wrapper,
 .svg-toolbelt-container {
   position: relative;
+  /* Only add styles necessary for zoom/pan functionality */
   overflow: hidden;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  background-color: #ffffff;
 }
 
-/* SVG styling for zoom functionality */
+/* SVG styling for zoom functionality - only functional styles */
 .svg-toolbelt-svg,
 .svg-toolbelt-wrapper svg {
+  /* Only add styles necessary for zoom/pan interaction, preserve original SVG styles */
   cursor: grab;
   user-select: none;
-  max-width: none !important;
-  width: 100%;
-  height: auto;
   transform-origin: 0 0;
-  display: block;
 }
 
 .svg-toolbelt-svg:active {
@@ -188,13 +170,10 @@
   }
 }
 
-/* Fullscreen styles */
+/* Fullscreen styles - only necessary positioning */
 :fullscreen .svg-toolbelt-wrapper {
-  max-height: none;
   width: 100vw;
   height: 100vh;
-  border-radius: 0;
-  margin: 0;
   background: #ffffff;
 }
 
@@ -232,12 +211,8 @@
   }
 }
 
-/* High contrast mode support */
+/* High contrast mode support - only style controls, not wrapper */
 @media (prefers-contrast: high) {
-  .svg-toolbelt-wrapper,
-  .svg-toolbelt-container {
-    border: 2px solid #000;
-  }
   .svg-toolbelt-controls,
   .svg-toolbelt-controls button {
     background: #ffffff;
@@ -253,29 +228,21 @@
   }
 }
 
-/* Reduced motion support */
+/* Reduced motion support - only disable transitions on controls */
 @media (prefers-reduced-motion: reduce) {
-  .svg-toolbelt-wrapper svg,
   .svg-toolbelt-controls button {
     transition: none !important;
     transform: none !important;
   }
 }
 
-/* Print styles */
+/* Print styles - hide controls only, preserve SVG original styles */
 @media print {
   .svg-toolbelt-controls {
     display: none !important;
   }
   .svg-toolbelt-wrapper {
-    border: 1px solid #000;
     background: #ffffff;
-    page-break-inside: avoid;
-    box-shadow: none;
-  }
-  .svg-toolbelt-wrapper svg {
-    max-width: 100% !important;
-    height: auto !important;
   }
 }
 
