@@ -3,6 +3,13 @@
 import { DEFAULT_SVG_ENHANCER_CONFIG, SvgEnhancerConfig } from './config';
 import { EventEmitter } from './events';
 
+// Constants for fallback SVG dimensions when getBBox/viewBox are unavailable
+const DEFAULT_FALLBACK_SVG_WIDTH = 400;
+const DEFAULT_FALLBACK_SVG_HEIGHT = 300;
+
+// Padding around pan constraints to ensure some content remains visible
+const PAN_CONSTRAINT_PADDING = 50;
+
 export interface SvgEnhancerFeatures {
   zoom: any; // we'll type these in feature modules
   pan: any;
@@ -87,8 +94,8 @@ export class SvgEnhancer extends EventEmitter {
         }
       } catch {
         // Final fallback to attributes or defaults
-        const width = parseFloat(this.svg.getAttribute('width') || '400');
-        const height = parseFloat(this.svg.getAttribute('height') || '300');
+        const width = parseFloat(this.svg.getAttribute('width') || String(DEFAULT_FALLBACK_SVG_WIDTH));
+        const height = parseFloat(this.svg.getAttribute('height') || String(DEFAULT_FALLBACK_SVG_HEIGHT));
         svgBounds = { width, height };
       }
     }
@@ -108,14 +115,13 @@ export class SvgEnhancer extends EventEmitter {
     );
 
     // Apply constraints with some padding
-    const padding = 50; // pixels of padding
     this.translateX = Math.max(
-      -maxTranslateX - padding,
-      Math.min(maxTranslateX + padding, this.translateX)
+      -maxTranslateX - PAN_CONSTRAINT_PADDING,
+      Math.min(maxTranslateX + PAN_CONSTRAINT_PADDING, this.translateX)
     );
     this.translateY = Math.max(
-      -maxTranslateY - padding,
-      Math.min(maxTranslateY + padding, this.translateY)
+      -maxTranslateY - PAN_CONSTRAINT_PADDING,
+      Math.min(maxTranslateY + PAN_CONSTRAINT_PADDING, this.translateY)
     );
   }
 
