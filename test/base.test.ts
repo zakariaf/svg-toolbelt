@@ -5,7 +5,6 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { SvgEnhancer } from '../src/core/base';
 import { SvgZoom } from '../src/index';
-import { DEFAULT_SVG_ENHANCER_CONFIG } from '../src/core/config';
 
 describe('SvgEnhancer (core)', () => {
   let container: HTMLElement;
@@ -37,14 +36,57 @@ describe('SvgEnhancer (core)', () => {
     expect(svg.classList.contains('svg-toolbelt-svg')).toBe(true);
   });
 
-  it('should constrain pan within limits', () => {
+  it('should constrain pan based on content size and zoom level', () => {
     const enhancer = new SvgEnhancer(container);
     enhancer.init();
-    enhancer.translateX = 5000;
-    enhancer.translateY = -5000;
+
+    // Set up SVG with known dimensions
+    svg.setAttribute('width', '200');
+    svg.setAttribute('height', '200');
+    svg.setAttribute('viewBox', '0 0 200 200');
+
+    // Add getBBox method to SVG element for JSDOM compatibility
+    (svg as any).getBBox = vi.fn().mockReturnValue({
+      x: 0,
+      y: 0,
+      width: 200,
+      height: 200
+    });
+
+    // Mock getBoundingClientRect for container
+    vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
+      width: 400,
+      height: 300,
+      left: 0,
+      top: 0,
+      right: 400,
+      bottom: 300,
+      x: 0,
+      y: 0,
+      toJSON: () => ({})
+    } as DOMRect);
+
+    // Test at scale 1 - should allow moderate panning
+    enhancer.scale = 1;
+    enhancer.translateX = 1000;
+    enhancer.translateY = 1000;
     enhancer.constrainPan();
-    expect(enhancer.translateX).toBe(DEFAULT_SVG_ENHANCER_CONFIG.maxPanX);
-    expect(enhancer.translateY).toBe(-DEFAULT_SVG_ENHANCER_CONFIG.maxPanY);
+
+    // Should be constrained but not to the old fixed limits
+    expect(enhancer.translateX).toBeLessThan(1000);
+    expect(enhancer.translateY).toBeLessThan(1000);
+    expect(enhancer.translateX).toBeGreaterThan(0); // Should allow some positive translation
+    expect(enhancer.translateY).toBeGreaterThan(0);
+
+    // Test at higher zoom - should allow more panning
+    enhancer.scale = 3;
+    enhancer.translateX = 2000;
+    enhancer.translateY = 2000;
+    enhancer.constrainPan();
+
+    // At higher zoom, should allow more translation
+    expect(enhancer.translateX).toBeLessThan(2000);
+    expect(enhancer.translateY).toBeLessThan(2000);
   });
 
   it('destroy() should remove features and listeners', () => {

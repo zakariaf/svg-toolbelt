@@ -56,13 +56,67 @@ export class SvgEnhancer extends EventEmitter {
   }
 
   /**
-   * Ensure panning does not exceed configured limits.
+   * Ensure panning does not exceed reasonable limits based on content and zoom level.
    */
   public constrainPan(): void {
-    const limitX = this.config.maxPanX;
-    const limitY = this.config.maxPanY;
-    this.translateX = Math.max(-limitX, Math.min(limitX, this.translateX));
-    this.translateY = Math.max(-limitY, Math.min(limitY, this.translateY));
+    if (!this.svg) return;
+
+    const containerRect = this.containerRect;
+    const containerCenterX = containerRect.width / 2;
+    const containerCenterY = containerRect.height / 2;
+
+    // Get SVG bounds with better JSDOM compatibility
+    let svgBounds: { width: number; height: number };
+    try {
+      // Try getBBox first (real browser)
+      if (typeof this.svg.getBBox === 'function') {
+        const bbox = this.svg.getBBox();
+        svgBounds = { width: bbox.width, height: bbox.height };
+      } else {
+        throw new Error('getBBox not available');
+      }
+    } catch {
+      // Fallback for JSDOM and other environments
+      try {
+        // Try viewBox with better compatibility check
+        const viewBox = this.svg.viewBox?.baseVal;
+        if (viewBox && viewBox.width > 0 && viewBox.height > 0) {
+          svgBounds = { width: viewBox.width, height: viewBox.height };
+        } else {
+          throw new Error('viewBox not available');
+        }
+      } catch {
+        // Final fallback to attributes or defaults
+        const width = parseFloat(this.svg.getAttribute('width') || '400');
+        const height = parseFloat(this.svg.getAttribute('height') || '300');
+        svgBounds = { width, height };
+      }
+    }
+
+    // Calculate scaled dimensions
+    const scaledWidth = svgBounds.width * this.scale;
+    const scaledHeight = svgBounds.height * this.scale;
+
+    // Calculate maximum allowed translation to keep some content visible
+    const maxTranslateX = Math.max(
+      containerCenterX,
+      scaledWidth - containerCenterX
+    );
+    const maxTranslateY = Math.max(
+      containerCenterY,
+      scaledHeight - containerCenterY
+    );
+
+    // Apply constraints with some padding
+    const padding = 50; // pixels of padding
+    this.translateX = Math.max(
+      -maxTranslateX - padding,
+      Math.min(maxTranslateX + padding, this.translateX)
+    );
+    this.translateY = Math.max(
+      -maxTranslateY - padding,
+      Math.min(maxTranslateY + padding, this.translateY)
+    );
   }
 
   /**
@@ -73,14 +127,14 @@ export class SvgEnhancer extends EventEmitter {
     this.isDestroyed = true;
 
     // Destroy all feature instances
-    Object.values(this.features).forEach((feature: any) => {
-      if (feature && typeof feature.destroy === 'function') {
-        feature.destroy();
+    Object.values(this.features).forEach((feature: unknown) => {
+      if (feature && typeof (feature as any).destroy === 'function') {
+        (feature as any).destroy();
       }
     });
 
     this.removeAllListeners();
-    this.features = {} as any;
+    this.features = {} as SvgEnhancerFeatures;
   }
 
   /**

@@ -8,10 +8,6 @@ export interface SvgEnhancerConfig {
   maxScale: number;
   zoomStep: number;
 
-  // Pan limits (prevent panning too far)
-  maxPanX: number;
-  maxPanY: number;
-
   // Animation duration in milliseconds
   transitionDuration: number;
 
@@ -36,8 +32,6 @@ export const DEFAULT_SVG_ENHANCER_CONFIG: Readonly<SvgEnhancerConfig> = Object.f
     minScale: 0.1,
     maxScale: 10,
     zoomStep: 0.1,
-    maxPanX: 1000,
-    maxPanY: 1000,
     transitionDuration: 200,
     showControls: true,
     controlsPosition: 'top-right',
