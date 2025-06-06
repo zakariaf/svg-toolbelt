@@ -105,23 +105,24 @@ export class SvgEnhancer extends EventEmitter {
     const scaledHeight = svgBounds.height * this.scale;
 
     // Calculate maximum allowed translation to keep some content visible
+    // We subtract padding to ensure at least that much content remains visible
     const maxTranslateX = Math.max(
       containerCenterX,
       scaledWidth - containerCenterX
-    );
+    ) - PAN_CONSTRAINT_PADDING;
     const maxTranslateY = Math.max(
       containerCenterY,
       scaledHeight - containerCenterY
-    );
+    ) - PAN_CONSTRAINT_PADDING;
 
-    // Apply constraints with some padding
+    // Apply constraints to keep content partially visible
     this.translateX = Math.max(
-      -maxTranslateX - PAN_CONSTRAINT_PADDING,
-      Math.min(maxTranslateX + PAN_CONSTRAINT_PADDING, this.translateX)
+      -maxTranslateX,
+      Math.min(maxTranslateX, this.translateX)
     );
     this.translateY = Math.max(
-      -maxTranslateY - PAN_CONSTRAINT_PADDING,
-      Math.min(maxTranslateY + PAN_CONSTRAINT_PADDING, this.translateY)
+      -maxTranslateY,
+      Math.min(maxTranslateY, this.translateY)
     );
   }
 
