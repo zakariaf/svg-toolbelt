@@ -66,17 +66,17 @@ describe('SvgEnhancer (core)', () => {
       toJSON: () => ({})
     } as DOMRect);
 
-    // Test at scale 1 - should allow moderate panning
+    // Test at scale 1 - should constrain to exact calculated values
     enhancer.scale = 1;
     enhancer.translateX = 1000;
     enhancer.translateY = 1000;
     enhancer.constrainPan();
 
-    // Should be constrained but not to the old fixed limits
-    expect(enhancer.translateX).toBeLessThan(1000);
-    expect(enhancer.translateY).toBeLessThan(1000);
-    expect(enhancer.translateX).toBeGreaterThan(0); // Should allow some positive translation
-    expect(enhancer.translateY).toBeGreaterThan(0);
+    // With container 400x300, SVG 200x200, scale 1, padding 50:
+    // maxTranslateX = Math.max(200, 200-200) - 50 = 150
+    // maxTranslateY = Math.max(150, 200-150) - 50 = 100
+    expect(enhancer.translateX).toBe(150);
+    expect(enhancer.translateY).toBe(100);
 
     // Test at higher zoom - should allow more panning
     enhancer.scale = 3;
@@ -84,9 +84,20 @@ describe('SvgEnhancer (core)', () => {
     enhancer.translateY = 2000;
     enhancer.constrainPan();
 
-    // At higher zoom, should allow more translation
-    expect(enhancer.translateX).toBeLessThan(2000);
-    expect(enhancer.translateY).toBeLessThan(2000);
+    // With container 400x300, SVG 200x200, scale 3, padding 50:
+    // maxTranslateX = Math.max(200, 600-200) - 50 = 350
+    // maxTranslateY = Math.max(150, 600-150) - 50 = 400
+    expect(enhancer.translateX).toBe(350);
+    expect(enhancer.translateY).toBe(400);
+
+    // Test negative translation constraints
+    enhancer.translateX = -2000;
+    enhancer.translateY = -2000;
+    enhancer.constrainPan();
+
+    // Should be constrained to negative maxTranslate values
+    expect(enhancer.translateX).toBe(-350);
+    expect(enhancer.translateY).toBe(-400);
   });
 
   it('destroy() should remove features and listeners', () => {
