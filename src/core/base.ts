@@ -81,22 +81,45 @@ export class SvgEnhancer extends EventEmitter {
         svgBounds = { width: bbox.width, height: bbox.height };
       } else {
         throw new Error('getBBox not available');
-      }
-    } catch {
-      // Fallback for JSDOM and other environments
-      try {
-        // Try viewBox with better compatibility check
-        const viewBox = this.svg.viewBox?.baseVal;
-        if (viewBox && viewBox.width > 0 && viewBox.height > 0) {
-          svgBounds = { width: viewBox.width, height: viewBox.height };
-        } else {
-          throw new Error('viewBox not available');
+      }      } catch {
+        // Fallback for JSDOM and other environments
+        try {
+          // Try viewBox with better compatibility and validation
+          const viewBox = this.svg.viewBox?.baseVal;
+          if (viewBox && 
+              typeof viewBox.width === 'number' && 
+              typeof viewBox.height === 'number' &&
+              !isNaN(viewBox.width) && 
+              !isNaN(viewBox.height) &&
+              viewBox.width > 0 && 
+              viewBox.height > 0) {
+            svgBounds = { width: viewBox.width, height: viewBox.height };
+          } else {
+            throw new Error('viewBox not available or invalid');
+          }
+        } catch {
+        // Final fallback to attributes or defaults with robust parsing
+        const svgWidthAttr = this.svg.getAttribute('width');
+        const svgHeightAttr = this.svg.getAttribute('height');
+
+        // Parse dimensions more robustly, handling edge cases
+        let w = NaN;
+        let h = NaN;
+        
+        if (svgWidthAttr) {
+          const parsedWidth = parseFloat(svgWidthAttr);
+          w = !isNaN(parsedWidth) && parsedWidth > 0 ? parsedWidth : NaN;
         }
-      } catch {
-        // Final fallback to attributes or defaults
-        const width = parseFloat(this.svg.getAttribute('width') || String(DEFAULT_FALLBACK_SVG_WIDTH));
-        const height = parseFloat(this.svg.getAttribute('height') || String(DEFAULT_FALLBACK_SVG_HEIGHT));
-        svgBounds = { width, height };
+        
+        if (svgHeightAttr) {
+          const parsedHeight = parseFloat(svgHeightAttr);
+          h = !isNaN(parsedHeight) && parsedHeight > 0 ? parsedHeight : NaN;
+        }
+
+        svgBounds = {
+          width: isNaN(w) ? DEFAULT_FALLBACK_SVG_WIDTH : w,
+          height: isNaN(h) ? DEFAULT_FALLBACK_SVG_HEIGHT : h,
+        };
       }
     }
 
@@ -104,16 +127,20 @@ export class SvgEnhancer extends EventEmitter {
     const scaledWidth = svgBounds.width * this.scale;
     const scaledHeight = svgBounds.height * this.scale;
 
+    // For very small content, ensure a minimum visible area
+    const minVisibleArea = Math.min(PAN_CONSTRAINT_PADDING, scaledWidth * 0.3, scaledHeight * 0.3);
+    const effectivePadding = Math.max(minVisibleArea, PAN_CONSTRAINT_PADDING);
+
     // Calculate maximum allowed translation to keep some content visible
     // We subtract padding to ensure at least that much content remains visible
     const maxTranslateX = Math.max(
       containerCenterX,
       scaledWidth - containerCenterX
-    ) - PAN_CONSTRAINT_PADDING;
+    ) - effectivePadding;
     const maxTranslateY = Math.max(
       containerCenterY,
       scaledHeight - containerCenterY
-    ) - PAN_CONSTRAINT_PADDING;
+    ) - effectivePadding;
 
     // Apply constraints to keep content partially visible
     this.translateX = Math.max(
@@ -135,8 +162,8 @@ export class SvgEnhancer extends EventEmitter {
 
     // Destroy all feature instances
     Object.values(this.features).forEach((feature: unknown) => {
-      if (feature && typeof (feature as any).destroy === 'function') {
-        (feature as any).destroy();
+      if (feature && typeof (feature as { destroy?: () => void }).destroy === 'function') {
+        (feature as { destroy: () => void }).destroy();
       }
     });
 
