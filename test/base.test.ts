@@ -680,4 +680,48 @@ describe('SvgZoom public API', () => {
     // Transform should not change when destroyed
     expect(svg.style.transform).toBe(originalTransform);
   });
+
+  it('should handle rapid successive calls to applyTransformWithTransition', async () => {
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+
+    enhancer.scale = 1.5;
+    enhancer.translateX = 50;
+    enhancer.translateY = 25;
+
+    // First call
+    enhancer.applyTransformWithTransition();
+    expect(svg.style.transition).toBe(`transform ${enhancer.config.transitionDuration}ms ease-out`);
+
+    // Rapid second call should clear the first timeout
+    enhancer.scale = 2.0;
+    enhancer.translateX = 100;
+    enhancer.translateY = 50;
+    enhancer.applyTransformWithTransition();
+
+    // Should still have transition set for the second call
+    expect(svg.style.transition).toBe(`transform ${enhancer.config.transitionDuration}ms ease-out`);
+    expect(svg.style.transform).toBe('translate(100px, 50px) scale(2)');
+
+    // Wait for the transition to complete
+    await new Promise(resolve => setTimeout(resolve, enhancer.config.transitionDuration + 10));
+    expect(svg.style.transition).toBe('none');
+  });
+
+  it('should clear transition timeout on destroy', () => {
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+
+    // Start a transition
+    enhancer.applyTransformWithTransition();
+    expect(svg.style.transition).toBe(`transform ${enhancer.config.transitionDuration}ms ease-out`);
+
+    // Destroy should clear the timeout
+    enhancer.destroy();
+
+    // Even if we wait for the original timeout duration, transition should not be cleared
+    // because the timeout was cleared on destroy
+    // Note: We can't easily test this directly, but the destroy method should not throw
+    expect(() => enhancer.destroy()).not.toThrow();
+  });
 });

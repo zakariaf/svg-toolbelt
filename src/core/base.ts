@@ -36,6 +36,7 @@ export class SvgEnhancer extends EventEmitter {
   public translateX: number = 0;
   public translateY: number = 0;
   public features: SvgEnhancerFeatures = {} as any;
+  private transitionTimeoutId: number | null = null;
 
   constructor(container: HTMLElement, config: Partial<SvgEnhancerConfig> = {}) {
     super();
@@ -117,6 +118,12 @@ export class SvgEnhancer extends EventEmitter {
     if (this.isDestroyed) return;
     this.isDestroyed = true;
 
+    // Clear any pending transition timeout
+    if (this.transitionTimeoutId !== null) {
+      clearTimeout(this.transitionTimeoutId);
+      this.transitionTimeoutId = null;
+    }
+
     // Destroy all feature instances
     Object.values(this.features).forEach((feature: unknown) => {
       if (typeof (feature as any)?.destroy === 'function') {
@@ -168,13 +175,19 @@ export class SvgEnhancer extends EventEmitter {
   public applyTransformWithTransition(): void {
     if (this.isDestroyed || !this.svg) return;
 
+    // Clear any existing transition timeout to prevent premature interruption
+    if (this.transitionTimeoutId !== null) {
+      clearTimeout(this.transitionTimeoutId);
+    }
+
     this.svg.style.transition = `transform ${this.config.transitionDuration}ms ease-out`;
     this.svg.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
 
-    setTimeout(() => {
+    this.transitionTimeoutId = window.setTimeout(() => {
       if (!this.isDestroyed && this.svg) {
         this.svg.style.transition = "none";
       }
+      this.transitionTimeoutId = null; // Clear the ID once the timeout has executed
     }, this.config.transitionDuration);
   }
 
