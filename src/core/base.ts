@@ -72,64 +72,17 @@ export class SvgEnhancer extends EventEmitter {
     const containerCenterX = containerRect.width / 2;
     const containerCenterY = containerRect.height / 2;
 
-    // Get SVG bounds with better JSDOM compatibility
-    let svgBounds: { width: number; height: number };
-    try {
-      // Try getBBox first (real browser)
-      if (typeof this.svg.getBBox === 'function') {
-        const bbox = this.svg.getBBox();
-        svgBounds = { width: bbox.width, height: bbox.height };
-      } else {
-        throw new Error('getBBox not available');
-      }      } catch {
-        // Fallback for JSDOM and other environments
-        try {
-          // Try viewBox with better compatibility and validation
-          const viewBox = this.svg.viewBox?.baseVal;
-          if (viewBox &&
-              typeof viewBox.width === 'number' &&
-              typeof viewBox.height === 'number' &&
-              !isNaN(viewBox.width) &&
-              !isNaN(viewBox.height) &&
-              viewBox.width > 0 &&
-              viewBox.height > 0) {
-            svgBounds = { width: viewBox.width, height: viewBox.height };
-          } else {
-            throw new Error('viewBox not available or invalid');
-          }
-        } catch {
-        // Final fallback to attributes or defaults with robust parsing
-        const svgWidthAttr = this.svg.getAttribute('width');
-        const svgHeightAttr = this.svg.getAttribute('height');
-
-        // Parse dimensions more robustly, handling edge cases
-        let w = NaN;
-        let h = NaN;
-
-        if (svgWidthAttr) {
-          const parsedWidth = parseFloat(svgWidthAttr);
-          w = !isNaN(parsedWidth) && parsedWidth > 0 ? parsedWidth : NaN;
-        }
-
-        if (svgHeightAttr) {
-          const parsedHeight = parseFloat(svgHeightAttr);
-          h = !isNaN(parsedHeight) && parsedHeight > 0 ? parsedHeight : NaN;
-        }
-
-        svgBounds = {
-          width: isNaN(w) ? DEFAULT_FALLBACK_SVG_WIDTH : w,
-          height: isNaN(h) ? DEFAULT_FALLBACK_SVG_HEIGHT : h,
-        };
-      }
-    }
+    // Get SVG bounds using fallback chain: getBBox -> viewBox -> attributes -> defaults
+    const svgBounds = this._getSvgBounds();
 
     // Calculate scaled dimensions
     const scaledWidth = svgBounds.width * this.scale;
     const scaledHeight = svgBounds.height * this.scale;
 
-    // For very small content, ensure a minimum visible area
-    const minVisibleArea = Math.min(PAN_CONSTRAINT_PADDING, scaledWidth * 0.3, scaledHeight * 0.3);
-    const effectivePadding = Math.max(minVisibleArea, PAN_CONSTRAINT_PADDING);
+    // For very small content, use adaptive padding to prevent complete disappearance
+    // Use smaller padding for small content, but ensure a minimum visibility
+    const adaptivePadding = Math.min(PAN_CONSTRAINT_PADDING, scaledWidth * 0.3, scaledHeight * 0.3);
+    const effectivePadding = Math.max(adaptivePadding, 10); // Minimum 10px visible
 
     // Calculate maximum allowed translation to keep some content visible
     // We subtract padding to ensure at least that much content remains visible
@@ -176,5 +129,84 @@ export class SvgEnhancer extends EventEmitter {
    */
   public get containerRect(): DOMRect {
     return this.container.getBoundingClientRect();
+  }
+
+  /**
+   * Try to get SVG bounds using getBBox method (works in real browsers)
+   */
+  private _tryGetBoundsFromBBox(): { width: number; height: number } | null {
+    try {
+      if (typeof this.svg!.getBBox === 'function') {
+        const bbox = this.svg!.getBBox();
+        return { width: bbox.width, height: bbox.height };
+      }
+    } catch {
+      // getBBox failed
+    }
+    return null;
+  }
+
+  /**
+   * Try to get SVG bounds from viewBox attribute
+   */
+  private _tryGetBoundsFromViewBox(): { width: number; height: number } | null {
+    try {
+      const viewBox = this.svg!.viewBox?.baseVal;
+      if (viewBox &&
+          typeof viewBox.width === 'number' &&
+          typeof viewBox.height === 'number' &&
+          !isNaN(viewBox.width) &&
+          !isNaN(viewBox.height) &&
+          viewBox.width > 0 &&
+          viewBox.height > 0) {
+        return { width: viewBox.width, height: viewBox.height };
+      }
+    } catch {
+      // viewBox parsing failed
+    }
+    return null;
+  }
+
+  /**
+   * Get SVG bounds from width/height attributes or fallback to defaults
+   */
+  private _getBoundsFromAttributesOrDefault(): { width: number; height: number } {
+    const svgWidthAttr = this.svg!.getAttribute('width');
+    const svgHeightAttr = this.svg!.getAttribute('height');
+
+    // Parse dimensions more robustly, handling edge cases
+    let w = NaN;
+    let h = NaN;
+
+    if (svgWidthAttr) {
+      const parsedWidth = parseFloat(svgWidthAttr);
+      w = !isNaN(parsedWidth) && parsedWidth > 0 ? parsedWidth : NaN;
+    }
+
+    if (svgHeightAttr) {
+      const parsedHeight = parseFloat(svgHeightAttr);
+      h = !isNaN(parsedHeight) && parsedHeight > 0 ? parsedHeight : NaN;
+    }
+
+    return {
+      width: isNaN(w) ? DEFAULT_FALLBACK_SVG_WIDTH : w,
+      height: isNaN(h) ? DEFAULT_FALLBACK_SVG_HEIGHT : h,
+    };
+  }
+
+  /**
+   * Get SVG bounds using fallback chain: getBBox -> viewBox -> attributes -> defaults
+   */
+  private _getSvgBounds(): { width: number; height: number } {
+    // Try getBBox first (real browser)
+    let bounds = this._tryGetBoundsFromBBox();
+    if (bounds) return bounds;
+
+    // Try viewBox (JSDOM compatibility)
+    bounds = this._tryGetBoundsFromViewBox();
+    if (bounds) return bounds;
+
+    // Final fallback to attributes or defaults
+    return this._getBoundsFromAttributesOrDefault();
   }
 }

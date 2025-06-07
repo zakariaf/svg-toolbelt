@@ -187,10 +187,13 @@ describe('SvgEnhancer (core)', () => {
     enhancer.translateY = 1000;
     enhancer.constrainPan();
 
-    // Should use adaptive padding to ensure minimum visibility
-    // With very small content (10x5), effective padding should be reduced
-    expect(enhancer.translateX).toBeLessThan(200); // Should be constrained
-    expect(enhancer.translateY).toBeLessThan(150); // Should be constrained
+    // With very small content (10x5 at scale 1), adaptive padding should be used
+    // adaptivePadding = Math.min(50, 10*0.3, 5*0.3) = Math.min(50, 3, 1.5) = 1.5
+    // effectivePadding = Math.max(1.5, 10) = 10
+    // maxTranslateX = Math.max(200, 10-200) - 10 = 190
+    // maxTranslateY = Math.max(150, 5-150) - 10 = 140
+    expect(enhancer.translateX).toBe(190);
+    expect(enhancer.translateY).toBe(140);
     expect(Number.isFinite(enhancer.translateX)).toBe(true);
     expect(Number.isFinite(enhancer.translateY)).toBe(true);
 
@@ -199,8 +202,8 @@ describe('SvgEnhancer (core)', () => {
     enhancer.translateY = -1000;
     enhancer.constrainPan();
 
-    expect(enhancer.translateX).toBeGreaterThan(-200);
-    expect(enhancer.translateY).toBeGreaterThan(-150);
+    expect(enhancer.translateX).toBe(-190);
+    expect(enhancer.translateY).toBe(-140);
   });
 
   it('should handle zero-dimension SVG gracefully', () => {
@@ -287,6 +290,53 @@ describe('SvgEnhancer (core)', () => {
     expect(Number.isFinite(enhancer.translateY)).toBe(true);
     expect(isNaN(enhancer.translateX)).toBe(false);
     expect(isNaN(enhancer.translateY)).toBe(false);
+  });
+
+  it('should test individual SVG bounds detection methods', () => {
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+
+    // Test getBBox method
+    (svg as any).getBBox = vi.fn().mockReturnValue({
+      x: 0, y: 0, width: 100, height: 80
+    });
+
+    // Access private method for testing
+    const tryGetBBox = (enhancer as any)._tryGetBoundsFromBBox();
+    expect(tryGetBBox).toEqual({ width: 100, height: 80 });
+
+    // Test getBBox failure
+    delete (svg as any).getBBox;
+    const noBBox = (enhancer as any)._tryGetBoundsFromBBox();
+    expect(noBBox).toBeNull();
+
+    // Test viewBox method
+    Object.defineProperty(svg, 'viewBox', {
+      value: { baseVal: { width: 200, height: 150 } },
+      configurable: true
+    });
+    const tryGetViewBox = (enhancer as any)._tryGetBoundsFromViewBox();
+    expect(tryGetViewBox).toEqual({ width: 200, height: 150 });
+
+    // Test viewBox with invalid data
+    Object.defineProperty(svg, 'viewBox', {
+      value: { baseVal: { width: NaN, height: NaN } },
+      configurable: true
+    });
+    const invalidViewBox = (enhancer as any)._tryGetBoundsFromViewBox();
+    expect(invalidViewBox).toBeNull();
+
+    // Test attributes method
+    svg.setAttribute('width', '300');
+    svg.setAttribute('height', '250');
+    const fromAttributes = (enhancer as any)._getBoundsFromAttributesOrDefault();
+    expect(fromAttributes).toEqual({ width: 300, height: 250 });
+
+    // Test fallback to defaults
+    svg.removeAttribute('width');
+    svg.removeAttribute('height');
+    const fallbackDefaults = (enhancer as any)._getBoundsFromAttributesOrDefault();
+    expect(fallbackDefaults).toEqual({ width: 400, height: 300 });
   });
 });
 
