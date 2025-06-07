@@ -112,6 +112,7 @@ jobs:
       - name: Update demo to use latest version
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          BRANCH_NAME="update-demo-v$PACKAGE_VERSION"
 
           echo "📦 Updating demo to use svg-toolbelt@$PACKAGE_VERSION"
 
@@ -129,11 +130,46 @@ jobs:
             exit 0
           fi
 
-          echo "📝 Changes detected, committing..."
+          echo "📝 Changes detected, creating branch and PR..."
 
-          # Commit and push changes
+          # Configure git
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+
+          # Create and switch to new branch
+          git checkout -b "$BRANCH_NAME"
+
+          # Commit changes
           git add docs/index.html
           git commit -m "docs: update demo to use svg-toolbelt@$PACKAGE_VERSION"
-          git push origin main
+
+          # Push the branch
+          git push origin "$BRANCH_NAME"
+
+          echo "🌟 Branch '$BRANCH_NAME' created and pushed"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: update-demo-v${{ github.ref_name }}
+          title: "docs: update demo to use svg-toolbelt@${{ github.ref_name }}"
+          body: |
+            ## 🚀 Auto-generated PR: Update Demo Site
+
+            This PR updates the demo site to use the latest published version of svg-toolbelt.
+
+            ### Changes
+            - Updated `docs/index.html` to reference `svg-toolbelt@${{ github.ref_name }}`
+            - Ensures demo site uses the latest published package version
+
+            ### Context
+            - Triggered by release: ${{ github.ref_name }}
+            - Published package: https://www.npmjs.com/package/svg-toolbelt
+
+            This PR can be merged automatically or reviewed first based on your preferences.
+          labels: |
+            documentation
+            automated
+          assignees: zakariaf
+          reviewers: zakariaf
