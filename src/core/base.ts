@@ -7,14 +7,9 @@ import { EventEmitter } from './events';
 const DEFAULT_FALLBACK_SVG_WIDTH = 400;
 const DEFAULT_FALLBACK_SVG_HEIGHT = 300;
 
-// Padding around pan constraints to ensure some content remains visible
-const PAN_CONSTRAINT_PADDING = 50;
-
 // Pan constraint behavior constants
 const CONTENT_SMALLER_THRESHOLD_FACTOR = 0.9; // Content considered "small" when < 90% of container
-const MIN_CENTERED_PAN_PIXELS = 10; // Minimum panning allowed for centered small content
-const CENTERED_PAN_OFFSET_FACTOR = 0.1; // Allow 10% of centering offset for small content
-const ADAPTIVE_PADDING_DIMENSION_FACTOR = 0.3; // Use 30% of content dimensions for adaptive padding
+const VISIBLE_CONTENT_FRACTION = 0.1; // Allow panning until only 10% of content remains visible
 
 export interface SvgEnhancerFeatures {
   zoom: any; // we'll type these in feature modules
@@ -70,63 +65,49 @@ export class SvgEnhancer extends EventEmitter {
 
   /**
    * Ensure panning does not exceed reasonable limits based on content and zoom level.
+   * Allows panning until only 10% of content remains visible.
    */
   public constrainPan(): void {
     if (!this.svg) return;
 
     const containerRect = this.containerRect;
-    const containerCenterX = containerRect.width / 2;
-    const containerCenterY = containerRect.height / 2;
-
-    // Get SVG bounds using fallback chain: getBBox -> viewBox -> attributes -> defaults
     const svgBounds = this._getSvgBounds();
 
     // Calculate scaled dimensions
     const scaledWidth = svgBounds.width * this.scale;
     const scaledHeight = svgBounds.height * this.scale;
 
-    // Calculate maximum allowed translation based on whether content fits in container
+    // Calculate constraints for X-axis
     let maxTranslateX: number;
-    let maxTranslateY: number;
-
-    // If scaled content is smaller than container, keep it centered with minimal panning
     if (scaledWidth < containerRect.width * CONTENT_SMALLER_THRESHOLD_FACTOR) {
-      // Allow only small movement to keep content centered
-      const centeringOffset = (containerRect.width - scaledWidth) / 2;
-      maxTranslateX = Math.max(MIN_CENTERED_PAN_PIXELS, centeringOffset * CENTERED_PAN_OFFSET_FACTOR);
+      // Small content: allow panning anywhere within container bounds
+      // User should be able to move small content to any edge of the container
+      maxTranslateX = containerRect.width;
     } else {
-      // Content is larger than container, use padding-based constraints
-      const adaptivePadding = Math.min(PAN_CONSTRAINT_PADDING, scaledWidth * ADAPTIVE_PADDING_DIMENSION_FACTOR, scaledHeight * ADAPTIVE_PADDING_DIMENSION_FACTOR);
-      const effectivePadding = Math.max(adaptivePadding, MIN_CENTERED_PAN_PIXELS); // Minimum visible
-      maxTranslateX = Math.max(
-        containerCenterX,
-        scaledWidth - containerCenterX
-      ) - effectivePadding;
+      // Large content: allow panning until only 10% remains visible
+      // Maximum positive translation: can pan left until only 10% of right edge is visible
+      // Maximum negative translation: can pan right until only 10% of left edge is visible
+      const minVisibleWidth = scaledWidth * VISIBLE_CONTENT_FRACTION;
+      maxTranslateX = scaledWidth - minVisibleWidth;
     }
 
+    // Calculate constraints for Y-axis
+    let maxTranslateY: number;
     if (scaledHeight < containerRect.height * CONTENT_SMALLER_THRESHOLD_FACTOR) {
-      // Allow only small movement to keep content centered
-      const centeringOffset = (containerRect.height - scaledHeight) / 2;
-      maxTranslateY = Math.max(MIN_CENTERED_PAN_PIXELS, centeringOffset * CENTERED_PAN_OFFSET_FACTOR);
+      // Small content: allow panning anywhere within container bounds
+      // User should be able to move small content to any edge of the container
+      maxTranslateY = containerRect.height;
     } else {
-      // Content is larger than container, use padding-based constraints
-      const adaptivePadding = Math.min(PAN_CONSTRAINT_PADDING, scaledWidth * ADAPTIVE_PADDING_DIMENSION_FACTOR, scaledHeight * ADAPTIVE_PADDING_DIMENSION_FACTOR);
-      const effectivePadding = Math.max(adaptivePadding, MIN_CENTERED_PAN_PIXELS); // Minimum visible
-      maxTranslateY = Math.max(
-        containerCenterY,
-        scaledHeight - containerCenterY
-      ) - effectivePadding;
+      // Large content: allow panning until only 10% remains visible
+      // Maximum positive translation: can pan up until only 10% of bottom edge is visible
+      // Maximum negative translation: can pan down until only 10% of top edge is visible
+      const minVisibleHeight = scaledHeight * VISIBLE_CONTENT_FRACTION;
+      maxTranslateY = scaledHeight - minVisibleHeight;
     }
 
-    // Apply constraints to keep content partially visible
-    this.translateX = Math.max(
-      -maxTranslateX,
-      Math.min(maxTranslateX, this.translateX)
-    );
-    this.translateY = Math.max(
-      -maxTranslateY,
-      Math.min(maxTranslateY, this.translateY)
-    );
+    // Apply constraints
+    this.translateX = Math.max(-maxTranslateX, Math.min(maxTranslateX, this.translateX));
+    this.translateY = Math.max(-maxTranslateY, Math.min(maxTranslateY, this.translateY));
   }
 
   /**
