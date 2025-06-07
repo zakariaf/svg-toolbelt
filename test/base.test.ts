@@ -5,7 +5,6 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { SvgEnhancer } from '../src/core/base';
 import { SvgZoom } from '../src/index';
-import { DEFAULT_SVG_ENHANCER_CONFIG } from '../src/core/config';
 
 describe('SvgEnhancer (core)', () => {
   let container: HTMLElement;
@@ -37,14 +36,74 @@ describe('SvgEnhancer (core)', () => {
     expect(svg.classList.contains('svg-toolbelt-svg')).toBe(true);
   });
 
-  it('should constrain pan within limits', () => {
+  it('should constrain pan based on content size and zoom level', () => {
     const enhancer = new SvgEnhancer(container);
     enhancer.init();
-    enhancer.translateX = 5000;
-    enhancer.translateY = -5000;
+
+    // Set up SVG with known dimensions
+    svg.setAttribute('width', '200');
+    svg.setAttribute('height', '200');
+    svg.setAttribute('viewBox', '0 0 200 200');
+
+    // Add getBBox method to SVG element for JSDOM compatibility
+    (svg as any).getBBox = vi.fn().mockReturnValue({
+      x: 0,
+      y: 0,
+      width: 200,
+      height: 200
+    });
+
+    // Mock getBoundingClientRect for container
+    vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
+      width: 400,
+      height: 300,
+      left: 0,
+      top: 0,
+      right: 400,
+      bottom: 300,
+      x: 0,
+      y: 0,
+      toJSON: () => ({})
+    } as DOMRect);
+
+    // Test at scale 1 - SVG (200x200) is smaller than container (400x300)
+    enhancer.scale = 1;
+    enhancer.translateX = 1000;
+    enhancer.translateY = 1000;
     enhancer.constrainPan();
-    expect(enhancer.translateX).toBe(DEFAULT_SVG_ENHANCER_CONFIG.maxPanX);
-    expect(enhancer.translateY).toBe(-DEFAULT_SVG_ENHANCER_CONFIG.maxPanY);
+
+    // With container 400x300, SVG 200x200, scale 1:
+    // scaledWidth (200) <= containerWidth (400), so use centering logic
+    // scaledHeight (200) <= containerHeight (300), so use centering logic
+    // maxTranslateX = Math.max(10, (400-200)/2 * 0.1) = Math.max(10, 10) = 10
+    // maxTranslateY = Math.max(10, (300-200)/2 * 0.1) = Math.max(10, 5) = 10
+    expect(enhancer.translateX).toBe(10);
+    expect(enhancer.translateY).toBe(10);
+
+    // Test at higher zoom - should allow more panning when content exceeds container
+    enhancer.scale = 3;
+    enhancer.translateX = 2000;
+    enhancer.translateY = 2000;
+    enhancer.constrainPan();
+
+    // With container 400x300, SVG 200x200, scale 3:
+    // scaledWidth (600) > containerWidth (400), so use padding logic
+    // scaledHeight (600) > containerHeight (300), so use padding logic
+    // adaptivePadding = Math.min(50, 600*0.3, 600*0.3) = 50
+    // effectivePadding = Math.max(50, 10) = 50
+    // maxTranslateX = Math.max(200, 600-200) - 50 = 350
+    // maxTranslateY = Math.max(150, 600-150) - 50 = 400
+    expect(enhancer.translateX).toBe(350);
+    expect(enhancer.translateY).toBe(400);
+
+    // Test negative translation constraints
+    enhancer.translateX = -2000;
+    enhancer.translateY = -2000;
+    enhancer.constrainPan();
+
+    // Should be constrained to negative maxTranslate values
+    expect(enhancer.translateX).toBe(-350);
+    expect(enhancer.translateY).toBe(-400);
   });
 
   it('destroy() should remove features and listeners', () => {
@@ -57,6 +116,235 @@ describe('SvgEnhancer (core)', () => {
     enhancer.destroy();
     expect(enhancer.isDestroyed).toBe(true);
     expect(enhancer.emit('test')).toBe(false);
+  });
+
+  it('should handle invalid SVG dimension attributes gracefully', () => {
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+
+    // Set up SVG with invalid dimension attributes
+    svg.setAttribute('width', 'invalid');
+    svg.setAttribute('height', 'foo');
+    svg.removeAttribute('viewBox');
+
+    // Remove getBBox to force fallback to attributes
+    delete (svg as any).getBBox;
+    (svg as any).viewBox = undefined;
+
+    // Mock getBoundingClientRect for container
+    vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
+      width: 400,
+      height: 300,
+      left: 0,
+      top: 0,
+      right: 400,
+      bottom: 300,
+      x: 0,
+      y: 0,
+      toJSON: () => ({})
+    } as DOMRect);
+
+    // Should fall back to default dimensions and not crash
+    enhancer.scale = 1;
+    enhancer.translateX = 1000;
+    enhancer.translateY = 1000;
+    enhancer.constrainPan();
+
+    // Should use fallback dimensions (400x300) and constrain properly
+    expect(Number.isFinite(enhancer.translateX)).toBe(true);
+    expect(Number.isFinite(enhancer.translateY)).toBe(true);
+    expect(isNaN(enhancer.translateX)).toBe(false);
+    expect(isNaN(enhancer.translateY)).toBe(false);
+  });
+
+  it('should handle very small content with adaptive padding', () => {
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+
+    // Set up SVG with very small dimensions
+    svg.setAttribute('width', '10');
+    svg.setAttribute('height', '5');
+    svg.setAttribute('viewBox', '0 0 10 5');
+
+    // Add getBBox method to SVG element for JSDOM compatibility
+    (svg as any).getBBox = vi.fn().mockReturnValue({
+      x: 0,
+      y: 0,
+      width: 10,
+      height: 5
+    });
+
+    // Mock getBoundingClientRect for container
+    vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
+      width: 400,
+      height: 300,
+      left: 0,
+      top: 0,
+      right: 400,
+      bottom: 300,
+      x: 0,
+      y: 0,
+      toJSON: () => ({})
+    } as DOMRect);
+
+    // Test at scale 1 with very small content
+    enhancer.scale = 1;
+    enhancer.translateX = 1000;
+    enhancer.translateY = 1000;
+    enhancer.constrainPan();
+
+    // With very small content (10x5 at scale 1), it should be kept centered with minimal panning
+    // scaledWidth = 10, scaledHeight = 5
+    // Container: 400x300, so content is much smaller than container
+    // centeringOffsetX = (400 - 10) / 2 = 195
+    // centeringOffsetY = (300 - 5) / 2 = 147.5
+    // maxTranslateX = Math.max(10, 195 * 0.1) = Math.max(10, 19.5) = 19.5
+    // maxTranslateY = Math.max(10, 147.5 * 0.1) = Math.max(10, 14.75) = 14.75
+    expect(enhancer.translateX).toBe(19.5);
+    expect(enhancer.translateY).toBe(14.75);
+    expect(Number.isFinite(enhancer.translateX)).toBe(true);
+    expect(Number.isFinite(enhancer.translateY)).toBe(true);
+
+    // Test negative translation constraints for small content
+    enhancer.translateX = -1000;
+    enhancer.translateY = -1000;
+    enhancer.constrainPan();
+
+    expect(enhancer.translateX).toBe(-19.5);
+    expect(enhancer.translateY).toBe(-14.75);
+  });
+
+  it('should handle zero-dimension SVG gracefully', () => {
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+
+    // Set up SVG with zero dimensions
+    svg.setAttribute('width', '0');
+    svg.setAttribute('height', '0');
+    svg.removeAttribute('viewBox');
+
+    // Remove getBBox to force fallback to attributes
+    delete (svg as any).getBBox;
+    (svg as any).viewBox = undefined;
+
+    // Mock getBoundingClientRect for container
+    vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
+      width: 400,
+      height: 300,
+      left: 0,
+      top: 0,
+      right: 400,
+      bottom: 300,
+      x: 0,
+      y: 0,
+      toJSON: () => ({})
+    } as DOMRect);
+
+    // Should fall back to default dimensions
+    enhancer.scale = 1;
+    enhancer.translateX = 1000;
+    enhancer.translateY = 1000;
+    enhancer.constrainPan();
+
+    expect(Number.isFinite(enhancer.translateX)).toBe(true);
+    expect(Number.isFinite(enhancer.translateY)).toBe(true);
+    expect(isNaN(enhancer.translateX)).toBe(false);
+    expect(isNaN(enhancer.translateY)).toBe(false);
+  });
+
+  it('should handle missing or malformed viewBox attributes', () => {
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+
+    // Set up SVG with malformed viewBox
+    svg.removeAttribute('width');
+    svg.removeAttribute('height');
+    svg.setAttribute('viewBox', 'invalid viewbox string');
+
+    // Remove getBBox to force fallback to viewBox parsing
+    delete (svg as any).getBBox;
+
+    // Mock viewBox with invalid data
+    Object.defineProperty(svg, 'viewBox', {
+      value: {
+        baseVal: {
+          width: NaN,
+          height: NaN
+        }
+      },
+      configurable: true
+    });
+
+    // Mock getBoundingClientRect for container
+    vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
+      width: 400,
+      height: 300,
+      left: 0,
+      top: 0,
+      right: 400,
+      bottom: 300,
+      x: 0,
+      y: 0,
+      toJSON: () => ({})
+    } as DOMRect);
+
+    // Should fall back to default dimensions and not crash
+    enhancer.scale = 1;
+    enhancer.translateX = 1000;
+    enhancer.translateY = 1000;
+    enhancer.constrainPan();
+
+    expect(Number.isFinite(enhancer.translateX)).toBe(true);
+    expect(Number.isFinite(enhancer.translateY)).toBe(true);
+    expect(isNaN(enhancer.translateX)).toBe(false);
+    expect(isNaN(enhancer.translateY)).toBe(false);
+  });
+
+  it('should test individual SVG bounds detection methods', () => {
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+
+    // Test getBBox method
+    (svg as any).getBBox = vi.fn().mockReturnValue({
+      x: 0, y: 0, width: 100, height: 80
+    });
+
+    // Access private method for testing
+    const tryGetBBox = (enhancer as any)._tryGetBoundsFromBBox();
+    expect(tryGetBBox).toEqual({ width: 100, height: 80 });
+
+    // Test getBBox failure
+    delete (svg as any).getBBox;
+    const noBBox = (enhancer as any)._tryGetBoundsFromBBox();
+    expect(noBBox).toBeNull();
+
+    // Test viewBox method
+    Object.defineProperty(svg, 'viewBox', {
+      value: { baseVal: { width: 200, height: 150 } },
+      configurable: true
+    });
+    const tryGetViewBox = (enhancer as any)._tryGetBoundsFromViewBox();
+    expect(tryGetViewBox).toEqual({ width: 200, height: 150 });
+
+    // Test viewBox with invalid data
+    Object.defineProperty(svg, 'viewBox', {
+      value: { baseVal: { width: NaN, height: NaN } },
+      configurable: true
+    });
+    const invalidViewBox = (enhancer as any)._tryGetBoundsFromViewBox();
+    expect(invalidViewBox).toBeNull();
+
+    // Test attributes method
+    svg.setAttribute('width', '300');
+    svg.setAttribute('height', '250');
+    const fromAttributes = (enhancer as any)._getBoundsFromAttributesOrDefault();
+    expect(fromAttributes).toEqual({ width: 300, height: 250 });
+
+    // Test fallback to defaults
+    svg.removeAttribute('width');
+    svg.removeAttribute('height');
+    const fallbackDefaults = (enhancer as any)._getBoundsFromAttributesOrDefault();
+    expect(fallbackDefaults).toEqual({ width: 400, height: 300 });
   });
 });
 

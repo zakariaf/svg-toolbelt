@@ -251,10 +251,6 @@ interface SvgEnhancerConfig {
   maxScale: number;           // Default: 10 (1000%)
   zoomStep: number;           // Default: 0.1 (10% per step)
 
-  // Pan constraints (pixels)
-  maxPanX: number;            // Default: 1000
-  maxPanY: number;            // Default: 1000
-
   // Animation
   transitionDuration: number; // Default: 200 (milliseconds)
 

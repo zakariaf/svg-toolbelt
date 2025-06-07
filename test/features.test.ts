@@ -82,12 +82,14 @@ describe('Feature modules', () => {
     container.dispatchEvent(plusKey);
     expect(enhancer.scale).toBeGreaterThan(beforeScale);
 
+    const beforeTranslateX = enhancer.translateX;
     const arrowRight = new KeyboardEvent('keydown', {
       key: 'ArrowRight',
       bubbles: true,
     });
     container.dispatchEvent(arrowRight);
-    expect(enhancer.translateX).toBeLessThanOrEqual(enhancer.config.maxPanX);
+    // Should have moved the translation (panning occurred)
+    expect(enhancer.translateX).not.toBe(beforeTranslateX);
   });
 
   it('DblclickResetFeature: double click resets transform', () => {
