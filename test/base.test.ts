@@ -66,25 +66,31 @@ describe('SvgEnhancer (core)', () => {
       toJSON: () => ({})
     } as DOMRect);
 
-    // Test at scale 1 - should constrain to exact calculated values
+    // Test at scale 1 - SVG (200x200) is smaller than container (400x300)
     enhancer.scale = 1;
     enhancer.translateX = 1000;
     enhancer.translateY = 1000;
     enhancer.constrainPan();
 
-    // With container 400x300, SVG 200x200, scale 1, padding 50:
-    // maxTranslateX = Math.max(200, 200-200) - 50 = 150
-    // maxTranslateY = Math.max(150, 200-150) - 50 = 100
-    expect(enhancer.translateX).toBe(150);
-    expect(enhancer.translateY).toBe(100);
+    // With container 400x300, SVG 200x200, scale 1:
+    // scaledWidth (200) <= containerWidth (400), so use centering logic
+    // scaledHeight (200) <= containerHeight (300), so use centering logic
+    // maxTranslateX = Math.max(10, (400-200)/2 * 0.1) = Math.max(10, 10) = 10
+    // maxTranslateY = Math.max(10, (300-200)/2 * 0.1) = Math.max(10, 5) = 10
+    expect(enhancer.translateX).toBe(10);
+    expect(enhancer.translateY).toBe(10);
 
-    // Test at higher zoom - should allow more panning
+    // Test at higher zoom - should allow more panning when content exceeds container
     enhancer.scale = 3;
     enhancer.translateX = 2000;
     enhancer.translateY = 2000;
     enhancer.constrainPan();
 
-    // With container 400x300, SVG 200x200, scale 3, padding 50:
+    // With container 400x300, SVG 200x200, scale 3:
+    // scaledWidth (600) > containerWidth (400), so use padding logic
+    // scaledHeight (600) > containerHeight (300), so use padding logic
+    // adaptivePadding = Math.min(50, 600*0.3, 600*0.3) = 50
+    // effectivePadding = Math.max(50, 10) = 50
     // maxTranslateX = Math.max(200, 600-200) - 50 = 350
     // maxTranslateY = Math.max(150, 600-150) - 50 = 400
     expect(enhancer.translateX).toBe(350);
@@ -187,13 +193,15 @@ describe('SvgEnhancer (core)', () => {
     enhancer.translateY = 1000;
     enhancer.constrainPan();
 
-    // With very small content (10x5 at scale 1), adaptive padding should be used
-    // adaptivePadding = Math.min(50, 10*0.3, 5*0.3) = Math.min(50, 3, 1.5) = 1.5
-    // effectivePadding = Math.max(1.5, 10) = 10
-    // maxTranslateX = Math.max(200, 10-200) - 10 = 190
-    // maxTranslateY = Math.max(150, 5-150) - 10 = 140
-    expect(enhancer.translateX).toBe(190);
-    expect(enhancer.translateY).toBe(140);
+    // With very small content (10x5 at scale 1), it should be kept centered with minimal panning
+    // scaledWidth = 10, scaledHeight = 5
+    // Container: 400x300, so content is much smaller than container
+    // centeringOffsetX = (400 - 10) / 2 = 195
+    // centeringOffsetY = (300 - 5) / 2 = 147.5
+    // maxTranslateX = Math.max(10, 195 * 0.1) = Math.max(10, 19.5) = 19.5
+    // maxTranslateY = Math.max(10, 147.5 * 0.1) = Math.max(10, 14.75) = 14.75
+    expect(enhancer.translateX).toBe(19.5);
+    expect(enhancer.translateY).toBe(14.75);
     expect(Number.isFinite(enhancer.translateX)).toBe(true);
     expect(Number.isFinite(enhancer.translateY)).toBe(true);
 
@@ -202,8 +210,8 @@ describe('SvgEnhancer (core)', () => {
     enhancer.translateY = -1000;
     enhancer.constrainPan();
 
-    expect(enhancer.translateX).toBe(-190);
-    expect(enhancer.translateY).toBe(-140);
+    expect(enhancer.translateX).toBe(-19.5);
+    expect(enhancer.translateY).toBe(-14.75);
   });
 
   it('should handle zero-dimension SVG gracefully', () => {

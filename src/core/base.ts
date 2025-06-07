@@ -79,21 +79,38 @@ export class SvgEnhancer extends EventEmitter {
     const scaledWidth = svgBounds.width * this.scale;
     const scaledHeight = svgBounds.height * this.scale;
 
-    // For very small content, use adaptive padding to prevent complete disappearance
-    // Use smaller padding for small content, but ensure a minimum visibility
-    const adaptivePadding = Math.min(PAN_CONSTRAINT_PADDING, scaledWidth * 0.3, scaledHeight * 0.3);
-    const effectivePadding = Math.max(adaptivePadding, 10); // Minimum 10px visible
+    // Calculate maximum allowed translation based on whether content fits in container
+    let maxTranslateX: number;
+    let maxTranslateY: number;
 
-    // Calculate maximum allowed translation to keep some content visible
-    // We subtract padding to ensure at least that much content remains visible
-    const maxTranslateX = Math.max(
-      containerCenterX,
-      scaledWidth - containerCenterX
-    ) - effectivePadding;
-    const maxTranslateY = Math.max(
-      containerCenterY,
-      scaledHeight - containerCenterY
-    ) - effectivePadding;
+    // If scaled content is smaller than container, keep it centered with minimal panning
+    if (scaledWidth < containerRect.width * 0.9) {
+      // Allow only small movement to keep content centered
+      const centeringOffset = (containerRect.width - scaledWidth) / 2;
+      maxTranslateX = Math.max(10, centeringOffset * 0.1); // Allow 10% of centering offset
+    } else {
+      // Content is larger than container, use padding-based constraints
+      const adaptivePadding = Math.min(PAN_CONSTRAINT_PADDING, scaledWidth * 0.3, scaledHeight * 0.3);
+      const effectivePadding = Math.max(adaptivePadding, 10); // Minimum 10px visible
+      maxTranslateX = Math.max(
+        containerCenterX,
+        scaledWidth - containerCenterX
+      ) - effectivePadding;
+    }
+
+    if (scaledHeight < containerRect.height * 0.9) {
+      // Allow only small movement to keep content centered
+      const centeringOffset = (containerRect.height - scaledHeight) / 2;
+      maxTranslateY = Math.max(10, centeringOffset * 0.1); // Allow 10% of centering offset
+    } else {
+      // Content is larger than container, use padding-based constraints
+      const adaptivePadding = Math.min(PAN_CONSTRAINT_PADDING, scaledWidth * 0.3, scaledHeight * 0.3);
+      const effectivePadding = Math.max(adaptivePadding, 10); // Minimum 10px visible
+      maxTranslateY = Math.max(
+        containerCenterY,
+        scaledHeight - containerCenterY
+      ) - effectivePadding;
+    }
 
     // Apply constraints to keep content partially visible
     this.translateX = Math.max(
@@ -115,8 +132,15 @@ export class SvgEnhancer extends EventEmitter {
 
     // Destroy all feature instances
     Object.values(this.features).forEach((feature: unknown) => {
-      if (feature && typeof (feature as { destroy?: () => void }).destroy === 'function') {
-        (feature as { destroy: () => void }).destroy();
+      if (feature && typeof feature === 'object' && 'destroy' in feature) {
+        const destroyFn = (feature as { destroy: unknown }).destroy;
+        if (typeof destroyFn === 'function') {
+          try {
+            destroyFn.call(feature);
+          } catch (error) {
+            console.warn('Error destroying feature:', error);
+          }
+        }
       }
     });
 
