@@ -132,15 +132,8 @@ export class SvgEnhancer extends EventEmitter {
 
     // Destroy all feature instances
     Object.values(this.features).forEach((feature: unknown) => {
-      if (feature && typeof feature === 'object' && 'destroy' in feature) {
-        const destroyFn = (feature as { destroy: unknown }).destroy;
-        if (typeof destroyFn === 'function') {
-          try {
-            destroyFn.call(feature);
-          } catch (error) {
-            console.warn('Error destroying feature:', error);
-          }
-        }
+      if (typeof (feature as any)?.destroy === 'function') {
+        (feature as any).destroy();
       }
     });
 
