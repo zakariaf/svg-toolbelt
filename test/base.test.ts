@@ -73,12 +73,12 @@ describe('SvgEnhancer (core)', () => {
     enhancer.constrainPan();
 
     // With container 400x300, SVG 200x200, scale 1:
-    // scaledWidth (200) <= containerWidth (400), so use centering logic
-    // scaledHeight (200) <= containerHeight (300), so use centering logic
-    // maxTranslateX = Math.max(10, (400-200)/2 * 0.1) = Math.max(10, 10) = 10
-    // maxTranslateY = Math.max(10, (300-200)/2 * 0.1) = Math.max(10, 5) = 10
-    expect(enhancer.translateX).toBe(10);
-    expect(enhancer.translateY).toBe(10);
+    // scaledWidth (200) < containerWidth (400) * 0.9 (360), so use small content logic
+    // scaledHeight (200) < containerHeight (300) * 0.9 (270), so use small content logic
+    // maxTranslateX = containerWidth = 400
+    // maxTranslateY = containerHeight = 300
+    expect(enhancer.translateX).toBe(400);
+    expect(enhancer.translateY).toBe(300);
 
     // Test at higher zoom - should allow more panning when content exceeds container
     enhancer.scale = 3;
@@ -87,14 +87,12 @@ describe('SvgEnhancer (core)', () => {
     enhancer.constrainPan();
 
     // With container 400x300, SVG 200x200, scale 3:
-    // scaledWidth (600) > containerWidth (400), so use padding logic
-    // scaledHeight (600) > containerHeight (300), so use padding logic
-    // adaptivePadding = Math.min(50, 600*0.3, 600*0.3) = 50
-    // effectivePadding = Math.max(50, 10) = 50
-    // maxTranslateX = Math.max(200, 600-200) - 50 = 350
-    // maxTranslateY = Math.max(150, 600-150) - 50 = 400
-    expect(enhancer.translateX).toBe(350);
-    expect(enhancer.translateY).toBe(400);
+    // scaledWidth (600) > containerWidth (400) * 0.9 (360), so use large content logic
+    // scaledHeight (600) > containerHeight (300) * 0.9 (270), so use large content logic
+    // minVisibleWidth = 600 * 0.1 = 60, maxTranslateX = 600 - 60 = 540
+    // minVisibleHeight = 600 * 0.1 = 60, maxTranslateY = 600 - 60 = 540
+    expect(enhancer.translateX).toBe(540);
+    expect(enhancer.translateY).toBe(540);
 
     // Test negative translation constraints
     enhancer.translateX = -2000;
@@ -102,8 +100,8 @@ describe('SvgEnhancer (core)', () => {
     enhancer.constrainPan();
 
     // Should be constrained to negative maxTranslate values
-    expect(enhancer.translateX).toBe(-350);
-    expect(enhancer.translateY).toBe(-400);
+    expect(enhancer.translateX).toBe(-540);
+    expect(enhancer.translateY).toBe(-540);
   });
 
   it('destroy() should remove features and listeners', () => {
@@ -193,15 +191,15 @@ describe('SvgEnhancer (core)', () => {
     enhancer.translateY = 1000;
     enhancer.constrainPan();
 
-    // With very small content (10x5 at scale 1), it should be kept centered with minimal panning
+    // With very small content (10x5 at scale 1), it should be treated as small content
     // scaledWidth = 10, scaledHeight = 5
     // Container: 400x300, so content is much smaller than container
-    // centeringOffsetX = (400 - 10) / 2 = 195
-    // centeringOffsetY = (300 - 5) / 2 = 147.5
-    // maxTranslateX = Math.max(10, 195 * 0.1) = Math.max(10, 19.5) = 19.5
-    // maxTranslateY = Math.max(10, 147.5 * 0.1) = Math.max(10, 14.75) = 14.75
-    expect(enhancer.translateX).toBe(19.5);
-    expect(enhancer.translateY).toBe(14.75);
+    // scaledWidth (10) < containerWidth (400) * 0.9 (360), so use small content logic
+    // scaledHeight (5) < containerHeight (300) * 0.9 (270), so use small content logic
+    // maxTranslateX = containerWidth = 400
+    // maxTranslateY = containerHeight = 300
+    expect(enhancer.translateX).toBe(400);
+    expect(enhancer.translateY).toBe(300);
     expect(Number.isFinite(enhancer.translateX)).toBe(true);
     expect(Number.isFinite(enhancer.translateY)).toBe(true);
 
@@ -210,8 +208,8 @@ describe('SvgEnhancer (core)', () => {
     enhancer.translateY = -1000;
     enhancer.constrainPan();
 
-    expect(enhancer.translateX).toBe(-19.5);
-    expect(enhancer.translateY).toBe(-14.75);
+    expect(enhancer.translateX).toBe(-400);
+    expect(enhancer.translateY).toBe(-300);
   });
 
   it('should handle zero-dimension SVG gracefully', () => {
@@ -346,6 +344,195 @@ describe('SvgEnhancer (core)', () => {
     const fallbackDefaults = (enhancer as any)._getBoundsFromAttributesOrDefault();
     expect(fallbackDefaults).toEqual({ width: 400, height: 300 });
   });
+
+  it('should handle edge case where content exactly matches threshold', () => {
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+
+    // Set up SVG to be exactly at the threshold (90% of container)
+    svg.setAttribute('width', '360'); // 400 * 0.9 = 360
+    svg.setAttribute('height', '270'); // 300 * 0.9 = 270
+    svg.setAttribute('viewBox', '0 0 360 270');
+
+    // Add getBBox method to SVG element for JSDOM compatibility
+    (svg as any).getBBox = vi.fn().mockReturnValue({
+      x: 0,
+      y: 0,
+      width: 360,
+      height: 270
+    });
+
+    // Mock getBoundingClientRect for container
+    vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
+      width: 400,
+      height: 300,
+      left: 0,
+      top: 0,
+      right: 400,
+      bottom: 300,
+      x: 0,
+      y: 0,
+      toJSON: () => ({})
+    } as DOMRect);
+
+    // Test at scale 1 - content exactly at threshold
+    enhancer.scale = 1;
+    enhancer.translateX = 1000;
+    enhancer.translateY = 1000;
+    enhancer.constrainPan();
+
+    // scaledWidth (360) = containerWidth (400) * 0.9 (360), so NOT < threshold, use large content logic
+    // scaledHeight (270) = containerHeight (300) * 0.9 (270), so NOT < threshold, use large content logic
+    // minVisibleWidth = 360 * 0.1 = 36, maxTranslateX = 360 - 36 = 324
+    // minVisibleHeight = 270 * 0.1 = 27, maxTranslateY = 270 - 27 = 243
+    expect(enhancer.translateX).toBe(324);
+    expect(enhancer.translateY).toBe(243);
+  });
+
+  it('should handle constrainPan when svg is null', () => {
+    // Create enhancer with no SVG
+    const emptyContainer = document.createElement('div');
+    const enhancer = new SvgEnhancer(emptyContainer);
+
+    // Set some translation values
+    enhancer.translateX = 100;
+    enhancer.translateY = 200;
+
+    // constrainPan should exit early and not modify values
+    enhancer.constrainPan();
+
+    expect(enhancer.translateX).toBe(100);
+    expect(enhancer.translateY).toBe(200);
+  });
+
+  it('should handle large content with mixed constraint axes', () => {
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+
+    // Set up SVG where width is large but height is small
+    svg.setAttribute('width', '500'); // Large: 500 > 400 * 0.9 (360)
+    svg.setAttribute('height', '100'); // Small: 100 < 300 * 0.9 (270)
+    svg.setAttribute('viewBox', '0 0 500 100');
+
+    // Add getBBox method to SVG element for JSDOM compatibility
+    (svg as any).getBBox = vi.fn().mockReturnValue({
+      x: 0,
+      y: 0,
+      width: 500,
+      height: 100
+    });
+
+    // Mock getBoundingClientRect for container
+    vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
+      width: 400,
+      height: 300,
+      left: 0,
+      top: 0,
+      right: 400,
+      bottom: 300,
+      x: 0,
+      y: 0,
+      toJSON: () => ({})
+    } as DOMRect);
+
+    enhancer.scale = 1;
+    enhancer.translateX = 1000;
+    enhancer.translateY = 1000;
+    enhancer.constrainPan();
+
+    // Width: scaledWidth (500) > containerWidth (400) * 0.9 (360), so use large content logic
+    // minVisibleWidth = 500 * 0.1 = 50, maxTranslateX = 500 - 50 = 450
+    // Height: scaledHeight (100) < containerHeight (300) * 0.9 (270), so use small content logic
+    // maxTranslateY = containerHeight = 300
+    expect(enhancer.translateX).toBe(450);
+    expect(enhancer.translateY).toBe(300);
+  });
+
+  it('should handle getBBox method throwing an exception', () => {
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+
+    // Set up SVG with getBBox that throws an exception
+    svg.setAttribute('width', '200');
+    svg.setAttribute('height', '150');
+
+    // Make getBBox throw an exception to test error handling
+    (svg as any).getBBox = vi.fn().mockImplementation(() => {
+      throw new Error('getBBox failed');
+    });
+
+    // Mock getBoundingClientRect for container
+    vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
+      width: 400,
+      height: 300,
+      left: 0,
+      top: 0,
+      right: 400,
+      bottom: 300,
+      x: 0,
+      y: 0,
+      toJSON: () => ({})
+    } as DOMRect);
+
+    // Should fall back to viewBox and then attributes
+    enhancer.scale = 1;
+    enhancer.translateX = 1000;
+    enhancer.translateY = 1000;
+    enhancer.constrainPan();
+
+    // Should use fallback dimensions from attributes (200x150) and constrain properly
+    expect(Number.isFinite(enhancer.translateX)).toBe(true);
+    expect(Number.isFinite(enhancer.translateY)).toBe(true);
+    expect(enhancer.translateX).toBe(400); // Small content logic: maxTranslateX = containerWidth
+    expect(enhancer.translateY).toBe(300); // Small content logic: maxTranslateY = containerHeight
+  });
+
+  it('should handle viewBox method throwing an exception', () => {
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+
+    // Remove getBBox to force viewBox usage
+    delete (svg as any).getBBox;
+
+    // Set up SVG with attributes as fallback
+    svg.setAttribute('width', '180');
+    svg.setAttribute('height', '120');
+
+    // Make viewBox access throw an exception
+    Object.defineProperty(svg, 'viewBox', {
+      get: () => {
+        throw new Error('viewBox access failed');
+      },
+      configurable: true
+    });
+
+    // Mock getBoundingClientRect for container
+    vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
+      width: 400,
+      height: 300,
+      left: 0,
+      top: 0,
+      right: 400,
+      bottom: 300,
+      x: 0,
+      y: 0,
+      toJSON: () => ({})
+    } as DOMRect);
+
+    // Should fall back to attributes
+    enhancer.scale = 1;
+    enhancer.translateX = 1000;
+    enhancer.translateY = 1000;
+    enhancer.constrainPan();
+
+    // Should use fallback dimensions from attributes (180x120) and constrain properly
+    expect(Number.isFinite(enhancer.translateX)).toBe(true);
+    expect(Number.isFinite(enhancer.translateY)).toBe(true);
+    expect(enhancer.translateX).toBe(400); // Small content logic: maxTranslateX = containerWidth
+    expect(enhancer.translateY).toBe(300); // Small content logic: maxTranslateY = containerHeight
+  });
+
+  // ...existing code...
 });
 
 describe('SvgZoom public API', () => {
