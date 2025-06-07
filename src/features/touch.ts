@@ -34,6 +34,11 @@ export class TouchFeature {
     if (this.enhancer.isDestroyed) return;
     e.preventDefault();
 
+    // Defensive check for malformed events
+    if (!e.touches || typeof e.touches.length !== 'number') {
+      return;
+    }
+
     if (e.touches.length === 1) {
       this.isDragging = true;
       this.lastMouseX = e.touches[0].clientX;
@@ -48,6 +53,11 @@ export class TouchFeature {
   private _handleTouchMove(e: TouchEvent): void {
     if (this.enhancer.isDestroyed) return;
     e.preventDefault();
+
+    // Defensive check for malformed events
+    if (!e.touches || typeof e.touches.length !== 'number') {
+      return;
+    }
 
     if (e.touches.length === 1 && this.isDragging) {
       const touch = e.touches[0];

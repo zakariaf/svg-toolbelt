@@ -49,6 +49,7 @@ export class SvgZoom extends SvgEnhancer {
    * Initialize all features, then apply any initial transforms.
    */
   public init(): void {
+    if (this.isDestroyed || !this.svg) return;
     super.init();
     Object.values(this.features).forEach((feature: any) => {
       if (feature && typeof feature.init === 'function') {
@@ -56,16 +57,18 @@ export class SvgZoom extends SvgEnhancer {
       }
     });
     // Apply any initial transform (none by default)
-    this.svg!.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
+    this.svg.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
   }
 
   /** Zoom in 1 step via public API */
   public zoomIn(): void {
+    if (this.isDestroyed || !this.features.zoom) return;
     this.features.zoom.zoomIn();
   }
 
   /** Zoom out 1 step via public API */
   public zoomOut(): void {
+    if (this.isDestroyed || !this.features.zoom) return;
     this.features.zoom.zoomOut();
   }
 }
