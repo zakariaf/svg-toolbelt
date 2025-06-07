@@ -36,6 +36,7 @@ export class SvgEnhancer extends EventEmitter {
   public translateX: number = 0;
   public translateY: number = 0;
   public features: SvgEnhancerFeatures = {} as any;
+  private transitionTimeoutId: number | null = null;
 
   constructor(container: HTMLElement, config: Partial<SvgEnhancerConfig> = {}) {
     super();
@@ -117,6 +118,12 @@ export class SvgEnhancer extends EventEmitter {
     if (this.isDestroyed) return;
     this.isDestroyed = true;
 
+    // Clear any pending transition timeout
+    if (this.transitionTimeoutId !== null) {
+      clearTimeout(this.transitionTimeoutId);
+      this.transitionTimeoutId = null;
+    }
+
     // Destroy all feature instances
     Object.values(this.features).forEach((feature: unknown) => {
       if (typeof (feature as any)?.destroy === 'function') {
@@ -133,6 +140,55 @@ export class SvgEnhancer extends EventEmitter {
    */
   public get containerRect(): DOMRect {
     return this.container.getBoundingClientRect();
+  }
+
+  /**
+   * Reset the SVG to its default scale and position with transition animation.
+   */
+  public reset(): void {
+    if (this.isDestroyed || !this.svg) return;
+
+    this.scale = 1;
+    this.translateX = 0;
+    this.translateY = 0;
+    this.applyTransformWithTransition();
+    this.emit("reset", {
+      translateX: this.translateX,
+      translateY: this.translateY,
+      scale: this.scale,
+    });
+  }
+
+  /**
+   * Apply the current transform to the SVG without transition animation.
+   */
+  public applyTransform(): void {
+    if (this.isDestroyed || !this.svg) return;
+
+    this.svg.style.transition = "none";
+    this.svg.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
+  }
+
+  /**
+   * Apply the current transform to the SVG with transition animation.
+   */
+  public applyTransformWithTransition(): void {
+    if (this.isDestroyed || !this.svg) return;
+
+    // Clear any existing transition timeout to prevent premature interruption
+    if (this.transitionTimeoutId !== null) {
+      clearTimeout(this.transitionTimeoutId);
+    }
+
+    this.svg.style.transition = `transform ${this.config.transitionDuration}ms ease-out`;
+    this.svg.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
+
+    this.transitionTimeoutId = window.setTimeout(() => {
+      if (!this.isDestroyed && this.svg) {
+        this.svg.style.transition = "none";
+      }
+      this.transitionTimeoutId = null; // Clear the ID once the timeout has executed
+    }, this.config.transitionDuration);
   }
 
   /**

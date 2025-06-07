@@ -43,6 +43,7 @@
     "serve": "node demo/serve.cjs",
     "demo": "npm run build && npm run serve",
     "test": "vitest",
+    "test:coverage": "npm run test -- --coverage",
     "lint": "eslint src test --ext .ts,.tsx",
     "lint:fix": "eslint src test --ext .ts,.tsx --fix",
     "type-check": "tsc --noEmit",

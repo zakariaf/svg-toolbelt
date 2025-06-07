@@ -92,6 +92,53 @@ describe('Feature modules', () => {
     expect(enhancer.translateX).not.toBe(beforeTranslateX);
   });
 
+  it('KeyboardFeature: arrow keys emit arrow events', () => {
+    enhancer.features.zoom = new ZoomFeature(enhancer) as any;
+    enhancer.features.pan = new PanFeature(enhancer) as any;
+    enhancer.features.keyboard = new KeyboardFeature(enhancer) as any;
+    enhancer.features.zoom.init();
+    enhancer.features.pan.init();
+    enhancer.features.keyboard.init();
+
+    // Set up event listener for arrow events
+    const arrowEventSpy = vi.fn();
+    enhancer.on('arrow', arrowEventSpy);
+
+    // Set initial values
+    enhancer.translateX = 10;
+    enhancer.translateY = 20;
+    enhancer.scale = 1.5;
+
+    // Trigger arrow key event
+    const arrowUp = new KeyboardEvent('keydown', {
+      key: 'ArrowUp',
+      bubbles: true,
+    });
+    container.dispatchEvent(arrowUp);
+
+    // Check that arrow event was emitted with correct values
+    expect(arrowEventSpy).toHaveBeenCalledWith({
+      translateX: enhancer.translateX,
+      translateY: enhancer.translateY,
+      scale: enhancer.scale,
+    });
+
+    // Test different arrow key
+    arrowEventSpy.mockClear();
+    const arrowLeft = new KeyboardEvent('keydown', {
+      key: 'ArrowLeft',
+      bubbles: true,
+    });
+    container.dispatchEvent(arrowLeft);
+
+    // Should emit again with updated values
+    expect(arrowEventSpy).toHaveBeenCalledWith({
+      translateX: enhancer.translateX,
+      translateY: enhancer.translateY,
+      scale: enhancer.scale,
+    });
+  });
+
   it('DblclickResetFeature: double click resets transform', () => {
     enhancer.translateX = 50;
     enhancer.translateY = 60;
