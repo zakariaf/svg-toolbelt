@@ -246,6 +246,45 @@ describe('Feature modules', () => {
       expect(enhancer.translateY).toBe(0);
       expect(svg.style.transform).toBe('translate(0px, 0px) scale(1)');
     });
+
+    it('should test fullscreen button creation and click handler', () => {
+      // Mock fullscreen API to be enabled
+      Object.defineProperty(document, 'fullscreenEnabled', {
+        value: true,
+        configurable: true,
+        writable: true
+      });
+
+      const testContainer = document.createElement('div');
+      const testSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      testContainer.appendChild(testSvg);
+      document.body.appendChild(testContainer);
+
+      const svgZoom = new SvgZoom(testContainer, { showControls: true });
+      svgZoom.init();
+
+      const controls = testContainer.querySelector('.svg-toolbelt-controls');
+      expect(controls).toBeTruthy();
+
+      // Find and test fullscreen button (line 40 in controls.ts)
+      const fullscreenBtn = testContainer.querySelector('button[title="Toggle Fullscreen"]') as HTMLButtonElement;
+      expect(fullscreenBtn).toBeTruthy();
+
+      // Test clicking the fullscreen button
+      expect(() => {
+        fullscreenBtn.click(); // This tests line 40: this.enhancer.features.fullscreen.toggleFullscreen()
+      }).not.toThrow();
+
+      // Reset fullscreen mock
+      Object.defineProperty(document, 'fullscreenEnabled', {
+        value: false,
+        configurable: true
+      });
+
+      // Cleanup
+      svgZoom.destroy();
+      document.body.removeChild(testContainer);
+    });
   });
 
   describe('Fullscreen feature error handling', () => {
@@ -545,5 +584,424 @@ describe('Feature modules', () => {
 
       spy.mockRestore();
     });
+  });
+
+  describe('Feature Configuration Coverage', () => {
+    it('should handle SvgZoom constructor with all features disabled', () => {
+      // Create DOM structure for this test
+      const testContainer = document.createElement('div');
+      const testSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      testContainer.appendChild(testSvg);
+      document.body.appendChild(testContainer);
+
+      const svgZoom = new SvgZoom(testContainer, {
+        enableTouch: false,
+        enableKeyboard: false,
+        showControls: false,
+        showZoomLevelIndicator: false
+      });
+
+      expect(svgZoom.features.touch).toBeNull();
+      expect(svgZoom.features.keyboard).toBeNull();
+      expect(svgZoom.features.controls).toBeNull();
+      expect(svgZoom.features.zoomLevelIndicator).toBeNull();
+      expect(svgZoom.features.fullscreen).toBeNull(); // fullscreenEnabled is false in test env
+
+      // Cleanup
+      svgZoom.destroy();
+      document.body.removeChild(testContainer);
+    });
+
+    it('should handle feature method calls through events', () => {
+      const testContainer = document.createElement('div');
+      const testSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      testContainer.appendChild(testSvg);
+      document.body.appendChild(testContainer);
+
+      const svgZoom = new SvgZoom(testContainer);
+
+      // Test wheel events on SVG
+      const wheelEvent = new WheelEvent('wheel', {
+        deltaY: -100,
+        clientX: 50,
+        clientY: 50,
+        bubbles: true,
+        cancelable: true
+      });
+
+      expect(() => {
+        testSvg.dispatchEvent(wheelEvent);
+      }).not.toThrow();
+
+      // Test mouse events
+      const mouseDownEvent = new MouseEvent('mousedown', {
+        clientX: 50,
+        clientY: 50,
+        bubbles: true,
+        cancelable: true
+      });
+
+      expect(() => {
+        testSvg.dispatchEvent(mouseDownEvent);
+      }).not.toThrow();
+
+      // Cleanup
+      svgZoom.destroy();
+      document.body.removeChild(testContainer);
+    });
+  });
+
+  describe('Coverage Recovery Tests', () => {
+    it('should test controls button click handlers for full coverage', () => {
+      const testContainer = document.createElement('div');
+      const testSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      testContainer.appendChild(testSvg);
+      document.body.appendChild(testContainer);
+
+      const svgZoom = new SvgZoom(testContainer, { showControls: true });
+      svgZoom.init();
+
+      const controls = testContainer.querySelector('.svg-toolbelt-controls');
+      expect(controls).toBeTruthy();
+
+      // Test zoom in button (line 26 in controls.ts)
+      const zoomInBtn = testContainer.querySelector('button[title="Zoom In"]') as HTMLButtonElement;
+      expect(zoomInBtn).toBeTruthy();
+
+      const initialScale = svgZoom.scale;
+      zoomInBtn.click();
+      expect(svgZoom.scale).toBeGreaterThan(initialScale);
+
+      // Test zoom out button (line 30 in controls.ts)
+      const zoomOutBtn = testContainer.querySelector('button[title="Zoom Out"]') as HTMLButtonElement;
+      expect(zoomOutBtn).toBeTruthy();
+      zoomOutBtn.click();
+
+      // Test reset button (line 40 in controls.ts)
+      svgZoom.scale = 2;
+      svgZoom.translateX = 50;
+      svgZoom.translateY = 100;
+
+      const resetBtn = testContainer.querySelector('button[title="Reset Zoom"]') as HTMLButtonElement;
+      expect(resetBtn).toBeTruthy();
+      resetBtn.click();
+
+      expect(svgZoom.scale).toBe(1);
+      expect(svgZoom.translateX).toBe(0);
+      expect(svgZoom.translateY).toBe(0);
+
+      // Cleanup
+      svgZoom.destroy();
+      document.body.removeChild(testContainer);
+    });
+
+    it('should test keyboard feature key combinations for full coverage', () => {
+      const testContainer = document.createElement('div');
+      const testSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      testContainer.appendChild(testSvg);
+      document.body.appendChild(testContainer);
+
+      const svgZoom = new SvgZoom(testContainer, { enableKeyboard: true });
+      svgZoom.init();
+
+      // Test '0' key for reset (lines 35-37 in keyboard.ts)
+      svgZoom.scale = 2;
+      svgZoom.translateX = 50;
+      svgZoom.translateY = 100;
+
+      const resetKeyEvent = new KeyboardEvent('keydown', { key: '0', bubbles: true });
+      testContainer.dispatchEvent(resetKeyEvent);
+
+      expect(svgZoom.scale).toBe(1);
+      expect(svgZoom.translateX).toBe(0);
+      expect(svgZoom.translateY).toBe(0);
+
+      // Test arrow keys for panning (lines 46-51 in keyboard.ts)
+      const initialTranslateX = svgZoom.translateX;
+      const initialTranslateY = svgZoom.translateY;
+
+      // Test ArrowDown (lines 46-51)
+      const arrowDownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true });
+      testContainer.dispatchEvent(arrowDownEvent);
+      expect(svgZoom.translateY).toBe(initialTranslateY - 20); // step = 20
+
+      // Test ArrowLeft (lines 46-51)
+      const arrowLeftEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true });
+      testContainer.dispatchEvent(arrowLeftEvent);
+      expect(svgZoom.translateX).toBe(initialTranslateX + 20); // step = 20
+
+      // Test ArrowRight (lines 46-51)
+      const arrowRightEvent = new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true });
+      testContainer.dispatchEvent(arrowRightEvent);
+      expect(svgZoom.translateX).toBe(initialTranslateX); // back to initial
+
+      // Test line 68 - destroy method
+      svgZoom.destroy();
+      expect(svgZoom.isDestroyed).toBe(true);
+
+      // Cleanup
+      document.body.removeChild(testContainer);
+    });
+
+    it('should test touch feature malformed events handling', () => {
+      const testContainer = document.createElement('div');
+      const testSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      testContainer.appendChild(testSvg);
+      document.body.appendChild(testContainer);
+
+      const svgZoom = new SvgZoom(testContainer, { enableTouch: true });
+      svgZoom.init();
+
+      // Test malformed touch event (lines 59-60 in touch.ts)
+      const malformedTouchEvent = new TouchEvent('touchmove', {
+        bubbles: true,
+        cancelable: true
+      });
+
+      // Manually override touches to test defensive check
+      Object.defineProperty(malformedTouchEvent, 'touches', {
+        value: null, // This will trigger the defensive check
+        writable: true
+      });
+
+      expect(() => {
+        testSvg.dispatchEvent(malformedTouchEvent);
+      }).not.toThrow();
+
+      // Test with non-number length
+      Object.defineProperty(malformedTouchEvent, 'touches', {
+        value: { length: 'invalid' }, // This will trigger the defensive check
+        writable: true
+      });
+
+      expect(() => {
+        testSvg.dispatchEvent(malformedTouchEvent);
+      }).not.toThrow();
+
+      // Cleanup
+      svgZoom.destroy();
+      document.body.removeChild(testContainer);
+    });
+
+    it('should test fullscreen error handling paths', async () => {
+      const testContainer = document.createElement('div');
+      const testSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      testContainer.appendChild(testSvg);
+      document.body.appendChild(testContainer);
+
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      // Mock fullscreenEnabled to ensure fullscreen feature is created
+      Object.defineProperty(document, 'fullscreenEnabled', {
+        value: true,
+        configurable: true,
+        writable: true
+      });
+
+      // Test exitFullscreen promise rejection (lines 20-22 in fullscreen.ts)
+      Object.defineProperty(document, 'fullscreenElement', {
+        value: testContainer,
+        configurable: true
+      });
+
+      // Create a mock that returns a rejected promise
+      const exitFullscreenMock = vi.fn().mockImplementation(() => {
+        return Promise.reject(new Error('Exit failed'));
+      });
+
+      Object.defineProperty(document, 'exitFullscreen', {
+        value: exitFullscreenMock,
+        configurable: true
+      });
+
+      const svgZoom = new SvgZoom(testContainer);
+      svgZoom.init();
+
+      // Verify fullscreen feature was created
+      expect(svgZoom.features.fullscreen).toBeTruthy();
+
+      if (svgZoom.features.fullscreen) {
+        svgZoom.features.fullscreen.toggleFullscreen();
+        // Wait for the async operation to complete
+        await new Promise(resolve => setTimeout(resolve, 100));
+        expect(consoleWarnSpy).toHaveBeenCalledWith('Failed to exit fullscreen');
+      }
+
+      // Reset console spy
+      consoleWarnSpy.mockClear();
+
+      // Test requestFullscreen promise rejection (lines 31-33 in fullscreen.ts)
+      Object.defineProperty(document, 'fullscreenElement', {
+        value: null,
+        configurable: true
+      });
+
+      // Create a mock that returns a rejected promise
+      const requestFullscreenMock = vi.fn().mockImplementation(() => {
+        return Promise.reject(new Error('Request failed'));
+      });
+
+      testContainer.requestFullscreen = requestFullscreenMock;
+
+      if (svgZoom.features.fullscreen) {
+        svgZoom.features.fullscreen.toggleFullscreen();
+        // Wait for the async operation to complete
+        await new Promise(resolve => setTimeout(resolve, 100));
+        expect(consoleWarnSpy).toHaveBeenCalledWith('Failed to enter fullscreen:', expect.any(Error));
+      }
+
+      // Reset fullscreen enabled
+      Object.defineProperty(document, 'fullscreenEnabled', {
+        value: false,
+        configurable: true
+      });
+
+      consoleWarnSpy.mockRestore();
+      svgZoom.destroy();
+      document.body.removeChild(testContainer);
+    });
+
+  it('should hit fullscreen promise catch blocks specifically', async () => {
+    const testContainer = document.createElement('div');
+    const testSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    testContainer.appendChild(testSvg);
+    document.body.appendChild(testContainer);
+
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    // Mock fullscreenEnabled to ensure fullscreen feature is created
+    Object.defineProperty(document, 'fullscreenEnabled', {
+      value: true,
+      configurable: true,
+      writable: true
+    });
+
+    const svgZoom = new SvgZoom(testContainer);
+    svgZoom.init();
+
+    // Verify fullscreen feature was created
+    expect(svgZoom.features.fullscreen).toBeTruthy();
+
+    // Test 1: Ensure exitFullscreen catch block is hit (lines 20-22)
+    Object.defineProperty(document, 'fullscreenElement', {
+      value: testContainer,
+      configurable: true,
+      writable: true
+    });
+
+    // Mock exitFullscreen to return a promise that rejects
+    Object.defineProperty(document, 'exitFullscreen', {
+      value: () => Promise.reject(new Error('Mock exit error')),
+      configurable: true,
+      writable: true
+    });
+
+    if (svgZoom.features.fullscreen) {
+      svgZoom.features.fullscreen.toggleFullscreen();
+      // Give extra time for promise to reject and catch block to execute
+      await new Promise(resolve => setTimeout(resolve, 200));
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Failed to exit fullscreen');
+    }
+
+    consoleWarnSpy.mockClear();
+
+    // Test 2: Ensure requestFullscreen catch block is hit (lines 31-33)
+    Object.defineProperty(document, 'fullscreenElement', {
+      value: null,
+      configurable: true,
+      writable: true
+    });
+
+    // Mock requestFullscreen to return a promise that rejects
+    testContainer.requestFullscreen = () => Promise.reject(new Error('Mock request error'));
+
+    if (svgZoom.features.fullscreen) {
+      svgZoom.features.fullscreen.toggleFullscreen();
+      // Give extra time for promise to reject and catch block to execute
+      await new Promise(resolve => setTimeout(resolve, 200));
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Failed to enter fullscreen:', expect.any(Error));
+    }
+
+    // Reset fullscreen enabled
+    Object.defineProperty(document, 'fullscreenEnabled', {
+      value: false,
+      configurable: true
+    });
+
+    consoleWarnSpy.mockRestore();
+    svgZoom.destroy();
+    document.body.removeChild(testContainer);
+  });
+  });
+
+  it('should test keyboard minus key functionality', () => {
+    const testContainer = document.createElement('div');
+    const testSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    testContainer.appendChild(testSvg);
+    document.body.appendChild(testContainer);
+
+    const svgZoom = new SvgZoom(testContainer, { enableKeyboard: true });
+    svgZoom.init();
+
+    // Set initial scale higher than 1
+    svgZoom.scale = 2;
+    const initialScale = svgZoom.scale;
+
+    // Test minus key for zoom out (lines 31-33 in keyboard.ts)
+    const minusKeyEvent = new KeyboardEvent('keydown', { key: '-', bubbles: true });
+    testContainer.dispatchEvent(minusKeyEvent);
+
+    expect(svgZoom.scale).toBeLessThan(initialScale);
+
+    // Cleanup
+    svgZoom.destroy();
+    document.body.removeChild(testContainer);
+  });
+
+  it('should test keyboard destroy method coverage', () => {
+    const testContainer = document.createElement('div');
+    const testSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    testContainer.appendChild(testSvg);
+    document.body.appendChild(testContainer);
+
+    const svgZoom = new SvgZoom(testContainer, { enableKeyboard: true });
+    svgZoom.init();
+
+    // Ensure keyboard feature exists and has destroy method
+    expect(svgZoom.features.keyboard).toBeTruthy();
+    expect(typeof svgZoom.features.keyboard.destroy).toBe('function');
+
+    // Call destroy on the keyboard feature directly (line 68 in keyboard.ts)
+    expect(() => {
+      svgZoom.features.keyboard.destroy();
+    }).not.toThrow();
+
+    // Cleanup
+    svgZoom.destroy();
+    document.body.removeChild(testContainer);
+  });
+
+  it('should handle default case for unhandled keyboard keys (line 68 keyboard.ts)', () => {
+    const testContainer = document.createElement('div');
+    testContainer.innerHTML = '<svg><g></g></svg>';
+    document.body.appendChild(testContainer);
+
+    const svgZoom = new SvgZoom(testContainer, { enableKeyboard: true });
+    svgZoom.init();
+
+    // Test that unhandled keys don't cause errors and hit the default case
+    const keyboardEvent = new KeyboardEvent('keydown', {
+      key: 'Space', // Space key is not handled in the switch statement
+      bubbles: true
+    });
+
+    // Should not throw and should let the event bubble (default case)
+    expect(() => {
+      testContainer.dispatchEvent(keyboardEvent);
+    }).not.toThrow();
+
+    // Cleanup
+    svgZoom.destroy();
+    document.body.removeChild(testContainer);
   });
 });

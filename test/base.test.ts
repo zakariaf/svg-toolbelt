@@ -532,6 +532,56 @@ describe('SvgEnhancer (core)', () => {
     expect(enhancer.translateY).toBe(300); // Small content logic: maxTranslateY = containerHeight
   });
 
+  it('should handle init() called on destroyed instance (covers base.ts:58)', () => {
+    const emptyContainer = document.createElement('div');
+    const enhancer = new SvgEnhancer(emptyContainer);
+
+    // Should be destroyed since no SVG
+    expect(enhancer.isDestroyed).toBe(true);
+
+    // Call init on destroyed instance - should return early
+    expect(() => enhancer.init()).not.toThrow();
+
+    // Should still be destroyed
+    expect(enhancer.isDestroyed).toBe(true);
+  });
+
+  it('should handle complete bounds detection fallback chain (covers base.ts:267)', () => {
+    // Create an SVG with no bounds information to force fallback chain
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    container.appendChild(svg);
+
+    // Remove all dimension attributes
+    svg.removeAttribute('width');
+    svg.removeAttribute('height');
+    svg.removeAttribute('viewBox');
+
+    // Mock getBBox to fail
+    (svg as any).getBBox = vi.fn().mockImplementation(() => {
+      throw new Error('getBBox not supported');
+    });
+
+    // Mock viewBox property to fail
+    Object.defineProperty(svg, 'viewBox', {
+      get: () => {
+        throw new Error('viewBox access failed');
+      },
+      configurable: true
+    });
+
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+
+    // Force bounds detection which should hit the final fallback
+    const bounds = (enhancer as any)._getSvgBounds();
+
+    // Should fallback to default dimensions
+    expect(bounds).toEqual({
+      width: 400,
+      height: 300
+    });
+  });
+
   // ...existing code...
 });
 
@@ -723,5 +773,20 @@ describe('SvgZoom public API', () => {
     // because the timeout was cleared on destroy
     // Note: We can't easily test this directly, but the destroy method should not throw
     expect(() => enhancer.destroy()).not.toThrow();
+  });
+
+  it('should handle SvgZoom constructor with no SVG (covers index.ts early return)', () => {
+    // Test SvgZoom specifically (not just SvgEnhancer) with no SVG
+    const emptyContainer = document.createElement('div');
+    const svgZoom = new SvgZoom(emptyContainer);
+
+    // Should be destroyed and features should be empty
+    expect(svgZoom.isDestroyed).toBe(true);
+    expect(Object.keys(svgZoom.features)).toHaveLength(0);
+
+    // Methods should be safe to call even when destroyed
+    expect(() => svgZoom.zoomIn()).not.toThrow();
+    expect(() => svgZoom.zoomOut()).not.toThrow();
+    expect(() => svgZoom.init()).not.toThrow();
   });
 });
