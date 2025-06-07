@@ -15,10 +15,7 @@ export class DblclickResetFeature {
 
   private _handleDblClick(_event: MouseEvent): void {
     if (!this.enhancer.isDestroyed) {
-      this.enhancer.scale = 1;
-      this.enhancer.translateX = 0;
-      this.enhancer.translateY = 0;
-      this.enhancer.svg!.style.transform = `translate(0px, 0px) scale(1)`;
+      this.enhancer.reset();
     }
   }
 

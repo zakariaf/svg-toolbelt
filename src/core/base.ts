@@ -136,6 +136,49 @@ export class SvgEnhancer extends EventEmitter {
   }
 
   /**
+   * Reset the SVG to its default scale and position with transition animation.
+   */
+  public reset(): void {
+    if (this.isDestroyed || !this.svg) return;
+
+    this.scale = 1;
+    this.translateX = 0;
+    this.translateY = 0;
+    this.applyTransformWithTransition();
+    this.emit("reset", {
+      translateX: this.translateX,
+      translateY: this.translateY,
+      scale: this.scale,
+    });
+  }
+
+  /**
+   * Apply the current transform to the SVG without transition animation.
+   */
+  public applyTransform(): void {
+    if (this.isDestroyed || !this.svg) return;
+
+    this.svg.style.transition = "none";
+    this.svg.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
+  }
+
+  /**
+   * Apply the current transform to the SVG with transition animation.
+   */
+  public applyTransformWithTransition(): void {
+    if (this.isDestroyed || !this.svg) return;
+
+    this.svg.style.transition = `transform ${this.config.transitionDuration}ms ease-out`;
+    this.svg.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
+
+    setTimeout(() => {
+      if (!this.isDestroyed && this.svg) {
+        this.svg.style.transition = "none";
+      }
+    }, this.config.transitionDuration);
+  }
+
+  /**
    * Try to get SVG bounds using getBBox method (works in real browsers)
    */
   private _tryGetBoundsFromBBox(): { width: number; height: number } | null {

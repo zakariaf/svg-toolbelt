@@ -33,39 +33,50 @@ export class KeyboardFeature {
         break;
       case e.key === '0':
         e.preventDefault();
-        this.enhancer.scale = 1;
-        this.enhancer.translateX = 0;
-        this.enhancer.translateY = 0;
-        this.enhancer.svg!.style.transform = `translate(0px, 0px) scale(1)`;
+        this.enhancer.reset();
         break;
       case e.key === 'ArrowUp':
         e.preventDefault();
         this.enhancer.translateY += step;
         this.enhancer.constrainPan();
-        this.enhancer.svg!.style.transform = `translate(${this.enhancer.translateX}px, ${this.enhancer.translateY}px) scale(${this.enhancer.scale})`;
+        this.emitArrowEvent();
+        this.enhancer.applyTransform()
         break;
       case e.key === 'ArrowDown':
         e.preventDefault();
         this.enhancer.translateY -= step;
         this.enhancer.constrainPan();
-        this.enhancer.svg!.style.transform = `translate(${this.enhancer.translateX}px, ${this.enhancer.translateY}px) scale(${this.enhancer.scale})`;
+        this.emitArrowEvent();
+        this.enhancer.applyTransform()
         break;
       case e.key === 'ArrowLeft':
         e.preventDefault();
         this.enhancer.translateX += step;
         this.enhancer.constrainPan();
-        this.enhancer.svg!.style.transform = `translate(${this.enhancer.translateX}px, ${this.enhancer.translateY}px) scale(${this.enhancer.scale})`;
+        this.emitArrowEvent();
+        this.enhancer.applyTransform()
         break;
       case e.key === 'ArrowRight':
         e.preventDefault();
         this.enhancer.translateX -= step;
         this.enhancer.constrainPan();
-        this.enhancer.svg!.style.transform = `translate(${this.enhancer.translateX}px, ${this.enhancer.translateY}px) scale(${this.enhancer.scale})`;
+        this.emitArrowEvent();
+        this.enhancer.applyTransform()
         break;
       default:
         // Let other keys bubble
         break;
     }
+  }
+
+
+  // Helper function to emit arrow event
+  private emitArrowEvent(): void {
+    this.enhancer.emit("arrow", {
+      translateX: this.enhancer.translateX,
+      translateY: this.enhancer.translateY,
+      scale: this.enhancer.scale,
+    });
   }
 
   public destroy(): void {
