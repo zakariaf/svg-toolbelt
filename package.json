@@ -1,6 +1,6 @@
 {
   "name": "svg-toolbelt",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "type": "module",
   "description": "A lightweight, zero-dependency library to add zoom, pan, touch, keyboard, and export support to any SVG.",
   "author": "Zakaria Fatahi <zakaria.fatahi@gmail.com>",
