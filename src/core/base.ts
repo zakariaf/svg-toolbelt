@@ -10,6 +10,12 @@ const DEFAULT_FALLBACK_SVG_HEIGHT = 300;
 // Padding around pan constraints to ensure some content remains visible
 const PAN_CONSTRAINT_PADDING = 50;
 
+// Pan constraint behavior constants
+const CONTENT_SMALLER_THRESHOLD_FACTOR = 0.9; // Content considered "small" when < 90% of container
+const MIN_CENTERED_PAN_PIXELS = 10; // Minimum panning allowed for centered small content
+const CENTERED_PAN_OFFSET_FACTOR = 0.1; // Allow 10% of centering offset for small content
+const ADAPTIVE_PADDING_DIMENSION_FACTOR = 0.3; // Use 30% of content dimensions for adaptive padding
+
 export interface SvgEnhancerFeatures {
   zoom: any; // we'll type these in feature modules
   pan: any;
@@ -84,28 +90,28 @@ export class SvgEnhancer extends EventEmitter {
     let maxTranslateY: number;
 
     // If scaled content is smaller than container, keep it centered with minimal panning
-    if (scaledWidth < containerRect.width * 0.9) {
+    if (scaledWidth < containerRect.width * CONTENT_SMALLER_THRESHOLD_FACTOR) {
       // Allow only small movement to keep content centered
       const centeringOffset = (containerRect.width - scaledWidth) / 2;
-      maxTranslateX = Math.max(10, centeringOffset * 0.1); // Allow 10% of centering offset
+      maxTranslateX = Math.max(MIN_CENTERED_PAN_PIXELS, centeringOffset * CENTERED_PAN_OFFSET_FACTOR);
     } else {
       // Content is larger than container, use padding-based constraints
-      const adaptivePadding = Math.min(PAN_CONSTRAINT_PADDING, scaledWidth * 0.3, scaledHeight * 0.3);
-      const effectivePadding = Math.max(adaptivePadding, 10); // Minimum 10px visible
+      const adaptivePadding = Math.min(PAN_CONSTRAINT_PADDING, scaledWidth * ADAPTIVE_PADDING_DIMENSION_FACTOR, scaledHeight * ADAPTIVE_PADDING_DIMENSION_FACTOR);
+      const effectivePadding = Math.max(adaptivePadding, MIN_CENTERED_PAN_PIXELS); // Minimum visible
       maxTranslateX = Math.max(
         containerCenterX,
         scaledWidth - containerCenterX
       ) - effectivePadding;
     }
 
-    if (scaledHeight < containerRect.height * 0.9) {
+    if (scaledHeight < containerRect.height * CONTENT_SMALLER_THRESHOLD_FACTOR) {
       // Allow only small movement to keep content centered
       const centeringOffset = (containerRect.height - scaledHeight) / 2;
-      maxTranslateY = Math.max(10, centeringOffset * 0.1); // Allow 10% of centering offset
+      maxTranslateY = Math.max(MIN_CENTERED_PAN_PIXELS, centeringOffset * CENTERED_PAN_OFFSET_FACTOR);
     } else {
       // Content is larger than container, use padding-based constraints
-      const adaptivePadding = Math.min(PAN_CONSTRAINT_PADDING, scaledWidth * 0.3, scaledHeight * 0.3);
-      const effectivePadding = Math.max(adaptivePadding, 10); // Minimum 10px visible
+      const adaptivePadding = Math.min(PAN_CONSTRAINT_PADDING, scaledWidth * ADAPTIVE_PADDING_DIMENSION_FACTOR, scaledHeight * ADAPTIVE_PADDING_DIMENSION_FACTOR);
+      const effectivePadding = Math.max(adaptivePadding, MIN_CENTERED_PAN_PIXELS); // Minimum visible
       maxTranslateY = Math.max(
         containerCenterY,
         scaledHeight - containerCenterY
