@@ -583,4 +583,101 @@ describe('SvgZoom public API', () => {
     // Test touch feature initialization
     expect(enhancer.features.touch).toBeTruthy();
   });
+
+  it('should reset transform and emit reset event', () => {
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+
+    // Set some transform values
+    enhancer.scale = 2;
+    enhancer.translateX = 100;
+    enhancer.translateY = 50;
+
+    const resetEventSpy = vi.fn();
+    enhancer.on('reset', resetEventSpy);
+
+    enhancer.reset();
+
+    // Check that values are reset
+    expect(enhancer.scale).toBe(1);
+    expect(enhancer.translateX).toBe(0);
+    expect(enhancer.translateY).toBe(0);
+
+    // Check that reset event was emitted
+    expect(resetEventSpy).toHaveBeenCalledWith({
+      translateX: 0,
+      translateY: 0,
+      scale: 1,
+    });
+  });
+
+  it('should apply transform without transition', () => {
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+
+    enhancer.scale = 1.5;
+    enhancer.translateX = 50;
+    enhancer.translateY = 25;
+
+    enhancer.applyTransform();
+
+    expect(svg.style.transition).toBe('none');
+    expect(svg.style.transform).toBe('translate(50px, 25px) scale(1.5)');
+  });
+
+  it('should apply transform with transition', async () => {
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+
+    enhancer.scale = 0.8;
+    enhancer.translateX = -30;
+    enhancer.translateY = 40;
+
+    enhancer.applyTransformWithTransition();
+
+    expect(svg.style.transition).toBe(`transform ${enhancer.config.transitionDuration}ms ease-out`);
+    expect(svg.style.transform).toBe('translate(-30px, 40px) scale(0.8)');
+
+    // Wait for the transition to complete and check that transition is removed
+    await new Promise(resolve => setTimeout(resolve, enhancer.config.transitionDuration + 10));
+    expect(svg.style.transition).toBe('none');
+  });
+
+  it('should handle reset when destroyed', () => {
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+    enhancer.destroy();
+
+    const resetEventSpy = vi.fn();
+    enhancer.on('reset', resetEventSpy);
+
+    enhancer.reset();
+
+    // Should not emit event or change values when destroyed
+    expect(resetEventSpy).not.toHaveBeenCalled();
+  });
+
+  it('should handle applyTransform when destroyed', () => {
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+    const originalTransform = svg.style.transform;
+    enhancer.destroy();
+
+    enhancer.applyTransform();
+
+    // Transform should not change when destroyed
+    expect(svg.style.transform).toBe(originalTransform);
+  });
+
+  it('should handle applyTransformWithTransition when destroyed', () => {
+    const enhancer = new SvgEnhancer(container);
+    enhancer.init();
+    const originalTransform = svg.style.transform;
+    enhancer.destroy();
+
+    enhancer.applyTransformWithTransition();
+
+    // Transform should not change when destroyed
+    expect(svg.style.transform).toBe(originalTransform);
+  });
 });
