@@ -86,12 +86,12 @@ export class SvgEnhancer extends EventEmitter {
         try {
           // Try viewBox with better compatibility and validation
           const viewBox = this.svg.viewBox?.baseVal;
-          if (viewBox && 
-              typeof viewBox.width === 'number' && 
+          if (viewBox &&
+              typeof viewBox.width === 'number' &&
               typeof viewBox.height === 'number' &&
-              !isNaN(viewBox.width) && 
+              !isNaN(viewBox.width) &&
               !isNaN(viewBox.height) &&
-              viewBox.width > 0 && 
+              viewBox.width > 0 &&
               viewBox.height > 0) {
             svgBounds = { width: viewBox.width, height: viewBox.height };
           } else {
@@ -105,12 +105,12 @@ export class SvgEnhancer extends EventEmitter {
         // Parse dimensions more robustly, handling edge cases
         let w = NaN;
         let h = NaN;
-        
+
         if (svgWidthAttr) {
           const parsedWidth = parseFloat(svgWidthAttr);
           w = !isNaN(parsedWidth) && parsedWidth > 0 ? parsedWidth : NaN;
         }
-        
+
         if (svgHeightAttr) {
           const parsedHeight = parseFloat(svgHeightAttr);
           h = !isNaN(parsedHeight) && parsedHeight > 0 ? parsedHeight : NaN;

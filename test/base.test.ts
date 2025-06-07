@@ -252,7 +252,7 @@ describe('SvgEnhancer (core)', () => {
 
     // Remove getBBox to force fallback to viewBox parsing
     delete (svg as any).getBBox;
-    
+
     // Mock viewBox with invalid data
     Object.defineProperty(svg, 'viewBox', {
       value: {
