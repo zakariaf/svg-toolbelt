@@ -33,7 +33,11 @@ describe('Comprehensive Edge Cases', () => {
     global.HTMLElement = dom.window.HTMLElement;
     global.SVGElement = dom.window.SVGElement;
     global.Element = dom.window.Element;
-    global.requestAnimationFrame = vi.fn(cb => setTimeout(cb, 16));
+    // Mock requestAnimationFrame to return a numeric ID and schedule the callback
+    global.requestAnimationFrame = vi.fn((cb: any): number => {
+      setTimeout(cb, 16);
+      return 0;
+    });
     global.cancelAnimationFrame = vi.fn();
 
     container = document.getElementById('container') as HTMLElement;
