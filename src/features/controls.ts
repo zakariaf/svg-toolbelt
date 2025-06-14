@@ -8,6 +8,7 @@ import { createControlButton } from '../core/utils';
 export class ControlsFeature {
   private enhancer: SvgEnhancer;
   private controlsContainer: HTMLDivElement | null = null;
+  public isDestroyed: boolean = false; // Add isDestroyed property
 
   constructor(enhancer: SvgEnhancer) {
     this.enhancer = enhancer;
@@ -55,5 +56,6 @@ export class ControlsFeature {
       this.controlsContainer.remove();
       this.controlsContainer = null;
     }
+    this.isDestroyed = true; // Set isDestroyed to true
   }
 }

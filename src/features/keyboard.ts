@@ -7,6 +7,7 @@ import { SvgEnhancer } from '../core/base';
 export class KeyboardFeature {
   private enhancer: SvgEnhancer;
   private handleKeyDown: (e: KeyboardEvent) => void;
+  public isDestroyed: boolean = false; // Add isDestroyed property
 
   constructor(enhancer: SvgEnhancer) {
     this.enhancer = enhancer;
@@ -81,5 +82,6 @@ export class KeyboardFeature {
 
   public destroy(): void {
     this.enhancer.container.removeEventListener('keydown', this.handleKeyDown);
+    this.isDestroyed = true; // Set isDestroyed to true
   }
 }
