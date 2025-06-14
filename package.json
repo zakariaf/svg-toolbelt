@@ -48,7 +48,7 @@
     "lint:fix": "eslint src test --ext .ts,.tsx --fix",
     "type-check": "tsc --noEmit",
     "prepare": "husky",
-    "prepublishOnly": "npm run lint && npm run type-check && npm test -- --run && npm run build",
+    "prepublishOnly": "npm run lint && npm run type-check && npm test -- --run && npm run test:coverage && npm audit && npm run build",
     "size": "size-limit",
     "analyze": "size-limit --why",
     "release:patch": "npm version patch && git push origin main --tags",
