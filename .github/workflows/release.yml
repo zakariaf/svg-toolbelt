@@ -152,6 +152,7 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
           branch: update-demo-${{ github.ref_name }}
           title: "docs: update demo to use svg-toolbelt@${{ github.ref_name }}"
           body: |
