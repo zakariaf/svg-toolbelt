@@ -4,7 +4,7 @@
 
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { SvgEnhancer } from '../src/core/base';
-import { SvgZoom } from '../src/index';
+import { SvgToolbelt, SvgZoom as DeprecatedSvgZoom, initializeSvgZoom as deprecatedInitializeSvgZoom } from '../src/index'; // Renamed SvgZoom import
 
 describe('SvgEnhancer (core)', () => {
   let container: HTMLElement;
@@ -585,7 +585,7 @@ describe('SvgEnhancer (core)', () => {
   // ...existing code...
 });
 
-describe('SvgZoom public API', () => {
+describe('SvgToolbelt public API', () => {
   let container: HTMLElement;
   let svg: SVGSVGElement;
 
@@ -603,7 +603,7 @@ describe('SvgZoom public API', () => {
   });
 
   it('should expose zoomIn and zoomOut methods', () => {
-    const enhancer = new SvgZoom(container);
+    const enhancer = new SvgToolbelt(container);
     enhancer.init();
 
     const initialScale = enhancer.scale;
@@ -619,7 +619,7 @@ describe('SvgZoom public API', () => {
   });
 
   it('should handle keyboard feature edge case', () => {
-    const enhancer = new SvgZoom(container, { enableKeyboard: true });
+    const enhancer = new SvgToolbelt(container, { enableKeyboard: true });
     enhancer.init();
 
     // Test potential edge case in keyboard handling
@@ -627,7 +627,7 @@ describe('SvgZoom public API', () => {
   });
 
   it('should handle touch feature edge case', () => {
-    const enhancer = new SvgZoom(container, { enableTouch: true });
+    const enhancer = new SvgToolbelt(container, { enableTouch: true });
     enhancer.init();
 
     // Test touch feature initialization
@@ -775,18 +775,75 @@ describe('SvgZoom public API', () => {
     expect(() => enhancer.destroy()).not.toThrow();
   });
 
-  it('should handle SvgZoom constructor with no SVG (covers index.ts early return)', () => {
-    // Test SvgZoom specifically (not just SvgEnhancer) with no SVG
+  it('should handle SvgToolbelt constructor with no SVG (covers index.ts early return)', () => {
+    // Test SvgToolbelt specifically (not just SvgEnhancer) with no SVG
     const emptyContainer = document.createElement('div');
-    const svgZoom = new SvgZoom(emptyContainer);
+    const svgToolbelt = new SvgToolbelt(emptyContainer);
 
     // Should be destroyed and features should be empty
-    expect(svgZoom.isDestroyed).toBe(true);
-    expect(Object.keys(svgZoom.features)).toHaveLength(0);
+    expect(svgToolbelt.isDestroyed).toBe(true);
+    expect(Object.keys(svgToolbelt.features)).toHaveLength(0);
 
     // Methods should be safe to call even when destroyed
-    expect(() => svgZoom.zoomIn()).not.toThrow();
-    expect(() => svgZoom.zoomOut()).not.toThrow();
-    expect(() => svgZoom.init()).not.toThrow();
+    expect(() => svgToolbelt.zoomIn()).not.toThrow();
+    expect(() => svgToolbelt.zoomOut()).not.toThrow();
+    expect(() => svgToolbelt.init()).not.toThrow();
+  });
+
+  it('should log a deprecation warning when SvgZoom is used', () => {
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    // Ensure the SvgZoom (deprecated) alias is imported correctly for this test
+    // import { SvgZoom as DeprecatedSvgZoom } from '../src/index'; // This should be at the top of the file
+
+    const instance = new DeprecatedSvgZoom(container);
+    expect(instance).toBeInstanceOf(SvgToolbelt); // It's an instance of the new class due to aliasing
+    expect(consoleWarnSpy).toHaveBeenCalled(); // Check if it was called at all first
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'SvgZoom is deprecated and will be removed in a future version. Use SvgToolbelt instead.'
+    );
+    consoleWarnSpy.mockRestore();
+  });
+
+  it('should log a deprecation warning when initializeSvgZoom is used and still work', () => {
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => {}); // To check if underlying function is called
+
+    // Call the actual deprecated function
+    deprecatedInitializeSvgZoom(container); // This function is void
+
+    expect(consoleWarnSpy).toHaveBeenCalled();
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'initializeSvgZoom is deprecated and will be removed in a future version. Use initializeSvgToolbelt instead.'
+    );
+    // Check if the underlying initializeSvgToolbelt was called by checking one of its logs
+    expect(consoleInfoSpy).toHaveBeenCalledWith(expect.stringContaining('SvgToolbelt: Initialized zoom for container'));
+
+    consoleWarnSpy.mockRestore();
+    consoleInfoSpy.mockRestore();
+  });
+
+  it('Deprecated SvgZoom alias should create a functional SvgToolbelt instance', () => {
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const instance = new DeprecatedSvgZoom(container);
+    expect(instance).toBeInstanceOf(SvgToolbelt);
+    // Check if a core method from SvgEnhancer/SvgToolbelt is available and doesn't throw
+    expect(() => instance.init()).not.toThrow();
+    expect(consoleWarnSpy).toHaveBeenCalledWith('SvgZoom is deprecated and will be removed in a future version. Use SvgToolbelt instead.');
+    consoleWarnSpy.mockRestore();
+  });
+
+  it('Deprecated initializeSvgZoom alias should call initializeSvgToolbelt', () => {
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+
+    deprecatedInitializeSvgZoom(container);
+
+    // Check for deprecation warning
+    expect(consoleWarnSpy).toHaveBeenCalledWith('initializeSvgZoom is deprecated and will be removed in a future version. Use initializeSvgToolbelt instead.');
+    // Check if the new function's logic was executed (e.g., by checking for its console output)
+    expect(consoleInfoSpy).toHaveBeenCalledWith(expect.stringContaining('SvgToolbelt: Initialized zoom for container'));
+
+    consoleWarnSpy.mockRestore();
+    consoleInfoSpy.mockRestore();
   });
 });
