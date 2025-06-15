@@ -76,12 +76,12 @@
     <script src="../../dist/svg-toolbelt.cjs.production.min.js"></script>
     <script>
         // Initialize svg-toolbelt on the diagram
-        const SvgZoom = window.SvgToolbelt?.SvgZoom || window.SvgZoom;
+        const SvgToolbelt = window.SvgToolbelt?.SvgToolbelt || window.SvgToolbelt;
         const svgElement = document.querySelector('.diagram svg');
 
-        if (SvgZoom && svgElement) {
+        if (SvgToolbelt && svgElement) {
             const container = document.querySelector('.diagram');
-            const instance = new SvgZoom(container, {
+            const instance = new SvgToolbelt(container, {
                 pan: true,
                 zoom: true,
                 keyboard: true,
@@ -90,7 +90,7 @@
             });
             instance.init();
         } else {
-            console.error('SvgZoom not found or no SVG element');
+            console.error('SvgToolbelt not found or no SVG element');
         }
     </script>
 </body>

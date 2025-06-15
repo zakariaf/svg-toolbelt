@@ -167,25 +167,21 @@
     <script src="../../dist/svg-toolbelt.cjs.production.min.js"></script>
     <script>
         // Initialize svg-toolbelt on all diagrams
-        const SvgZoom = window.SvgToolbelt?.SvgZoom || window.SvgZoom;
+        const SvgToolbelt = window.SvgToolbelt?.SvgToolbelt || window.SvgToolbelt;
 
-        if (SvgZoom) {
+        if (SvgToolbelt) {
             document.querySelectorAll('.diagram svg').forEach((svg, index) => {
                 const container = svg.closest('.diagram');
                 if (container) {
-                    const instance = new SvgZoom(container, {
-                        pan: true,
-                        zoom: true,
-                        keyboard: true,
-                        touch: true,
-                        dblclickReset: true
+                    const instance = new SvgToolbelt(container, {
+                        // pan, zoom, keyboard, touch, dblclickReset are enabled by default or through SvgToolbelt class
                     });
                     instance.init();
                     console.log(`Initialized diagram ${index + 1}`);
                 }
             });
         } else {
-            console.error('SvgZoom not found');
+            console.error('SvgToolbelt not found');
         }
     </script>
 </body>
