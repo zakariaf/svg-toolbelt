@@ -608,6 +608,11 @@ initializeSvgToolbelt('.mobile-diagram', {
 
 ## 🛠️ Development & Testing
 
+### Project Management & Quality
+
+- **Improvement Plan**: See our [Improvement Plan](Improvement-Plan.md) for a roadmap of planned features and enhancements.
+- **Post-Code-Writing Checklist**: Refer to the [Post-Code-Writing Checklist](Post-Code-Writing-Checklist.md) to ensure code quality and consistency before committing changes.
+
 ### Getting Started
 
 ```bash
