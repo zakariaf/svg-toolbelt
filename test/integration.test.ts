@@ -1,12 +1,12 @@
 /**
  * Integration test: simulate adding a dynamic container,
- * calling initializeSvgZoom, and verifying wrapper and data attributes.
+ * calling initializeSvgToolbelt, and verifying wrapper and data attributes.
  */
 
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
-import { initializeSvgZoom } from '../src';
+import { initializeSvgToolbelt } from '../src';
 
-describe('initializeSvgZoom (integration)', () => {
+describe('initializeSvgToolbelt (integration)', () => {
   let container: HTMLElement;
   let svg: SVGSVGElement;
 
@@ -22,23 +22,23 @@ describe('initializeSvgZoom (integration)', () => {
     document.body.innerHTML = '';
   });
 
-  it('should wrap the container and initialize SvgZoom instance', () => {
-    initializeSvgZoom('.custom-zoomable');
+  it('should wrap the container and initialize SvgToolbelt instance', () => {
+    initializeSvgToolbelt('.custom-zoomable');
     const wrapper = document.querySelector('.svg-toolbelt-wrapper');
     expect(wrapper).not.toBeNull();
     // instance stored on wrapper
-    const instance = (wrapper as any).svgZoomInstance;
+    const instance = (wrapper as any).svgToolbeltInstance;
     expect(instance).toBeDefined();
     expect(wrapper!.getAttribute('data-svg-toolbelt-initialized')).toBe('true');
   });
 
   it('should not re-initialize an already initialized container', () => {
-    initializeSvgZoom(container as any, {});
+    initializeSvgToolbelt(container as any, {});
     const wrappers = document.querySelectorAll('.svg-toolbelt-wrapper');
     expect(wrappers.length).toBe(1);
 
     // Call again
-    initializeSvgZoom(container as any, {});
+    initializeSvgToolbelt(container as any, {});
     expect(document.querySelectorAll('.svg-toolbelt-wrapper').length).toBe(1);
   });
 
@@ -47,9 +47,9 @@ describe('initializeSvgZoom (integration)', () => {
       const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
 
       // Call with empty selector result
-      initializeSvgZoom('.non-existent-selector');
+      initializeSvgToolbelt('.non-existent-selector');
 
-      expect(consoleSpy).toHaveBeenCalledWith('SvgZoom: No containers found to initialize');
+      expect(consoleSpy).toHaveBeenCalledWith('SvgToolbelt: No containers found to initialize');
 
       consoleSpy.mockRestore();
     });
@@ -62,9 +62,9 @@ describe('initializeSvgZoom (integration)', () => {
       const containerWithoutSvg = document.createElement('div');
       document.body.appendChild(containerWithoutSvg);
 
-      initializeSvgZoom([containerWithoutSvg]);
+      initializeSvgToolbelt([containerWithoutSvg]);
 
-      expect(warnSpy).toHaveBeenCalledWith('SvgZoom: No <svg> found in container #1');
+      expect(warnSpy).toHaveBeenCalledWith('SvgToolbelt: No <svg> found in container #1');
 
       consoleSpy.mockRestore();
       warnSpy.mockRestore();
@@ -85,10 +85,10 @@ describe('initializeSvgZoom (integration)', () => {
         configurable: true
       });
 
-      initializeSvgZoom([mockContainer]);
+      initializeSvgToolbelt([mockContainer]);
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('SvgZoom: Failed to initialize #1:'),
+        expect.stringContaining('SvgToolbelt: Failed to initialize #1:'),
         expect.any(Error)
       );
 

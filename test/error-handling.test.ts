@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { SvgEnhancer } from '../src/core/base';
-import { SvgZoom } from '../src/index';
+import { SvgToolbelt } from '../src/index';
 import { FullscreenFeature } from '../src/features/fullscreen';
 
 describe('Error Handling', () => {
@@ -52,12 +52,12 @@ describe('Error Handling', () => {
   });
 
   describe('Edge Cases and Fallbacks', () => {
-    it('should handle SvgZoom constructor early return when no SVG is found', () => {
+    it('should handle SvgToolbelt constructor early return when no SVG is found', () => {
       // Container with no SVG element
       expect(() => {
-        const svgZoom = new SvgZoom(container);
+        const svgToolbelt = new SvgToolbelt(container);
         // When no SVG is found, isDestroyed should be true
-        expect(svgZoom.isDestroyed).toBe(true);
+        expect(svgToolbelt.isDestroyed).toBe(true);
       }).not.toThrow();
     });
 
@@ -84,8 +84,8 @@ describe('Error Handling', () => {
       });
 
       expect(() => {
-        const svgZoom = new SvgZoom(container);
-        svgZoom.destroy();
+        const svgToolbelt = new SvgToolbelt(container);
+        svgToolbelt.destroy();
       }).not.toThrow();
     });
 

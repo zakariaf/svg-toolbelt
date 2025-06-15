@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { SvgZoom } from '../src/index';
+import { SvgToolbelt } from '../src/index';
 
 declare const global: typeof globalThis;
 
@@ -57,16 +57,16 @@ describe('Security & Performance Tests', () => {
 
       maliciousConfigs.forEach(config => {
         expect(() => {
-          const svgZoom = new SvgZoom(container, config);
-          svgZoom.init();
-          svgZoom.destroy();
+          const svgToolbelt = new SvgToolbelt(container, config);
+          svgToolbelt.init();
+          svgToolbelt.destroy();
         }).not.toThrow();
       });
     });
 
     it('should sanitize DOM manipulation inputs', () => {
-      const svgZoom = new SvgZoom(container, { showControls: true });
-      svgZoom.init();
+      const svgToolbelt = new SvgToolbelt(container, { showControls: true });
+      svgToolbelt.init();
 
       // Check that no script tags are injected
       const controlsContainer = container.querySelector('.svg-toolbelt-controls');
@@ -75,12 +75,12 @@ describe('Security & Performance Tests', () => {
         expect(scriptTags.length).toBe(0);
       }
 
-      svgZoom.destroy();
+      svgToolbelt.destroy();
     });
 
     it('should handle malicious event data', () => {
-      const svgZoom = new SvgZoom(container, { enableTouch: true });
-      svgZoom.init();
+      const svgToolbelt = new SvgToolbelt(container, { enableTouch: true });
+      svgToolbelt.init();
 
       const maliciousEventData = [
         // Attempt to inject script through event properties
@@ -125,20 +125,20 @@ describe('Security & Performance Tests', () => {
         }).not.toThrow();
       });
 
-      svgZoom.destroy();
+      svgToolbelt.destroy();
     });
 
     it('should prevent prototype pollution', () => {
       const maliciousConfig = JSON.parse('{"__proto__": {"polluted": true}}');
 
       expect(() => {
-        const svgZoom = new SvgZoom(container, maliciousConfig);
-        svgZoom.init();
+        const svgToolbelt = new SvgToolbelt(container, maliciousConfig);
+        svgToolbelt.init();
 
         // Check that prototype pollution didn't occur
         expect((Object.prototype as any).polluted).toBeUndefined();
 
-        svgZoom.destroy();
+        svgToolbelt.destroy();
       }).not.toThrow();
     });
 
@@ -153,16 +153,16 @@ describe('Security & Performance Tests', () => {
 
       extremeValues.forEach(value => {
         expect(() => {
-          const svgZoom = new SvgZoom(container, {
+          const svgToolbelt = new SvgToolbelt(container, {
             minScale: value,
             maxScale: value,
             zoomStep: value,
             transitionDuration: value
           });
-          svgZoom.init();
-          svgZoom.zoomIn();
-          svgZoom.zoomOut();
-          svgZoom.destroy();
+          svgToolbelt.init();
+          svgToolbelt.zoomIn();
+          svgToolbelt.zoomOut();
+          svgToolbelt.destroy();
         }).not.toThrow();
       });
     });
@@ -178,8 +178,8 @@ describe('Security & Performance Tests', () => {
       };
 
       expect(() => {
-        const svgZoom = new SvgZoom(container, { showControls: true });
-        svgZoom.init();
+        const svgToolbelt = new SvgToolbelt(container, { showControls: true });
+        svgToolbelt.init();
 
         // Should work without inline styles that violate CSP
         const controls = container.querySelector('.svg-toolbelt-controls');
@@ -187,7 +187,7 @@ describe('Security & Performance Tests', () => {
           expect(controls.getAttribute('style')).toBeFalsy();
         }
 
-        svgZoom.destroy();
+        svgToolbelt.destroy();
       }).not.toThrow();
 
       console.error = originalConsoleError;
@@ -197,8 +197,8 @@ describe('Security & Performance Tests', () => {
 
   describe('Performance Tests', () => {
     it('should handle high-frequency events efficiently', () => {
-      const svgZoom = new SvgZoom(container);
-      svgZoom.init();
+      const svgToolbelt = new SvgToolbelt(container);
+      svgToolbelt.init();
 
       const startTime = performance.now();
       const eventCount = 1000;
@@ -219,12 +219,12 @@ describe('Security & Performance Tests', () => {
       // Should handle 1000 events in reasonable time (less than 1 second)
       expect(duration).toBeLessThan(1000);
 
-      svgZoom.destroy();
+      svgToolbelt.destroy();
     });
 
     it('should efficiently manage DOM updates', () => {
-      const svgZoom = new SvgZoom(container);
-      svgZoom.init();
+      const svgToolbelt = new SvgToolbelt(container);
+      svgToolbelt.init();
 
       // Mock MutationObserver to count DOM changes
       let domMutations = 0;
@@ -239,9 +239,9 @@ describe('Security & Performance Tests', () => {
       // Perform many operations
       for (let i = 0; i < 100; i++) {
         if (i % 2 === 0) {
-          svgZoom.zoomIn();
+          svgToolbelt.zoomIn();
         } else {
-          svgZoom.zoomOut();
+          svgToolbelt.zoomOut();
         }
       }
 
@@ -253,12 +253,12 @@ describe('Security & Performance Tests', () => {
       // Restore original method
       Element.prototype.setAttribute = originalSetAttribute;
 
-      svgZoom.destroy();
+      svgToolbelt.destroy();
     });
 
     it('should handle memory efficiently with rapid operations', () => {
       // Simulate memory pressure testing
-      const instances: SvgZoom[] = [];
+      const instances: SvgToolbelt[] = [];
 
       expect(() => {
         // Create many instances
@@ -270,13 +270,13 @@ describe('Security & Performance Tests', () => {
           testContainer.appendChild(testSvg);
           document.body.appendChild(testContainer);
 
-          const svgZoom = new SvgZoom(testContainer);
-          svgZoom.init();
-          instances.push(svgZoom);
+          const svgToolbelt = new SvgToolbelt(testContainer);
+          svgToolbelt.init();
+          instances.push(svgToolbelt);
 
           // Perform operations
-          svgZoom.zoomIn();
-          svgZoom.zoomOut();
+          svgToolbelt.zoomIn();
+          svgToolbelt.zoomOut();
         }
 
         // Cleanup all instances
@@ -307,14 +307,14 @@ describe('Security & Performance Tests', () => {
         return originalRemoveEventListener.apply(this, args);
       };
 
-      const svgZoom = new SvgZoom(container);
-      svgZoom.init();
+      const svgToolbelt = new SvgToolbelt(container);
+      svgToolbelt.init();
 
       // Perform operations that might add listeners
-      svgZoom.zoomIn();
-      svgZoom.zoomOut();
+      svgToolbelt.zoomIn();
+      svgToolbelt.zoomOut();
 
-      svgZoom.destroy();
+      svgToolbelt.destroy();
 
       // After destroy, most listeners should be removed
       // Allow for some system listeners that might not be removed
@@ -327,8 +327,8 @@ describe('Security & Performance Tests', () => {
     });
 
     it('should throttle expensive operations', () => {
-      const svgZoom = new SvgZoom(container);
-      svgZoom.init();
+      const svgToolbelt = new SvgToolbelt(container);
+      svgToolbelt.init();
 
       const originalStyle = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'style');
 
@@ -354,9 +354,9 @@ describe('Security & Performance Tests', () => {
 
       // Perform rapid pan operations
       for (let i = 0; i < 100; i++) {
-        svgZoom.translateX = i;
-        svgZoom.translateY = i;
-        svgZoom.constrainPan();
+        svgToolbelt.translateX = i;
+        svgToolbelt.translateY = i;
+        svgToolbelt.constrainPan();
       }
 
       const endTime = performance.now();
@@ -369,24 +369,24 @@ describe('Security & Performance Tests', () => {
         Object.defineProperty(HTMLElement.prototype, 'style', originalStyle);
       }
 
-      svgZoom.destroy();
+      svgToolbelt.destroy();
     });
 
     it('should handle stress testing with concurrent operations', () => {
-      const svgZoom = new SvgZoom(container, {
+      const svgToolbelt = new SvgToolbelt(container, {
         showControls: true,
         enableTouch: true,
         enableKeyboard: true,
         showZoomLevelIndicator: true
       });
-      svgZoom.init();
+      svgToolbelt.init();
 
       expect(() => {
         // Simulate concurrent user interactions
         const operations = [
-          () => svgZoom.zoomIn(),
-          () => svgZoom.zoomOut(),
-          () => svgZoom.reset(),
+          () => svgToolbelt.zoomIn(),
+          () => svgToolbelt.zoomOut(),
+          () => svgToolbelt.reset(),
           () => {
             const wheelEvent = new WheelEvent('wheel', {
               deltaY: 100,
@@ -411,65 +411,65 @@ describe('Security & Performance Tests', () => {
         }
       }).not.toThrow();
 
-      svgZoom.destroy();
+      svgToolbelt.destroy();
     });
   });
 
   describe('Resource Management', () => {
     it('should properly cleanup all resources on destroy', () => {
-      const svgZoom = new SvgZoom(container, {
+      const svgToolbelt = new SvgToolbelt(container, {
         showControls: true,
         enableTouch: true,
         enableKeyboard: true,
         showZoomLevelIndicator: true
       });
-      svgZoom.init();
+      svgToolbelt.init();
 
       // Get reference to added elements
       const controlsContainer = container.querySelector('.svg-toolbelt-controls');
 
       expect(controlsContainer).toBeTruthy();
 
-      svgZoom.destroy();
+      svgToolbelt.destroy();
 
       // Check that resources are cleaned up
-      expect(svgZoom.isDestroyed).toBe(true);
-      expect(Object.keys(svgZoom.features).length).toBe(0);
+      expect(svgToolbelt.isDestroyed).toBe(true);
+      expect(Object.keys(svgToolbelt.features).length).toBe(0);
 
       // Verify no dangling timers or intervals
       expect(() => {
         // Multiple destroy calls should be safe
-        svgZoom.destroy();
-        svgZoom.destroy();
+        svgToolbelt.destroy();
+        svgToolbelt.destroy();
       }).not.toThrow();
     });
 
     it('should handle resource cleanup with missing elements', () => {
-      const svgZoom = new SvgZoom(container);
-      svgZoom.init();
+      const svgToolbelt = new SvgToolbelt(container);
+      svgToolbelt.init();
 
       // Remove SVG element before destroy
       svgElement.remove();
 
       expect(() => {
-        svgZoom.destroy();
+        svgToolbelt.destroy();
       }).not.toThrow();
     });
 
     it('should prevent operations after destroy', () => {
-      const svgZoom = new SvgZoom(container);
-      svgZoom.init();
-      svgZoom.destroy();
+      const svgToolbelt = new SvgToolbelt(container);
+      svgToolbelt.init();
+      svgToolbelt.destroy();
 
       expect(() => {
-        svgZoom.zoomIn();
-        svgZoom.zoomOut();
-        svgZoom.reset();
-        svgZoom.constrainPan();
+        svgToolbelt.zoomIn();
+        svgToolbelt.zoomOut();
+        svgToolbelt.reset();
+        svgToolbelt.constrainPan();
       }).not.toThrow();
 
       // Operations should have no effect after destroy
-      expect(svgZoom.isDestroyed).toBe(true);
+      expect(svgToolbelt.isDestroyed).toBe(true);
     });
   });
 });
