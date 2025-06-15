@@ -95,7 +95,7 @@ pnpm add svg-toolbelt
 
 ```html
 <script type="module">
-  import { initializeSvgZoom } from 'https://unpkg.com/svg-toolbelt@latest/dist/svg-toolbelt.esm.js';
+  import { initializeSvgToolbelt } from 'https://unpkg.com/svg-toolbelt@latest/dist/svg-toolbelt.esm.js';
   // Your code here
 </script>
 ```
@@ -123,10 +123,10 @@ import 'svg-toolbelt/dist/svg-toolbelt.css';
 #### Auto-initialize (recommended for most cases)
 
 ```typescript
-import { initializeSvgZoom } from 'svg-toolbelt';
+import { initializeSvgToolbelt } from 'svg-toolbelt';
 
 // Initialize all elements with the class 'zoomable'
-initializeSvgZoom('.zoomable');
+initializeSvgToolbelt('.zoomable');
 ```
 
 ```html
@@ -141,10 +141,10 @@ initializeSvgZoom('.zoomable');
 #### Manual instantiation (for more control)
 
 ```typescript
-import { SvgZoom } from 'svg-toolbelt';
+import { SvgToolbelt } from 'svg-toolbelt';
 
 const container = document.querySelector('#my-diagram');
-const enhancer = new SvgZoom(container, {
+const enhancer = new SvgToolbelt(container, {
   minScale: 0.2,
   maxScale: 8,
   zoomStep: 0.15,
@@ -168,7 +168,7 @@ enhancer.destroy();
 
 ## 📖 API Reference
 
-### `SvgZoom` Class
+### `SvgToolbelt` Class
 
 The main class that provides all zoom/pan functionality.
 
@@ -200,12 +200,12 @@ enhancer.on('pan', ({ translateX, translateY }) => {
 });
 ```
 
-### `initializeSvgZoom` Function
+### `initializeSvgToolbelt` Function
 
 Convenience function for batch initialization.
 
 ```typescript
-function initializeSvgZoom(
+function initializeSvgToolbelt(
   selectorOrElements: string | HTMLElement | HTMLElement[],
   config?: Partial<SvgEnhancerConfig>
 ): void
@@ -220,18 +220,18 @@ function initializeSvgZoom(
 
 ```typescript
 // CSS selector
-initializeSvgZoom('.diagram');
+initializeSvgToolbelt('.diagram');
 
 // Single element
 const chart = document.querySelector('#chart');
-initializeSvgZoom(chart);
+initializeSvgToolbelt(chart);
 
 // Array of elements
 const diagrams = document.querySelectorAll('.svg-container');
-initializeSvgZoom(Array.from(diagrams));
+initializeSvgToolbelt(Array.from(diagrams));
 
 // With custom config
-initializeSvgZoom('.large-diagrams', {
+initializeSvgToolbelt('.large-diagrams', {
   minScale: 0.1,
   maxScale: 20,
   controlsPosition: 'bottom-right'
@@ -273,7 +273,7 @@ interface SvgEnhancerConfig {
 
 ```typescript
 // Minimal zoom-only setup
-const minimal = new SvgZoom(container, {
+const minimal = new SvgToolbelt(container, {
   showControls: false,
   enableKeyboard: false,
   enableTouch: false,
@@ -281,7 +281,7 @@ const minimal = new SvgZoom(container, {
 });
 
 // Large diagram optimized
-const largeDiagram = new SvgZoom(container, {
+const largeDiagram = new SvgToolbelt(container, {
   minScale: 0.05,
   maxScale: 50,
   zoomStep: 0.2,
@@ -289,7 +289,7 @@ const largeDiagram = new SvgZoom(container, {
 });
 
 // Mobile-optimized
-const mobile = new SvgZoom(container, {
+const mobile = new SvgToolbelt(container, {
   zoomStep: 0.25,  // Bigger steps for touch
   transitionDuration: 150,  // Faster animations
   enableKeyboard: false     // Focus on touch
@@ -419,7 +419,7 @@ Built-in responsive breakpoints:
 
 ```tsx
 import React, { useEffect, useRef } from 'react';
-import { SvgZoom, SvgEnhancerConfig } from 'svg-toolbelt';
+import { SvgToolbelt, SvgEnhancerConfig } from 'svg-toolbelt';
 import 'svg-toolbelt/dist/svg-toolbelt.css';
 
 interface ZoomableSvgProps {
@@ -430,11 +430,11 @@ interface ZoomableSvgProps {
 
 export function ZoomableSvg({ children, config, className }: ZoomableSvgProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const enhancerRef = useRef<SvgZoom>();
+  const enhancerRef = useRef<SvgToolbelt>();
 
   useEffect(() => {
     if (containerRef.current) {
-      enhancerRef.current = new SvgZoom(containerRef.current, config);
+      enhancerRef.current = new SvgToolbelt(containerRef.current, config);
       enhancerRef.current.init();
     }
 
@@ -473,7 +473,7 @@ function MyComponent() {
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
-import { SvgZoom, SvgEnhancerConfig } from 'svg-toolbelt';
+import { SvgToolbelt, SvgEnhancerConfig } from 'svg-toolbelt';
 import 'svg-toolbelt/dist/svg-toolbelt.css';
 
 interface Props {
@@ -483,11 +483,11 @@ interface Props {
 
 const props = defineProps<Props>();
 const containerRef = ref<HTMLElement>();
-let enhancer: SvgZoom;
+let enhancer: SvgToolbelt;
 
 onMounted(() => {
   if (containerRef.value) {
-    enhancer = new SvgZoom(containerRef.value, props.config);
+    enhancer = new SvgToolbelt(containerRef.value, props.config);
     enhancer.init();
   }
 });
@@ -502,7 +502,7 @@ onUnmounted(() => {
 
 ```typescript
 import { Component, ElementRef, Input, OnInit, OnDestroy } from '@angular/core';
-import { SvgZoom, SvgEnhancerConfig } from 'svg-toolbelt';
+import { SvgToolbelt, SvgEnhancerConfig } from 'svg-toolbelt';
 import 'svg-toolbelt/dist/svg-toolbelt.css';
 
 @Component({
@@ -513,12 +513,12 @@ import 'svg-toolbelt/dist/svg-toolbelt.css';
 export class ZoomableSvgComponent implements OnInit, OnDestroy {
   @Input() config?: Partial<SvgEnhancerConfig>;
 
-  private enhancer?: SvgZoom;
+  private enhancer?: SvgToolbelt;
 
   constructor(private elementRef: ElementRef<HTMLElement>) {}
 
   ngOnInit() {
-    this.enhancer = new SvgZoom(this.elementRef.nativeElement, this.config);
+    this.enhancer = new SvgToolbelt(this.elementRef.nativeElement, this.config);
     this.enhancer.init();
   }
 
@@ -539,7 +539,7 @@ export class ZoomableSvgComponent implements OnInit, OnDestroy {
 document.addEventListener('DOMContentLoaded', () => {
   // Mermaid renders asynchronously
   setTimeout(() => {
-    initializeSvgZoom('.mermaid', {
+    initializeSvgToolbelt('.mermaid', {
       minScale: 0.2,
       maxScale: 6,
       controlsPosition: 'top-right',
@@ -552,7 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
 ### Large System Architecture Diagrams
 
 ```typescript
-initializeSvgZoom('.architecture-diagram', {
+initializeSvgToolbelt('.architecture-diagram', {
   minScale: 0.1,    // Zoom way out to see the big picture
   maxScale: 20,     // Zoom way in to read details
   zoomStep: 0.2,    // Bigger steps for faster navigation
@@ -565,7 +565,7 @@ initializeSvgZoom('.architecture-diagram', {
 ```typescript
 // After D3 or Chart.js renders your SVG
 const chartContainer = d3.select('#chart').node().parentElement;
-const enhancer = new SvgZoom(chartContainer, {
+const enhancer = new SvgToolbelt(chartContainer, {
   enableKeyboard: false,  // Let your chart handle keyboard events
   showControls: false,    // Use your own UI
   enableTouch: true       // Keep touch for mobile users
@@ -577,7 +577,7 @@ enhancer.init();
 
 ```typescript
 // Mobile-optimized configuration
-initializeSvgZoom('.mobile-diagram', {
+initializeSvgToolbelt('.mobile-diagram', {
   zoomStep: 0.25,           // Larger steps for touch
   transitionDuration: 100,  // Faster transitions
   controlsPosition: 'bottom-right',
