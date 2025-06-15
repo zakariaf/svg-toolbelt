@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { SvgZoom } from '../src/index';
+import { SvgToolbelt } from '../src/index';
 
 declare const global: typeof globalThis;
 
@@ -57,24 +57,24 @@ describe('Comprehensive Edge Cases', () => {
       document.body.appendChild(emptyContainer);
 
       expect(() => {
-        const svgZoom = new SvgZoom(emptyContainer);
-        expect(svgZoom.isDestroyed).toBe(true);
-        svgZoom.destroy();
+        const svgToolbelt = new SvgToolbelt(emptyContainer);
+        expect(svgToolbelt.isDestroyed).toBe(true);
+        svgToolbelt.destroy();
       }).not.toThrow();
 
       document.body.removeChild(emptyContainer);
     });
 
     it('should handle multiple initialization calls', () => {
-      const svgZoom = new SvgZoom(container);
+      const svgToolbelt = new SvgToolbelt(container);
 
       expect(() => {
-        svgZoom.init();
-        svgZoom.init(); // Second call should not cause issues
-        svgZoom.init(); // Third call should not cause issues
+        svgToolbelt.init();
+        svgToolbelt.init(); // Second call should not cause issues
+        svgToolbelt.init(); // Third call should not cause issues
       }).not.toThrow();
 
-      svgZoom.destroy();
+      svgToolbelt.destroy();
     });
 
     it('should handle invalid configuration values', () => {
@@ -88,42 +88,42 @@ describe('Comprehensive Edge Cases', () => {
 
       invalidConfigs.forEach(config => {
         expect(() => {
-          const svgZoom = new SvgZoom(container, config);
-          svgZoom.init();
-          svgZoom.zoomIn();
-          svgZoom.zoomOut();
-          svgZoom.destroy();
+          const svgToolbelt = new SvgToolbelt(container, config);
+          svgToolbelt.init();
+          svgToolbelt.zoomIn();
+          svgToolbelt.zoomOut();
+          svgToolbelt.destroy();
         }).not.toThrow();
       });
     });
 
     it('should handle extremely large and small scale values', () => {
-      const svgZoom = new SvgZoom(container, {
+      const svgToolbelt = new SvgToolbelt(container, {
         minScale: 0.001,
         maxScale: 1000
       });
-      svgZoom.init();
+      svgToolbelt.init();
 
       expect(() => {
         // Test extreme zoom out
         for (let i = 0; i < 100; i++) {
-          svgZoom.zoomOut();
+          svgToolbelt.zoomOut();
         }
 
         // Test extreme zoom in
         for (let i = 0; i < 100; i++) {
-          svgZoom.zoomIn();
+          svgToolbelt.zoomIn();
         }
       }).not.toThrow();
 
-      svgZoom.destroy();
+      svgToolbelt.destroy();
     });
   });
 
   describe('Event Handling Edge Cases', () => {
     it('should handle rapid successive events', () => {
-      const svgZoom = new SvgZoom(container);
-      svgZoom.init();
+      const svgToolbelt = new SvgToolbelt(container);
+      svgToolbelt.init();
 
       expect(() => {
         // Simulate rapid wheel events
@@ -137,12 +137,12 @@ describe('Comprehensive Edge Cases', () => {
         }
       }).not.toThrow();
 
-      svgZoom.destroy();
+      svgToolbelt.destroy();
     });
 
     it('should handle malformed event objects', () => {
-      const svgZoom = new SvgZoom(container, { enableTouch: true });
-      svgZoom.init();
+      const svgToolbelt = new SvgToolbelt(container, { enableTouch: true });
+      svgToolbelt.init();
 
       const malformedEvents = [
         // Touch event with no touches
@@ -169,13 +169,13 @@ describe('Comprehensive Edge Cases', () => {
         }).not.toThrow();
       });
 
-      svgZoom.destroy();
+      svgToolbelt.destroy();
     });
 
     it('should handle events on destroyed instance', () => {
-      const svgZoom = new SvgZoom(container);
-      svgZoom.init();
-      svgZoom.destroy();
+      const svgToolbelt = new SvgToolbelt(container);
+      svgToolbelt.init();
+      svgToolbelt.destroy();
 
       expect(() => {
         const wheelEvent = new WheelEvent('wheel', {
@@ -196,27 +196,27 @@ describe('Comprehensive Edge Cases', () => {
 
   describe('Zoom and Pan Boundary Conditions', () => {
     it('should handle zoom at exact min/max boundaries', () => {
-      const svgZoom = new SvgZoom(container, {
+      const svgToolbelt = new SvgToolbelt(container, {
         minScale: 0.5,
         maxScale: 2.0
       });
-      svgZoom.init();
+      svgToolbelt.init();
 
       // Set to exact minimum
-      svgZoom.scale = 0.5;
+      svgToolbelt.scale = 0.5;
       expect(() => {
-        svgZoom.zoomOut(); // Should not go below min
+        svgToolbelt.zoomOut(); // Should not go below min
       }).not.toThrow();
-      expect(svgZoom.scale).toBeGreaterThanOrEqual(0.5);
+      expect(svgToolbelt.scale).toBeGreaterThanOrEqual(0.5);
 
       // Set to exact maximum
-      svgZoom.scale = 2.0;
+      svgToolbelt.scale = 2.0;
       expect(() => {
-        svgZoom.zoomIn(); // Should not go above max
+        svgToolbelt.zoomIn(); // Should not go above max
       }).not.toThrow();
-      expect(svgZoom.scale).toBeLessThanOrEqual(2.0);
+      expect(svgToolbelt.scale).toBeLessThanOrEqual(2.0);
 
-      svgZoom.destroy();
+      svgToolbelt.destroy();
     });
 
     it('should handle pan constraints with various content sizes', () => {
@@ -241,19 +241,19 @@ describe('Comprehensive Edge Cases', () => {
         document.body.appendChild(testContainer);
 
         expect(() => {
-          const svgZoom = new SvgZoom(testContainer);
-          svgZoom.init();
+          const svgToolbelt = new SvgToolbelt(testContainer);
+          svgToolbelt.init();
 
           // Test extreme pan values
-          svgZoom.translateX = 10000;
-          svgZoom.translateY = 10000;
-          svgZoom.constrainPan();
+          svgToolbelt.translateX = 10000;
+          svgToolbelt.translateY = 10000;
+          svgToolbelt.constrainPan();
 
-          svgZoom.translateX = -10000;
-          svgZoom.translateY = -10000;
-          svgZoom.constrainPan();
+          svgToolbelt.translateX = -10000;
+          svgToolbelt.translateY = -10000;
+          svgToolbelt.constrainPan();
 
-          svgZoom.destroy();
+          svgToolbelt.destroy();
         }).not.toThrow();
 
         document.body.removeChild(testContainer);
@@ -261,44 +261,44 @@ describe('Comprehensive Edge Cases', () => {
     });
 
     it('should handle zero and negative zoom steps', () => {
-      const svgZoom = new SvgZoom(container, { zoomStep: 0 });
-      svgZoom.init();
+      const svgToolbelt = new SvgToolbelt(container, { zoomStep: 0 });
+      svgToolbelt.init();
 
-      const initialScale = svgZoom.scale;
+      const initialScale = svgToolbelt.scale;
 
       expect(() => {
-        svgZoom.zoomIn();
-        svgZoom.zoomOut();
+        svgToolbelt.zoomIn();
+        svgToolbelt.zoomOut();
       }).not.toThrow();
 
       // Scale should remain unchanged with zero step
-      expect(svgZoom.scale).toBe(initialScale);
+      expect(svgToolbelt.scale).toBe(initialScale);
 
-      svgZoom.destroy();
+      svgToolbelt.destroy();
     });
   });
 
   describe('DOM Manipulation Edge Cases', () => {
     it('should handle container removal during operation', () => {
-      const svgZoom = new SvgZoom(container);
-      svgZoom.init();
+      const svgToolbelt = new SvgToolbelt(container);
+      svgToolbelt.init();
 
       expect(() => {
         // Remove container from DOM
         container.remove();
 
         // Try to perform operations
-        svgZoom.zoomIn();
-        svgZoom.zoomOut();
-        svgZoom.reset();
+        svgToolbelt.zoomIn();
+        svgToolbelt.zoomOut();
+        svgToolbelt.reset();
 
-        svgZoom.destroy();
+        svgToolbelt.destroy();
       }).not.toThrow();
     });
 
     it('should handle SVG replacement during operation', () => {
-      const svgZoom = new SvgZoom(container);
-      svgZoom.init();
+      const svgToolbelt = new SvgToolbelt(container);
+      svgToolbelt.init();
 
       expect(() => {
         // Replace SVG element
@@ -309,16 +309,16 @@ describe('Comprehensive Edge Cases', () => {
         container.appendChild(newSvg);
 
         // Try to perform operations
-        svgZoom.zoomIn();
-        svgZoom.zoomOut();
+        svgToolbelt.zoomIn();
+        svgToolbelt.zoomOut();
 
-        svgZoom.destroy();
+        svgToolbelt.destroy();
       }).not.toThrow();
     });
 
     it('should handle CSS class manipulation conflicts', () => {
-      const svgZoom = new SvgZoom(container, { showControls: true });
-      svgZoom.init();
+      const svgToolbelt = new SvgToolbelt(container, { showControls: true });
+      svgToolbelt.init();
 
       expect(() => {
         // Manually remove classes that the library might expect
@@ -330,10 +330,10 @@ describe('Comprehensive Edge Cases', () => {
         svgElement.classList.add('custom-svg');
 
         // Try operations
-        svgZoom.zoomIn();
-        svgZoom.zoomOut();
+        svgToolbelt.zoomIn();
+        svgToolbelt.zoomOut();
 
-        svgZoom.destroy();
+        svgToolbelt.destroy();
       }).not.toThrow();
     });
   });
@@ -345,9 +345,9 @@ describe('Comprehensive Edge Cases', () => {
 
         // Create multiple instances
         for (let i = 0; i < 10; i++) {
-          const svgZoom = new SvgZoom(container);
-          svgZoom.init();
-          instances.push(svgZoom);
+          const svgToolbelt = new SvgToolbelt(container);
+          svgToolbelt.init();
+          instances.push(svgToolbelt);
         }
 
         // Perform operations on all instances
@@ -365,26 +365,26 @@ describe('Comprehensive Edge Cases', () => {
 
     it('should handle destroy before init', () => {
       expect(() => {
-        const svgZoom = new SvgZoom(container);
-        svgZoom.destroy(); // Destroy before init
-        svgZoom.init(); // Should handle gracefully
-        svgZoom.destroy(); // Second destroy should be safe
+        const svgToolbelt = new SvgToolbelt(container);
+        svgToolbelt.destroy(); // Destroy before init
+        svgToolbelt.init(); // Should handle gracefully
+        svgToolbelt.destroy(); // Second destroy should be safe
       }).not.toThrow();
     });
 
     it('should handle rapid create/destroy cycles', () => {
       expect(() => {
         for (let i = 0; i < 100; i++) {
-          const svgZoom = new SvgZoom(container);
-          svgZoom.init();
+          const svgToolbelt = new SvgToolbelt(container);
+          svgToolbelt.init();
 
           if (i % 2 === 0) {
-            svgZoom.zoomIn();
+            svgToolbelt.zoomIn();
           } else {
-            svgZoom.zoomOut();
+            svgToolbelt.zoomOut();
           }
 
-          svgZoom.destroy();
+          svgToolbelt.destroy();
         }
       }).not.toThrow();
     });
@@ -400,11 +400,11 @@ describe('Comprehensive Edge Cases', () => {
       delete (global as any).cancelAnimationFrame;
 
       expect(() => {
-        const svgZoom = new SvgZoom(container);
-        svgZoom.init();
-        svgZoom.zoomIn();
-        svgZoom.reset(); // Uses animation
-        svgZoom.destroy();
+        const svgToolbelt = new SvgToolbelt(container);
+        svgToolbelt.init();
+        svgToolbelt.zoomIn();
+        svgToolbelt.reset(); // Uses animation
+        svgToolbelt.destroy();
       }).not.toThrow();
 
       // Restore
@@ -424,15 +424,15 @@ describe('Comprehensive Edge Cases', () => {
       });
 
       expect(() => {
-        const svgZoom = new SvgZoom(container);
-        svgZoom.init();
+        const svgToolbelt = new SvgToolbelt(container);
+        svgToolbelt.init();
 
-        if (svgZoom.features.fullscreen) {
+        if (svgToolbelt.features.fullscreen) {
           // Should handle fullscreen API errors gracefully
-          expect(svgZoom.features.fullscreen).toBeTruthy();
+          expect(svgToolbelt.features.fullscreen).toBeTruthy();
         }
 
-        svgZoom.destroy();
+        svgToolbelt.destroy();
       }).not.toThrow();
     });
 
@@ -455,8 +455,8 @@ describe('Comprehensive Edge Cases', () => {
         }
       ];
 
-      const svgZoom = new SvgZoom(container, { enableTouch: true });
-      svgZoom.init();
+      const svgToolbelt = new SvgToolbelt(container, { enableTouch: true });
+      svgToolbelt.init();
 
       touchAPIVariations.forEach(createEvent => {
         expect(() => {
@@ -466,91 +466,91 @@ describe('Comprehensive Edge Cases', () => {
         }).not.toThrow();
       });
 
-      svgZoom.destroy();
+      svgToolbelt.destroy();
     });
   });
 
   describe('Configuration Edge Cases', () => {
     it('should handle configuration changes after initialization', () => {
-      const svgZoom = new SvgZoom(container);
-      svgZoom.init();
+      const svgToolbelt = new SvgToolbelt(container);
+      svgToolbelt.init();
 
       expect(() => {
         // Direct config modification (not recommended but should be handled)
-        svgZoom.config.minScale = 0.1;
-        svgZoom.config.maxScale = 5.0;
-        svgZoom.config.zoomStep = 0.2;
+        svgToolbelt.config.minScale = 0.1;
+        svgToolbelt.config.maxScale = 5.0;
+        svgToolbelt.config.zoomStep = 0.2;
 
         // Operations should still work
-        svgZoom.zoomIn();
-        svgZoom.zoomOut();
+        svgToolbelt.zoomIn();
+        svgToolbelt.zoomOut();
 
-        svgZoom.destroy();
+        svgToolbelt.destroy();
       }).not.toThrow();
     });
 
     it('should handle feature toggling', () => {
-      const svgZoom = new SvgZoom(container, {
+      const svgToolbelt = new SvgToolbelt(container, {
         showControls: true,
         enableTouch: true,
         enableKeyboard: true,
         showZoomLevelIndicator: true
       });
-      svgZoom.init();
+      svgToolbelt.init();
 
       expect(() => {
         // Toggle features
-        svgZoom.config.showControls = false;
-        svgZoom.config.enableTouch = false;
-        svgZoom.config.enableKeyboard = false;
-        svgZoom.config.showZoomLevelIndicator = false;
+        svgToolbelt.config.showControls = false;
+        svgToolbelt.config.enableTouch = false;
+        svgToolbelt.config.enableKeyboard = false;
+        svgToolbelt.config.showZoomLevelIndicator = false;
 
         // Should still work
-        svgZoom.zoomIn();
-        svgZoom.zoomOut();
+        svgToolbelt.zoomIn();
+        svgToolbelt.zoomOut();
 
-        svgZoom.destroy();
+        svgToolbelt.destroy();
       }).not.toThrow();
     });
   });
 
   describe('Transform Edge Cases', () => {
     it('should handle extreme transform values', () => {
-      const svgZoom = new SvgZoom(container);
-      svgZoom.init();
+      const svgToolbelt = new SvgToolbelt(container);
+      svgToolbelt.init();
 
       expect(() => {
         // Set extreme values
-        svgZoom.scale = Number.MAX_SAFE_INTEGER;
-        svgZoom.translateX = Number.MAX_SAFE_INTEGER;
-        svgZoom.translateY = Number.MAX_SAFE_INTEGER;
+        svgToolbelt.scale = Number.MAX_SAFE_INTEGER;
+        svgToolbelt.translateX = Number.MAX_SAFE_INTEGER;
+        svgToolbelt.translateY = Number.MAX_SAFE_INTEGER;
 
-        svgZoom.constrainPan();
+        svgToolbelt.constrainPan();
 
         // Reset should handle extreme values
-        svgZoom.reset();
+        svgToolbelt.reset();
 
-        svgZoom.destroy();
+        svgToolbelt.destroy();
       }).not.toThrow();
     });
 
     it('should handle NaN and Infinity values', () => {
-      const svgZoom = new SvgZoom(container);
-      svgZoom.init();
+      const svgToolbelt = new SvgToolbelt(container);
+      svgToolbelt.init();
 
       expect(() => {
         // Set invalid values
-        svgZoom.scale = NaN;
-        svgZoom.translateX = Infinity;
-        svgZoom.translateY = -Infinity;
+        svgToolbelt.scale = NaN;
+        svgToolbelt.translateX = Infinity;
+        svgToolbelt.translateY = -Infinity;
 
         // Operations should handle invalid values gracefully
-        svgZoom.zoomIn();
-        svgZoom.zoomOut();
-        svgZoom.constrainPan();
-        svgZoom.reset();
+        svgToolbelt.zoomIn();
+        svgToolbelt.zoomOut();
+        svgToolbelt.constrainPan();
+        svgToolbelt.reset();
 
-        svgZoom.destroy();
+        svgToolbelt.destroy();
       }).not.toThrow();
     });
   });

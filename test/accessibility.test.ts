@@ -5,13 +5,13 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { SvgZoom } from '../src/index';
+import { SvgToolbelt } from '../src/index';
 
 describe('Accessibility & Cross-Browser Compatibility', () => {
   let container: HTMLElement;
   let svgElement: SVGSVGElement;
   let dom: JSDOM;
-  let svgZoom: SvgZoom;
+  let svgToolbelt: SvgToolbelt;
 
   beforeEach(() => {
     dom = new JSDOM(`
@@ -39,8 +39,8 @@ describe('Accessibility & Cross-Browser Compatibility', () => {
   });
 
   afterEach(() => {
-    if (svgZoom) {
-      svgZoom.destroy();
+    if (svgToolbelt) {
+      svgToolbelt.destroy();
     }
     if (dom) {
       dom.window.close();
@@ -50,17 +50,17 @@ describe('Accessibility & Cross-Browser Compatibility', () => {
 
   describe('WCAG 2.1 Level AA Compliance', () => {
     it('should provide proper ARIA labels and roles', () => {
-      svgZoom = new SvgZoom(container, { enableKeyboard: true });
+      svgToolbelt = new SvgToolbelt(container, { enableKeyboard: true });
 
       expect(svgElement.getAttribute('role')).toBe('img');
       expect(svgElement.getAttribute('aria-label')).toBeTruthy();
       // tabindex is set on container when keyboard is enabled - need to call init()
-      svgZoom.init();
+      svgToolbelt.init();
       expect(container.getAttribute('tabindex')).toBe('0');
     });
 
     it('should support keyboard navigation', () => {
-      svgZoom = new SvgZoom(container, { enableKeyboard: true });
+      svgToolbelt = new SvgToolbelt(container, { enableKeyboard: true });
 
       const keyTests = [
         { key: '+', expectedAction: 'zoom_in' },
@@ -87,10 +87,10 @@ describe('Accessibility & Cross-Browser Compatibility', () => {
     });
 
     it('should maintain focus management', () => {
-      svgZoom = new SvgZoom(container, { enableKeyboard: true });
+      svgToolbelt = new SvgToolbelt(container, { enableKeyboard: true });
 
       // Initialize to set up keyboard feature
-      svgZoom.init();
+      svgToolbelt.init();
       expect(container.getAttribute('tabindex')).toBe('0');
 
       // Should handle focus events
@@ -101,7 +101,7 @@ describe('Accessibility & Cross-Browser Compatibility', () => {
     });
 
     it('should provide screen reader compatible announcements', () => {
-      svgZoom = new SvgZoom(container, {
+      svgToolbelt = new SvgToolbelt(container, {
         enableKeyboard: true,
         showZoomLevelIndicator: true
       });
@@ -125,7 +125,7 @@ describe('Accessibility & Cross-Browser Compatibility', () => {
       });
 
       expect(() => {
-        svgZoom = new SvgZoom(container);
+        svgToolbelt = new SvgToolbelt(container);
       }).not.toThrow();
 
       // Restore original user agent
@@ -141,7 +141,7 @@ describe('Accessibility & Cross-Browser Compatibility', () => {
       delete (globalThis as any).requestAnimationFrame;
 
       expect(() => {
-        svgZoom = new SvgZoom(container);
+        svgToolbelt = new SvgToolbelt(container);
         // Should use fallback timing
       }).not.toThrow();
 
@@ -160,7 +160,7 @@ describe('Accessibility & Cross-Browser Compatibility', () => {
       }
 
       expect(() => {
-        svgZoom = new SvgZoom(container, { enableTouch: true });
+        svgToolbelt = new SvgToolbelt(container, { enableTouch: true });
 
         const touchEvent = new TouchEvent('touchstart', {
           touches: [
@@ -191,7 +191,7 @@ describe('Accessibility & Cross-Browser Compatibility', () => {
         svgElement.setAttribute('viewBox', viewBox);
 
         expect(() => {
-          const zoom = new SvgZoom(container);
+          const zoom = new SvgToolbelt(container);
           zoom.destroy();
         }).not.toThrow();
       });
@@ -205,8 +205,8 @@ describe('Accessibility & Cross-Browser Compatibility', () => {
         (svgElement as any)[apiName] = vi.fn();
 
         expect(() => {
-          svgZoom = new SvgZoom(container, { showControls: true });
-          svgZoom.destroy();
+          svgToolbelt = new SvgToolbelt(container, { showControls: true });
+          svgToolbelt.destroy();
         }).not.toThrow();
 
         delete (svgElement as any)[apiName];
@@ -220,7 +220,7 @@ describe('Accessibility & Cross-Browser Compatibility', () => {
 
       // Create and destroy multiple instances
       for (let i = 0; i < 10; i++) {
-        const zoom = new SvgZoom(container);
+        const zoom = new SvgToolbelt(container);
         zoom.destroy();
       }
 
@@ -233,7 +233,7 @@ describe('Accessibility & Cross-Browser Compatibility', () => {
     });
 
     it('should handle rapid user interactions efficiently', () => {
-      svgZoom = new SvgZoom(container);
+      svgToolbelt = new SvgToolbelt(container);
 
       const startTime = performance.now();
 

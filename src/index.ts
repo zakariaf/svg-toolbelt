@@ -23,7 +23,7 @@ import './styles/svg-toolbelt.css';
  *  - double-click to reset
  *  - disable context menu
  */
-export class SvgZoom extends SvgEnhancer {
+export class SvgToolbelt extends SvgEnhancer {
   constructor(container: HTMLElement, config?: Partial<SvgEnhancerConfig>) {
     super(container, config);
     if (this.isDestroyed) return;
@@ -74,7 +74,18 @@ export class SvgZoom extends SvgEnhancer {
 }
 
 /**
- * Convenience function: auto-initialize zoom on all matching containers.
+ * @deprecated SvgZoom is deprecated and will be removed in a future version. Use SvgToolbelt instead.
+ */
+export class SvgZoom extends SvgToolbelt {
+  constructor(container: HTMLElement, config?: Partial<SvgEnhancerConfig>) {
+    console.warn('SvgZoom is deprecated and will be removed in a future version. Use SvgToolbelt instead.');
+    super(container, config);
+  }
+}
+
+/**
+ * Initializes an SvgToolbelt instance on the given container.
+ * This is a convenience function that creates a new SvgToolbelt instance and calls init() on it.
  *
  * @param selectorOrElements
  *   - If string: CSS selector to find containers holding an <svg> (e.g. ".zoomable-svg")
@@ -82,7 +93,7 @@ export class SvgZoom extends SvgEnhancer {
  *   - If HTMLElement: single container
  * @param config Partial config overrides
  */
-export function initializeSvgZoom(
+export function initializeSvgToolbelt(
   selectorOrElements: string | HTMLElement | HTMLElement[],
   config: Partial<SvgEnhancerConfig> = {}
 ): void {
@@ -99,7 +110,7 @@ export function initializeSvgZoom(
   }
 
   if (containers.length === 0) {
-    console.info('SvgZoom: No containers found to initialize');
+    console.info('SvgToolbelt: No containers found to initialize');
     return;
   }
 
@@ -119,19 +130,30 @@ export function initializeSvgZoom(
         container.parentNode!.insertBefore(wrapper, container);
         wrapper.appendChild(container);
 
-        const zoomInstance = new SvgZoom(wrapper, config);
-        zoomInstance.init();
+        const toolbeltInstance = new SvgToolbelt(wrapper, config);
+        toolbeltInstance.init();
         wrapper.setAttribute('data-svg-toolbelt-initialized', 'true');
         // Store instance for potential future references
-        (wrapper as any).svgZoomInstance = zoomInstance;
-        console.info(`SvgZoom: Initialized zoom for container #${idx + 1}`);
+        (wrapper as any).svgToolbeltInstance = toolbeltInstance;
+        console.info(`SvgToolbelt: Initialized zoom for container #${idx + 1}`);
       } else {
-        console.warn(`SvgZoom: No <svg> found in container #${idx + 1}`);
+        console.warn(`SvgToolbelt: No <svg> found in container #${idx + 1}`);
       }
     } catch (error) {
-      console.error(`SvgZoom: Failed to initialize #${idx + 1}:`, error);
+      console.error(`SvgToolbelt: Failed to initialize #${idx + 1}:`, error);
     }
   });
+}
+
+/**
+ * @deprecated initializeSvgZoom is deprecated and will be removed in a future version. Use initializeSvgToolbelt instead.
+ */
+export function initializeSvgZoom(
+  selectorOrElements: string | HTMLElement | HTMLElement[],
+  config: Partial<SvgEnhancerConfig> = {}
+): void {
+  console.warn('initializeSvgZoom is deprecated and will be removed in a future version. Use initializeSvgToolbelt instead.');
+  initializeSvgToolbelt(selectorOrElements, config);
 }
 
 // Export individual features for advanced use cases

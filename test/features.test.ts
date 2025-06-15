@@ -4,7 +4,7 @@
 
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { SvgEnhancer } from '../src/core/base';
-import { SvgZoom } from '../src/index';
+import { SvgToolbelt } from '../src/index';
 import { ZoomFeature } from '../src/features/zoom';
 import { PanFeature } from '../src/features/pan';
 import { KeyboardFeature } from '../src/features/keyboard';
@@ -184,7 +184,7 @@ describe('Feature modules', () => {
         writable: true
       });
 
-      const enhancer = new SvgZoom(container, { showControls: true });
+      const enhancer = new SvgToolbelt(container, { showControls: true });
       enhancer.init();
 
       const controls = container.querySelector('.svg-toolbelt-controls');
@@ -212,7 +212,7 @@ describe('Feature modules', () => {
         configurable: true
       });
 
-      const enhancer = new SvgZoom(container, { showControls: true });
+      const enhancer = new SvgToolbelt(container, { showControls: true });
       enhancer.init();
 
       const controls = container.querySelector('.svg-toolbelt-controls');
@@ -228,7 +228,7 @@ describe('Feature modules', () => {
     });
 
     it('should handle reset button functionality', () => {
-      const enhancer = new SvgZoom(container, { showControls: true });
+      const enhancer = new SvgToolbelt(container, { showControls: true });
       enhancer.init();
 
       // Modify transform
@@ -260,8 +260,8 @@ describe('Feature modules', () => {
       testContainer.appendChild(testSvg);
       document.body.appendChild(testContainer);
 
-      const svgZoom = new SvgZoom(testContainer, { showControls: true });
-      svgZoom.init();
+      const svgToolbeltInstance = new SvgToolbelt(testContainer, { showControls: true });
+      svgToolbeltInstance.init();
 
       const controls = testContainer.querySelector('.svg-toolbelt-controls');
       expect(controls).toBeTruthy();
@@ -282,7 +282,7 @@ describe('Feature modules', () => {
       });
 
       // Cleanup
-      svgZoom.destroy();
+      svgToolbeltInstance.destroy();
       document.body.removeChild(testContainer);
     });
   });
@@ -303,7 +303,7 @@ describe('Feature modules', () => {
         configurable: true
       });
 
-      const enhancer = new SvgZoom(container);
+      const enhancer = new SvgToolbelt(container);
       enhancer.init();
 
       if (enhancer.features.fullscreen) {
@@ -328,7 +328,7 @@ describe('Feature modules', () => {
       // Mock requestFullscreen to reject
       container.requestFullscreen = vi.fn().mockRejectedValue(new Error('Request failed'));
 
-      const enhancer = new SvgZoom(container);
+      const enhancer = new SvgToolbelt(container);
       enhancer.init();
 
       if (enhancer.features.fullscreen) {
@@ -344,7 +344,7 @@ describe('Feature modules', () => {
 
   describe('Zoom feature edge cases', () => {
     it('should handle zoom when enhancer is destroyed', () => {
-      const enhancer = new SvgZoom(container);
+      const enhancer = new SvgToolbelt(container);
       enhancer.init();
 
       // Mark as destroyed
@@ -587,28 +587,28 @@ describe('Feature modules', () => {
   });
 
   describe('Feature Configuration Coverage', () => {
-    it('should handle SvgZoom constructor with all features disabled', () => {
+    it('should handle SvgToolbelt constructor with all features disabled', () => {
       // Create DOM structure for this test
       const testContainer = document.createElement('div');
       const testSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       testContainer.appendChild(testSvg);
       document.body.appendChild(testContainer);
 
-      const svgZoom = new SvgZoom(testContainer, {
+      const svgToolbeltInstance = new SvgToolbelt(testContainer, {
         enableTouch: false,
         enableKeyboard: false,
         showControls: false,
         showZoomLevelIndicator: false
       });
 
-      expect(svgZoom.features.touch).toBeNull();
-      expect(svgZoom.features.keyboard).toBeNull();
-      expect(svgZoom.features.controls).toBeNull();
-      expect(svgZoom.features.zoomLevelIndicator).toBeNull();
-      expect(svgZoom.features.fullscreen).toBeNull(); // fullscreenEnabled is false in test env
+      expect(svgToolbeltInstance.features.touch).toBeNull();
+      expect(svgToolbeltInstance.features.keyboard).toBeNull();
+      expect(svgToolbeltInstance.features.controls).toBeNull();
+      expect(svgToolbeltInstance.features.zoomLevelIndicator).toBeNull();
+      expect(svgToolbeltInstance.features.fullscreen).toBeNull(); // fullscreenEnabled is false in test env
 
       // Cleanup
-      svgZoom.destroy();
+      svgToolbeltInstance.destroy();
       document.body.removeChild(testContainer);
     });
 
@@ -618,7 +618,7 @@ describe('Feature modules', () => {
       testContainer.appendChild(testSvg);
       document.body.appendChild(testContainer);
 
-      const svgZoom = new SvgZoom(testContainer);
+      const svgToolbeltInstance = new SvgToolbelt(testContainer);
 
       // Test wheel events on SVG
       const wheelEvent = new WheelEvent('wheel', {
@@ -646,7 +646,7 @@ describe('Feature modules', () => {
       }).not.toThrow();
 
       // Cleanup
-      svgZoom.destroy();
+      svgToolbeltInstance.destroy();
       document.body.removeChild(testContainer);
     });
   });
@@ -658,8 +658,8 @@ describe('Feature modules', () => {
       testContainer.appendChild(testSvg);
       document.body.appendChild(testContainer);
 
-      const svgZoom = new SvgZoom(testContainer, { showControls: true });
-      svgZoom.init();
+      const svgToolbeltInstance = new SvgToolbelt(testContainer, { showControls: true });
+      svgToolbeltInstance.init();
 
       const controls = testContainer.querySelector('.svg-toolbelt-controls');
       expect(controls).toBeTruthy();
@@ -668,9 +668,9 @@ describe('Feature modules', () => {
       const zoomInBtn = testContainer.querySelector('button[title="Zoom In"]') as HTMLButtonElement;
       expect(zoomInBtn).toBeTruthy();
 
-      const initialScale = svgZoom.scale;
+      const initialScale = svgToolbeltInstance.scale;
       zoomInBtn.click();
-      expect(svgZoom.scale).toBeGreaterThan(initialScale);
+      expect(svgToolbeltInstance.scale).toBeGreaterThan(initialScale);
 
       // Test zoom out button (line 30 in controls.ts)
       const zoomOutBtn = testContainer.querySelector('button[title="Zoom Out"]') as HTMLButtonElement;
@@ -678,20 +678,20 @@ describe('Feature modules', () => {
       zoomOutBtn.click();
 
       // Test reset button (line 40 in controls.ts)
-      svgZoom.scale = 2;
-      svgZoom.translateX = 50;
-      svgZoom.translateY = 100;
+      svgToolbeltInstance.scale = 2;
+      svgToolbeltInstance.translateX = 50;
+      svgToolbeltInstance.translateY = 100;
 
       const resetBtn = testContainer.querySelector('button[title="Reset Zoom"]') as HTMLButtonElement;
       expect(resetBtn).toBeTruthy();
       resetBtn.click();
 
-      expect(svgZoom.scale).toBe(1);
-      expect(svgZoom.translateX).toBe(0);
-      expect(svgZoom.translateY).toBe(0);
+      expect(svgToolbeltInstance.scale).toBe(1);
+      expect(svgToolbeltInstance.translateX).toBe(0);
+      expect(svgToolbeltInstance.translateY).toBe(0);
 
       // Cleanup
-      svgZoom.destroy();
+      svgToolbeltInstance.destroy();
       document.body.removeChild(testContainer);
     });
 
@@ -701,43 +701,43 @@ describe('Feature modules', () => {
       testContainer.appendChild(testSvg);
       document.body.appendChild(testContainer);
 
-      const svgZoom = new SvgZoom(testContainer, { enableKeyboard: true });
-      svgZoom.init();
+      const svgToolbeltInstance = new SvgToolbelt(testContainer, { enableKeyboard: true });
+      svgToolbeltInstance.init();
 
       // Test '0' key for reset (lines 35-37 in keyboard.ts)
-      svgZoom.scale = 2;
-      svgZoom.translateX = 50;
-      svgZoom.translateY = 100;
+      svgToolbeltInstance.scale = 2;
+      svgToolbeltInstance.translateX = 50;
+      svgToolbeltInstance.translateY = 100;
 
       const resetKeyEvent = new KeyboardEvent('keydown', { key: '0', bubbles: true });
       testContainer.dispatchEvent(resetKeyEvent);
 
-      expect(svgZoom.scale).toBe(1);
-      expect(svgZoom.translateX).toBe(0);
-      expect(svgZoom.translateY).toBe(0);
+      expect(svgToolbeltInstance.scale).toBe(1);
+      expect(svgToolbeltInstance.translateX).toBe(0);
+      expect(svgToolbeltInstance.translateY).toBe(0);
 
       // Test arrow keys for panning (lines 46-51 in keyboard.ts)
-      const initialTranslateX = svgZoom.translateX;
-      const initialTranslateY = svgZoom.translateY;
+      const initialTranslateX = svgToolbeltInstance.translateX;
+      const initialTranslateY = svgToolbeltInstance.translateY;
 
       // Test ArrowDown (lines 46-51)
       const arrowDownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true });
       testContainer.dispatchEvent(arrowDownEvent);
-      expect(svgZoom.translateY).toBe(initialTranslateY - 20); // step = 20
+      expect(svgToolbeltInstance.translateY).toBe(initialTranslateY - 20); // step = 20
 
       // Test ArrowLeft (lines 46-51)
       const arrowLeftEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true });
       testContainer.dispatchEvent(arrowLeftEvent);
-      expect(svgZoom.translateX).toBe(initialTranslateX + 20); // step = 20
+      expect(svgToolbeltInstance.translateX).toBe(initialTranslateX + 20); // step = 20
 
       // Test ArrowRight (lines 46-51)
       const arrowRightEvent = new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true });
       testContainer.dispatchEvent(arrowRightEvent);
-      expect(svgZoom.translateX).toBe(initialTranslateX); // back to initial
+      expect(svgToolbeltInstance.translateX).toBe(initialTranslateX); // back to initial
 
       // Test line 68 - destroy method
-      svgZoom.destroy();
-      expect(svgZoom.isDestroyed).toBe(true);
+      svgToolbeltInstance.destroy();
+      expect(svgToolbeltInstance.isDestroyed).toBe(true);
 
       // Cleanup
       document.body.removeChild(testContainer);
@@ -749,8 +749,8 @@ describe('Feature modules', () => {
       testContainer.appendChild(testSvg);
       document.body.appendChild(testContainer);
 
-      const svgZoom = new SvgZoom(testContainer, { enableTouch: true });
-      svgZoom.init();
+      const svgToolbeltInstance = new SvgToolbelt(testContainer, { enableTouch: true });
+      svgToolbeltInstance.init();
 
       // Test malformed touch event (lines 59-60 in touch.ts)
       const malformedTouchEvent = new TouchEvent('touchmove', {
@@ -779,7 +779,7 @@ describe('Feature modules', () => {
       }).not.toThrow();
 
       // Cleanup
-      svgZoom.destroy();
+      svgToolbeltInstance.destroy();
       document.body.removeChild(testContainer);
     });
 
@@ -814,14 +814,14 @@ describe('Feature modules', () => {
         configurable: true
       });
 
-      const svgZoom = new SvgZoom(testContainer);
-      svgZoom.init();
+      const svgToolbelt = new SvgToolbelt(testContainer);
+      svgToolbelt.init();
 
       // Verify fullscreen feature was created
-      expect(svgZoom.features.fullscreen).toBeTruthy();
+      expect(svgToolbelt.features.fullscreen).toBeTruthy();
 
-      if (svgZoom.features.fullscreen) {
-        svgZoom.features.fullscreen.toggleFullscreen();
+      if (svgToolbelt.features.fullscreen) {
+        svgToolbelt.features.fullscreen.toggleFullscreen();
         // Wait for the async operation to complete
         await new Promise(resolve => setTimeout(resolve, 100));
         expect(consoleWarnSpy).toHaveBeenCalledWith('Failed to exit fullscreen');
@@ -843,8 +843,8 @@ describe('Feature modules', () => {
 
       testContainer.requestFullscreen = requestFullscreenMock;
 
-      if (svgZoom.features.fullscreen) {
-        svgZoom.features.fullscreen.toggleFullscreen();
+      if (svgToolbelt.features.fullscreen) {
+        svgToolbelt.features.fullscreen.toggleFullscreen();
         // Wait for the async operation to complete
         await new Promise(resolve => setTimeout(resolve, 100));
         expect(consoleWarnSpy).toHaveBeenCalledWith('Failed to enter fullscreen:', expect.any(Error));
@@ -857,7 +857,7 @@ describe('Feature modules', () => {
       });
 
       consoleWarnSpy.mockRestore();
-      svgZoom.destroy();
+      svgToolbelt.destroy();
       document.body.removeChild(testContainer);
     });
 
@@ -876,11 +876,11 @@ describe('Feature modules', () => {
       writable: true
     });
 
-    const svgZoom = new SvgZoom(testContainer);
-    svgZoom.init();
+    const svgToolbelt = new SvgToolbelt(testContainer);
+    svgToolbelt.init();
 
     // Verify fullscreen feature was created
-    expect(svgZoom.features.fullscreen).toBeTruthy();
+    expect(svgToolbelt.features.fullscreen).toBeTruthy();
 
     // Test 1: Ensure exitFullscreen catch block is hit (lines 20-22)
     Object.defineProperty(document, 'fullscreenElement', {
@@ -896,8 +896,8 @@ describe('Feature modules', () => {
       writable: true
     });
 
-    if (svgZoom.features.fullscreen) {
-      svgZoom.features.fullscreen.toggleFullscreen();
+    if (svgToolbelt.features.fullscreen) {
+      svgToolbelt.features.fullscreen.toggleFullscreen();
       // Give extra time for promise to reject and catch block to execute
       await new Promise(resolve => setTimeout(resolve, 200));
       expect(consoleWarnSpy).toHaveBeenCalledWith('Failed to exit fullscreen');
@@ -915,8 +915,8 @@ describe('Feature modules', () => {
     // Mock requestFullscreen to return a promise that rejects
     testContainer.requestFullscreen = () => Promise.reject(new Error('Mock request error'));
 
-    if (svgZoom.features.fullscreen) {
-      svgZoom.features.fullscreen.toggleFullscreen();
+    if (svgToolbelt.features.fullscreen) {
+      svgToolbelt.features.fullscreen.toggleFullscreen();
       // Give extra time for promise to reject and catch block to execute
       await new Promise(resolve => setTimeout(resolve, 200));
       expect(consoleWarnSpy).toHaveBeenCalledWith('Failed to enter fullscreen:', expect.any(Error));
@@ -929,7 +929,7 @@ describe('Feature modules', () => {
     });
 
     consoleWarnSpy.mockRestore();
-    svgZoom.destroy();
+    svgToolbelt.destroy();
     document.body.removeChild(testContainer);
   });
   });
@@ -940,21 +940,21 @@ describe('Feature modules', () => {
     testContainer.appendChild(testSvg);
     document.body.appendChild(testContainer);
 
-    const svgZoom = new SvgZoom(testContainer, { enableKeyboard: true });
-    svgZoom.init();
+    const svgToolbelt = new SvgToolbelt(testContainer, { enableKeyboard: true });
+    svgToolbelt.init();
 
     // Set initial scale higher than 1
-    svgZoom.scale = 2;
-    const initialScale = svgZoom.scale;
+    svgToolbelt.scale = 2;
+    const initialScale = svgToolbelt.scale;
 
     // Test minus key for zoom out (lines 31-33 in keyboard.ts)
     const minusKeyEvent = new KeyboardEvent('keydown', { key: '-', bubbles: true });
     testContainer.dispatchEvent(minusKeyEvent);
 
-    expect(svgZoom.scale).toBeLessThan(initialScale);
+    expect(svgToolbelt.scale).toBeLessThan(initialScale);
 
     // Cleanup
-    svgZoom.destroy();
+    svgToolbelt.destroy();
     document.body.removeChild(testContainer);
   });
 
@@ -964,20 +964,20 @@ describe('Feature modules', () => {
     testContainer.appendChild(testSvg);
     document.body.appendChild(testContainer);
 
-    const svgZoom = new SvgZoom(testContainer, { enableKeyboard: true });
-    svgZoom.init();
+    const svgToolbelt = new SvgToolbelt(testContainer, { enableKeyboard: true });
+    svgToolbelt.init();
 
     // Ensure keyboard feature exists and has destroy method
-    expect(svgZoom.features.keyboard).toBeTruthy();
-    expect(typeof svgZoom.features.keyboard.destroy).toBe('function');
+    expect(svgToolbelt.features.keyboard).toBeTruthy();
+    expect(typeof svgToolbelt.features.keyboard.destroy).toBe('function');
 
     // Call destroy on the keyboard feature directly (line 68 in keyboard.ts)
     expect(() => {
-      svgZoom.features.keyboard.destroy();
+      svgToolbelt.features.keyboard.destroy();
     }).not.toThrow();
 
     // Cleanup
-    svgZoom.destroy();
+    svgToolbelt.destroy();
     document.body.removeChild(testContainer);
   });
 
@@ -986,8 +986,8 @@ describe('Feature modules', () => {
     testContainer.innerHTML = '<svg><g></g></svg>';
     document.body.appendChild(testContainer);
 
-    const svgZoom = new SvgZoom(testContainer, { enableKeyboard: true });
-    svgZoom.init();
+    const svgToolbelt = new SvgToolbelt(testContainer, { enableKeyboard: true });
+    svgToolbelt.init();
 
     // Test that unhandled keys don't cause errors and hit the default case
     const keyboardEvent = new KeyboardEvent('keydown', {
@@ -1001,7 +1001,7 @@ describe('Feature modules', () => {
     }).not.toThrow();
 
     // Cleanup
-    svgZoom.destroy();
+    svgToolbelt.destroy();
     document.body.removeChild(testContainer);
   });
 });

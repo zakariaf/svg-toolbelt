@@ -484,7 +484,7 @@
   <script src="./dist/svg-toolbelt.cjs.production.min.js"></script>
   <script>
     let currentInstances = [];
-    let SvgZoom;
+    let SvgToolbeltClass;
 
     // Console logging helper
     function logToConsole(message, type = 'info') {
@@ -504,11 +504,12 @@
       try {
         logToConsole('Loading local SVG Toolbelt build...');
 
-        // Get SvgZoom from global scope (CommonJS build)
-        SvgZoom = window.SvgToolbelt?.SvgZoom || window.SvgZoom;
+        // Get SvgToolbelt class from global scope
+        // Assumes UMD/IIFE build creates window.SvgToolbelt object with SvgToolbelt class as a property
+        SvgToolbeltClass = window.SvgToolbelt?.SvgToolbelt;
 
-        if (!SvgZoom) {
-          throw new Error('SvgZoom class not found in global scope. Make sure the CommonJS build loaded properly.');
+        if (!SvgToolbeltClass) {
+          throw new Error('SvgToolbelt class not found (expected at window.SvgToolbelt.SvgToolbelt). Make sure the UMD/IIFE build loaded properly and exposes SvgToolbelt.');
         }
 
         logToConsole('✅ SVG Toolbelt loaded successfully');
@@ -538,7 +539,7 @@
 
         demoContainers.forEach((container, index) => {
           try {
-            const instance = new SvgZoom(container, {
+            const instance = new SvgToolbeltClass(container, {
               zoomStep: 0.1,
               maxScale: 10,
               controlsPosition: 'top-right',
@@ -581,7 +582,7 @@
         try {
           demo1Instance.destroy();
           const demo1Container = document.getElementById('demo1');
-          const newInstance = new SvgZoom(demo1Container, config);
+          const newInstance = new SvgToolbeltClass(demo1Container, config);
           newInstance.init();
           currentInstances[0] = newInstance;
           logToConsole(`🔄 Applied new config to demo 1: ${JSON.stringify(config)}`);
